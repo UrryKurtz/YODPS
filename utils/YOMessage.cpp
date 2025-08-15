@@ -48,9 +48,9 @@ YOTimestamp YOMessage::getTimestamp()
 
 uint8_t *YOMessage::initSize(uint32_t data_size)
 {
-    std::cout << " INIT " << __FUNCTION__ << std::endl;
+    //std::cout << " INIT " << __FUNCTION__ << std::endl;
     m_data.size = YO_MAX_TOPIC_LENGTH + offsetof(YOHeaderBase, data) + data_size;
-    std::cout << " m_data.size " << m_data.size << std::endl;
+    //std::cout << " m_data.size " << m_data.size << std::endl;
     m_data.buffer = (uint8_t*) malloc(m_data.size);
     m_header_ptr  = &((YOHeader*) m_data.buffer)->base;
     m_header_ptr->size = data_size;
@@ -111,6 +111,13 @@ uint8_t *YOMessage::getExtData()
 {
     return m_ext.buffer;
 }
+
+void YOMessage::setExtData(uint8_t *data, uint32_t size)
+{
+    initExtSize(size);
+    memcpy(m_ext.buffer, data, size);
+}
+
 
 uint32_t YOMessage::getExtDataSize()
 {

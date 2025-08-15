@@ -72,10 +72,10 @@ void* worker(void *arg)
         {
             auto begin_s = data_map_.begin();
             tmp_data_.push_back(begin_s->second);
-            std::cout << " LAST SLOT " << last_slot_ << std::endl;
             data_map_.erase(begin_s);
         }
         mutex_.unlock();
+        std::cout << " LAST SLOT " << last_slot_ << std::endl;
 
         for (auto &vec : tmp_data_)
         {
@@ -204,7 +204,8 @@ void start_proxy()
                 data_map_[slot].push_back(sample);
                 mutex_.unlock();
 
-                printf("DONE SLOT: 0x%016X  TS: 0x%016X   Map size: %i MESSAGES: %llu\n", slot, sample->base->timestamp, data_map_.size(), msg_num++);
+                //printf("DONE SLOT: 0x%016lX  TS: 0x%016lX   Map size: %i MESSAGES: %llu\n", slot, sample->base->timestamp, data_map_.size(), msg_num++);
+                //printf("DONE TS: 0x%016lX   Map size: %i MESSAGES: %llu\n", sample->base->timestamp, data_map_.size(), msg_num++);
             }
         }
     }

@@ -106,7 +106,7 @@ void YONode::sendMessage(const char *topic, YOMessage &message)
         std::cout << " SendMessage: " << topic << " is not advertised " << std::endl;
         return;
     }
-    std::cout << " SendMessage: " << topic << std::endl;
+    //std::cout << " SendMessage: " << topic << std::endl;
 
     message.setTopic(topic);
     message.setTimestamp(YONode::getTimestamp());

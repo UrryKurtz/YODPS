@@ -12,11 +12,10 @@
 
 int main(int argc, char **argv)
 {
-
     char *sub = argv[1];
-    std::cout << " SUBSCRIBE" <<  sub << std::endl;
+    std::cout << " ADVERTISE " <<  sub << std::endl;
 
-    YOVariant v("Color", YOVector3List());
+/*    YOVariant v("Color", YOVector3List());
 
     YOVector3List &m = std::get<YOVector3List>(v.m_value);
     std::cout << " size " << m.size() << std::endl;
@@ -65,9 +64,9 @@ int main(int argc, char **argv)
 
     std::cout << " unpack " << out.m_name << std::endl << std::endl << std::endl;
 
-    out.print();
+    out.print();*/
 
-    std::cout << " MSG START " << std::endl;
+    std::cout << " MSG START " << sizeof(tCANData) << std::endl;
 
     YONode node("TEST NODE");
     node.advertise(sub, 0xAA, 0xBB);
@@ -83,9 +82,9 @@ int main(int argc, char **argv)
     {
         (*data)++;
         YOMessage msgA(can);
-        printf("0x%08X DATA %llX\n", msgA.getTimestamp(), *data);
+        //printf("%010llu DATA %010llu\n", msgA.getTimestamp(), *data);
         node.sendMessage(sub, msgA);
-        //usleep(100);
+        //usleep(5);
     }
 }
 

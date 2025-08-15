@@ -96,7 +96,7 @@ enum class YOMessageType : uint32_t
     YOCANFD
 };
 
-enum class YOFrameFormat : uint16_t
+enum class YOFrameFormat : uint32_t
 {
     YO_Unknown,
     YO_JPEG,
@@ -170,10 +170,13 @@ struct tCANFDData
 };
 
 struct YOImageData {
-    YOFrameFormat format;
+    int64_t ts;
+    uint16_t id;
     uint16_t width;
     uint16_t height;
     uint16_t stride;
+    uint32_t size;
+    YOFrameFormat format;
     uint8_t reserved[8];
 };
 

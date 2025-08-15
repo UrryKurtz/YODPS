@@ -17,7 +17,5 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/output/lib)
 
 include_directories(third_party)
 
-add_subdirectory(tools/broker)
-add_subdirectory(tools/adtf_reader)
-add_subdirectory(tools/test)
+add_subdirectory(tools)
 add_subdirectory(utils)

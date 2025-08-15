@@ -46,7 +46,7 @@ public:
         uint8_t *data_ptr = (uint8_t*) &data;
         msgpack::sbuffer buffer;
         YOMessageType data_type = YOMessageType::YOData;
-        std::cout << " CONSTRUCTOR " << std::endl;
+        //std::cout << " CONSTRUCTOR " << std::endl;
 
         if constexpr (std::is_same_v<T, YOImageData>) {
             data_type = YOMessageType::YOImage;
@@ -55,13 +55,13 @@ public:
         } else if constexpr (std::is_same_v<T, tCANFDData>) {
             data_type = YOMessageType::YOCANFD;
         } else if constexpr (std::is_same_v<T, YOVariant>) {
-            std::cout << " CONSTRUCTOR VARIANT " << std::endl;
+            //std::cout << " CONSTRUCTOR VARIANT " << std::endl;
             data_type = YOMessageType::YOConfig;
             msgpack::pack(buffer, data);
             data_size = buffer.size();
             data_ptr = (uint8_t*) buffer.data();
         } else {
-            std::cout << " CONSTRUCTOR DATA" << std::endl;
+            //std::cout << " CONSTRUCTOR DATA" << std::endl;
             //static_assert(dependent_false<T>::value, "Unknown meta type");
         }
 
@@ -86,6 +86,8 @@ public:
     void initData(uint8_t *data, uint32_t size); //COPYING TO A MESSAGE BUFFER
     uint8_t *initSize(uint32_t data_size);
 
+
+    void setExtData(uint8_t *data, uint32_t size);
     uint8_t *getExtData();
     uint32_t getExtDataSize();
     void initExtData(uint8_t *data, uint32_t size);
