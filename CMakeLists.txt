@@ -8,6 +8,8 @@ project (YODPS
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(YODPS_PATH ${CMAKE_SOURCE_DIR})
+
 # Create a simple configuration header
 configure_file(config.h.in config.h)
 
