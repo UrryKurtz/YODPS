@@ -267,9 +267,9 @@ Node* YOViewer::ConvertFrame(std::shared_ptr<YOVariant> frame, int frame_id)
     Node *fnode = world_->CreateChild();
     fnode->SetTemporary(true);
 
-    fnode->SetPosition( *(Vector3*)&transform[yo::k::position].get<YOVector3>());
+    fnode->SetPosition((Vector3&)transform[yo::k::position].get<YOVector3>());
     fnode->SetRotation(Quaternion(rot.x, rot.y, rot.z));
-    fnode->SetScale(*(Vector3*)&transform[yo::k::scale].get<YOVector3>());
+    fnode->SetScale((Vector3&)transform[yo::k::scale].get<YOVector3>());
 
     YOVariant &objects = frame->get(yo::k::objects);
     YOColor4CList &colors = frame->get(yo::k::colors);
@@ -384,7 +384,7 @@ void YOViewer::CreateXYGrid(Node *parent, int cellsX, int cellsY, float spacing,
     grid_cg->SetMaterial(grid_mat);
 }
 
-YOVariant *getConfig(YOVariant  &config, const std::string &path)
+YOVariant *YOViewer::getConfig(YOVariant  &config, const std::string &path)
 {
     YOVariant *res = &config;
     auto plist = split_by_string(path.c_str() + strlen("/config/"), "/");
@@ -402,6 +402,10 @@ YOVariant *getConfig(YOVariant  &config, const std::string &path)
             addr[pos++] = n;
             res = &res->get(n);
         }
+    }
+    if(addr[0]>-1 && addr[1]>-1)
+    {
+        materials_update[addr[0]][addr[1]] = false;
     }
     printf("Changed Input: %d, Type: %d\n", addr[0], addr[1]);
     return res;

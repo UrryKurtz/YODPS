@@ -8,7 +8,11 @@
 #include "YOFlyController.h"
 #include <Urho3D/Core/Attribute.h>
 #include <Urho3D/Input/Input.h>
+#include <Urho3D/Math/Plane.h>
+#include <Urho3D/Math/Ray.h>
 #include <Urho3D/Scene/Node.h>
+#include <Urho3D/Graphics/Camera.h>
+#include <Urho3D/Graphics/Graphics.h>
 
 using namespace Urho3D;
 
@@ -142,11 +146,36 @@ void YOFlyController::ApplyLook(float dyawDeg, float dpitchDeg, float drollDeg)
 void YOFlyController::Update(float dt)
 {
     if (!input_) return;
+    IntVector2 md = input_->GetMouseMove();
 
+    static Plane xyPlane( Vector3::FORWARD,  Vector3::ZERO);
+
+    if (input_->GetMouseButtonDown(MOUSEB_LEFT) && md != IntVector2::ZERO)
+    {
+        IntVector2 p0 = GetSubsystem<Input>()->GetMousePosition();
+        IntVector2 p1 = p0 + md;
+        auto *camera = node_->GetComponent<Camera>();
+        auto* graphics = GetSubsystem<Graphics>();
+
+        float n0x = (float)p0.x_ / graphics->GetWidth();
+        float n0y = (float)p0.y_ / graphics->GetHeight();
+        Ray r0 = camera->GetScreenRay(n0x, n0y);
+        float d0 = r0.HitDistance(xyPlane);
+        Vector3 out0 = r0.origin_ + r0.direction_ * d0;
+
+        float n1x = (float)p1.x_ / graphics->GetWidth();
+        float n1y = (float)p1.y_ / graphics->GetHeight();
+        Ray r1 = camera->GetScreenRay(n1x, n1y);
+        float d1 = r1.HitDistance(xyPlane);
+        Vector3 out1 = r1.origin_ + r1.direction_ * d1;
+
+        //printf("%d %d MOVE from (%f, %f, %f) to (%f, %f, %f) \n", md.x_, md.y_, out0.x_, out0.y_, out0.z_, out1.x_, out1.y_, out1.z_ );
+        node_->Translate(out0 - out1, TS_WORLD);
+    }
     // --- Mouse look (RMB held)
     if (input_->GetMouseButtonDown(MOUSEB_RIGHT))
     {
-        IntVector2 md = input_->GetMouseMove();
+
 
 //        if(md.x_ != 0.0f && md.y_ != 0.0f)
 //        {

@@ -141,7 +141,7 @@ int fn_hdl32(const std::string &topic, std::shared_ptr<YOMessage> message, void 
                 float rcos = r * coss[j];
                 float x = rcos * cos(rot);
                 float y = rcos * sin(rot);
-                float z = r * sins[j] + 2.2f;
+                float z = r * sins[j];
 
                 YOVector3List *list = vert_list[id];
                 list->push_back(YOVector3{x,y,z});

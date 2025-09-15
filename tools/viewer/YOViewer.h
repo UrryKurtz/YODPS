@@ -92,6 +92,7 @@ public:
     void AddFrame(std::shared_ptr<YOVariant> frame, int frame_id);
 
     void createMaterial(int input, int type, YOVariant &style);
+    YOVariant *getConfig(YOVariant  &config, const std::string &path);
 
 private:
     bool exit_;
