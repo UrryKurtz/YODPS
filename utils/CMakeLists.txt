@@ -13,8 +13,9 @@ add_library(${PROJECT_NAME}
 YOMessage.cpp
 YOVariant.cpp
 YONode.cpp
+YOXML.cpp
 )
 
 # Include the configuration header in the build
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/utils)
-target_link_libraries(${PROJECT_NAME} PRIVATE zmq)
+target_link_libraries(${PROJECT_NAME} PRIVATE zmq GL tinyxml2)

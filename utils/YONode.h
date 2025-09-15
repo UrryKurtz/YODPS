@@ -24,6 +24,15 @@ using YOSubSharedFn = int(*)(const std::string &topic, std::shared_ptr<YOMessage
 
 using YOPollFn = int(*)(void *data);
 
+using YOSigFn = void(*)(int signal, void *data);
+struct YOSigData
+{
+    int signal;
+    YOSigFn fn;
+    void *data;
+};
+
+
 struct YOSubData
 {
     std::string topic;
@@ -56,6 +65,7 @@ class YONode {
     YOVariant m_config;
     std::unordered_map<std::string, YOSubData> m_sub_map;
     std::unordered_map<std::string, YOPubData> m_pub_map;
+    std::unordered_map<int, YOSigData> m_sig_map;
 
 public:
 	YONode(const char *node_name = "");
@@ -81,6 +91,8 @@ public:
 	void advertise(const char *topic, uint16_t type = 0, uint16_t subtype = 0);
 
 	void addPollFunction(YOPollFn, void *data);
+	void addSignalFunction(int signal, YOSigFn fn, void *data);
+	YOSigData *getSignalFunction(int signal);
 
 	void setUserData(const char *name, void *data);
 	void *getUserData(const char *name);

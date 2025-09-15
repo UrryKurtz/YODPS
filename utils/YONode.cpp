@@ -9,6 +9,8 @@
 #include <cstdint>
 #include "YONode.h"
 
+YONode *g_node_ = nullptr;
+
 volatile sig_atomic_t stop_flag = 0;
 
 void signal_handler(int signum)
@@ -17,6 +19,12 @@ void signal_handler(int signum)
     {
         std::cout << "\nCTRL+C caught!\n";
         stop_flag = 1;
+    }
+
+    if(YOSigData *sig_data = g_node_->getSignalFunction(signum))
+    {
+        std::cout << "\nCALLING FN FOR " << signum << "\n";
+        sig_data->fn(signum, sig_data->data);
     }
 }
 
@@ -33,6 +41,7 @@ bool YONode::isRunning()
 
 YONode::YONode(const char *node_name)
 {
+    g_node_ = this;
     signal(SIGINT, signal_handler);
     m_poll = malloc(sizeof(zmq_pollitem_t) * 2);
     m_context = zmq_ctx_new();
@@ -68,6 +77,7 @@ YONode::YONode(const char *node_name)
 
 YONode::~YONode()
 {
+    g_node_ = nullptr;
     delete (zmq_pollitem_t*) m_poll;
 }
 
@@ -95,6 +105,19 @@ YOTimestamp YONode::getTimestamp()
 {
     auto now = std::chrono::system_clock::now();
     return std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+}
+
+void YONode::addSignalFunction(int signal, YOSigFn fn, void *data)
+{
+    m_sig_map[signal] = {signal, fn, data};
+}
+YOSigData *YONode::getSignalFunction(int signal)
+{
+    auto it = m_sig_map.find(signal);
+    if (it != m_sig_map.end()) {
+        return &it->second;
+    }
+    return nullptr;
 }
 
 void YONode::sendMessage(const char *topic, YOMessage &message)
@@ -239,7 +262,7 @@ int YONode::getMessage(int wait)
     }
     else
     {
-        logInfo("No message within 1s\n");
+        //logInfo("No message within 1s\n");
     }
     return 0;
 }

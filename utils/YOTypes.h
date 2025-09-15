@@ -67,6 +67,27 @@ struct YOColor4C {
     MSGPACK_DEFINE(r, g, b, a);
 };
 
+struct YOLimitF {
+    float value, min, max, speed;
+    MSGPACK_DEFINE(value, min, max);
+};
+
+struct YOLimitI32 {
+    int32_t value, min, max, speed;
+    MSGPACK_DEFINE(value, min, max, speed);
+};
+
+struct YOLimitU32 {
+    uint32_t value, min, max, speed;
+    MSGPACK_DEFINE(value, min, max, speed);
+};
+
+struct YOStringList {
+    std::vector<std::string> items;
+    int select;
+    MSGPACK_DEFINE(items, select);
+};
+
 using YOData = std::vector<uint8_t>;
 using YODataF = std::vector<float>;
 

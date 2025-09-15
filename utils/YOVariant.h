@@ -33,8 +33,12 @@ std::vector<std::string> split_by_string(const std::string& str, const std::stri
         static const std::string unknown = "unknown";                                    \
         const auto& names = Name##_type_names();                                         \
         return (index < names.size()) ? names[index] : unknown;                          \
-    }
-
+    }                                                                                    \
+    inline int Name##_index_of(const std::string& typeName) {                            \
+       const auto& names = Name##_type_names();                                          \
+       auto it = std::find(names.begin(), names.end(), typeName);                        \
+       return (it != names.end()) ? static_cast<int>(std::distance(names.begin(), it)) : -1; \
+   }
 
 class YOVariant;
 
@@ -43,40 +47,47 @@ using YOArray = std::vector<YOVariant>;
 using YOMap = std::map<std::string, YOVariant>;
 
 YO_DECLARE_VARIANT(YOValue,
-        YOMap,
-        YOArray,
-        YOData,
-        YODataF,
-        std::string,
-        bool,
-        float,
-        double,
-        int8_t,
-        int16_t,
-        int32_t,
-        int64_t,
-        uint8_t,
-        uint16_t,
-        uint32_t,
-        uint64_t,
-        YOIPv4,
-        YOIPv6,
-        YOVector2,
-        YOVector2I,
-        YOVector2U,
-        YOVector3,
-        YOVector4,
-        YOColor3F,
-        YOColor4F,
-        YOColor3C,
-        YOColor4C,
-        YOVector2List,
-        YOVector3List,
-        YOVector4List,
-        YOColor3FList,
-        YOColor4FList,
-        YOColor3CList,
-        YOColor4CList)
+        YOMap,      //0
+        YOArray,    //1
+        YOData,     //2
+        YODataF,    //3
+        std::string,//4
+        YOStringList, //5
+        bool,       //6
+        float,      //7
+        double,     //8
+        int8_t,     //9
+        uint8_t,    //10
+        int16_t,    //11
+        uint16_t,   //12
+        int32_t,    //13
+        uint32_t,   //14
+        int64_t,    //15
+        uint64_t,   //16
+        YOIPv4,     //17
+        YOIPv6,     //18
+        YOVector2,  //19
+        YOVector2I, //20
+        YOVector2U, //21
+        YOVector3,  //22
+        YOVector4,  //23
+        YOColor3F,  //24
+        YOColor4F,  //25
+        YOColor3C,  //26
+        YOColor4C,  //27
+        YOVector2List, //28
+        YOVector3List, //29
+        YOVector4List, //30
+        YOColor3FList, //31
+        YOColor4FList, //32
+        YOColor3CList, //33
+        YOColor4CList, //34
+        YOLimitF, //35
+        YOLimitI32, //36
+        YOLimitU32 //37
+)
+
+inline std::ostream& operator<<(std::ostream& os, const YOStringList& v)    {  return os << "YOStringList: " << v.items.size() ; }
 
 inline std::ostream& operator<<(std::ostream& os, const YOData& v)    {  return os << "size: " << v.size() ; }
 inline std::ostream& operator<<(std::ostream& os, const YODataF& v)    {  return os << "size: " << v.size() ; }
@@ -93,6 +104,8 @@ inline std::ostream& operator<<(std::ostream& os, const YOColor4F& v) {  return 
 inline std::ostream& operator<<(std::ostream& os, const YOColor3C& v) {  return os << "(" << HEX(v.r) << ", " << HEX(v.g) << ", " << HEX(v.b) << std::dec << ")"; }
 inline std::ostream& operator<<(std::ostream& os, const YOColor4C& v) {  return os << "(" << HEX(v.r) << ", " << HEX(v.g) << ", " << HEX(v.b) << ", " << HEX(v.a) << ")"; }
 
+inline std::ostream& operator<<(std::ostream& os, const YOIPv4& v) {  return os << "IPv4(" << (uint32_t)v.ip[0] << "." << (uint32_t)v.ip[1] << "." << (uint32_t)v.ip[2] << "." << (uint32_t)v.ip[3] << " : " << v.port << ")"; }
+
 inline std::ostream& operator<<(std::ostream& os, const YOVector2List& v) {  return os << "YOVector2List(" << v.size() << ")"; }
 inline std::ostream& operator<<(std::ostream& os, const YOVector3List& v) {  return os << "YOVector3List(" << v.size() << ")"; }
 inline std::ostream& operator<<(std::ostream& os, const YOVector4List& v) {  return os << "YOVector4List(" << v.size() << ")"; }
@@ -101,13 +114,39 @@ inline std::ostream& operator<<(std::ostream& os, const YOColor4CList& v) {  ret
 inline std::ostream& operator<<(std::ostream& os, const YOColor3FList& v) {  return os << "YOColorFCList(" << v.size() << ")"; }
 inline std::ostream& operator<<(std::ostream& os, const YOColor4FList& v) {  return os << "YOColorFCList(" << v.size() << ")"; }
 
+inline std::ostream& operator<<(std::ostream& os, const YOLimitF& v)   {  return os << "YOLimitF(" << 0 << ")"; }
+inline std::ostream& operator<<(std::ostream& os, const YOLimitI32& v) {  return os << "YOLimitI32(" << 0 << ")"; }
+inline std::ostream& operator<<(std::ostream& os, const YOLimitU32& v) {  return os << "YOLimitU32(" << 0 << ")"; }
+
 std::ostream& operator<<(std::ostream& os, const YOValue& v);
+
+constexpr float inv = 1.0f / 255.0f;
+
+inline YOColor3F convert(const YOColor3C &in)
+{
+    return YOColor3F {inv * in.r, inv * in.g, inv * in.b};
+}
+
+inline YOColor4F convert(const YOColor4C &in)
+{
+    return YOColor4F {inv * in.r, inv * in.g, inv * in.b, inv * in.a};
+}
+
+inline YOColor3C convert(const YOColor3F &in)
+{
+    return YOColor3C {(uint8_t)(255 * in.r  + 0.5f), (uint8_t)(255 * in.g  + 0.5f), (uint8_t)(255 * in.b  + 0.5f)};
+}
+
+inline YOColor4C convert(const YOColor4F &in)
+{
+    return YOColor4C {(uint8_t)(255 * in.r  + 0.5f), (uint8_t)(255 * in.g  + 0.5f), (uint8_t)(255 * in.b  + 0.5f), (uint8_t)(255 * in.a  + 0.5f)};
+}
 
 class YOVariant
 {
 public:
-    std::string m_name;
     YOValue m_value;
+    std::string m_name;
     MSGPACK_DEFINE(m_name, m_value);
     void pack(msgpack::sbuffer &buffer);
     bool unpack(const char *data, size_t size);
@@ -115,10 +154,14 @@ public:
     YOVariant();
     YOVariant(const std::string&);
     YOVariant(const std::string&, YOValue val);
-    YOVariant(const char *data, size_t size);
+    YOVariant(const size_t &size, const char *data);
+
     virtual ~YOVariant();
 
     size_t getTypeId();
+    void push_back(const YOVariant& node);
+    YOVariant& back();
+
     YOVariant& get(size_t idx);
     YOVariant& get(const std::string &key);
     std::string getKey(size_t idx);
@@ -126,6 +169,7 @@ public:
     void setArraySize(size_t size);
     size_t getMapSize();
     void print(const std::string &tab = "");
+    bool hasChild(const std::string &key);
 
     void erase(size_t idx);
     void erase(const std::string &key);

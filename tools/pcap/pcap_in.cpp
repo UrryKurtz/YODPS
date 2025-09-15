@@ -6,18 +6,64 @@
 #include "YONode.h"
 #include <getopt.h>
 
-YONode *g_node;
 std::string g_name = "PCAP_NODE";
 std::string g_topic;
 std::string g_filter;
 std::string g_interface = "lo";
 
+std::shared_ptr<YONode> g_node;
+std::shared_ptr<Tins::Sniffer> sniffer_;
+
 Tins::IPv4Reassembler reassembler_;
 Tins::IPv4Reassembler::PacketStatus status_;
 
+void sig_fn(int signal, void *data)
+{
+    std::cout << signal << " sig_fn " << std::endl;
+    exit(0);
+}
+
+void run_tins()
+{
+    while (g_node->isRunning())
+    {
+        Tins::Packet pkt = sniffer_->next_packet();
+        if (!pkt)
+        {
+            continue; // timeout, check running_ again
+        }
+
+        //status_ = reassembler_.process(pdu);
+        const Tins::IP &ip = pkt.pdu()->rfind_pdu<Tins::IP>();
+
+        switch (ip.protocol())
+        {
+            case 6:
+                {
+                //const Tins::TCP &tcp = pdu.rfind_pdu<Tins::TCP>();
+                //std::cout << " TCP PROTO: " << (uint32_t) ip.protocol() << " size: " << tcp.size() << " " <<  ip.src_addr() << ':' << tcp.sport() << " -> " << ip.dst_addr() << ':' << tcp.dport() << std::endl;
+            }
+                break;
+
+            case 17:
+                {
+                const Tins::RawPDU &raw = ip.rfind_pdu<Tins::RawPDU>();
+                YOMessage msg;
+                msg.initData((uint8_t*) raw.payload().data(), raw.payload().size());
+                g_node->sendMessage(g_topic.c_str(), msg);
+            }
+                break;
+
+            default:
+                {
+                //std::cout << " IP PROTO: " << (uint32_t) ip.protocol() << " size: " << ip.size() << " " <<  ip.src_addr() << " -> " << ip.dst_addr() << std::endl;
+            }
+        }
+    }
+}
+
 bool callback(Tins::PDU &pdu)
 {
-    // Find the IP layer
     const Tins::IP &ip = pdu.rfind_pdu<Tins::IP>();
     status_ = reassembler_.process(pdu);
     // std::cout  << ip.flags() << " status " << status_  << " Type: " <<  pdu.pdu_type() << std::endl;
@@ -36,7 +82,7 @@ bool callback(Tins::PDU &pdu)
             //const Tins::UDP &udp = pdu.rfind_pdu<Tins::UDP>();
             const Tins::RawPDU &raw = pdu.rfind_pdu<Tins::RawPDU>();
             YOMessage msg;
-            msg.initData((uint8_t*)raw.payload().data(), raw.payload().size());
+            msg.initData((uint8_t*) raw.payload().data(), raw.payload().size());
             g_node->sendMessage(g_topic.c_str(), msg);
         }
         break;
@@ -45,20 +91,19 @@ bool callback(Tins::PDU &pdu)
         {
             //std::cout << " IP PROTO: " << (uint32_t) ip.protocol() << " size: " << ip.size() << " " <<  ip.src_addr() << " -> " << ip.dst_addr() << std::endl;
         }
-
     }
     // Find the TCP layer
     //const Tins::TCP &tcp = pdu.rfind_pdu<Tins::TCP>();
     //std::cout << " PROTO: " << (uint32_t) ip.protocol() << " " <<  ip.src_addr() << ':' << tcp.sport() << " -> " << ip.dst_addr() << ':' << tcp.dport() << std::endl;
-    return true;
+    return g_node->isRunning();
 }
 
 static struct option long_options[] = {
-    { "name", optional_argument, NULL, 'n' },
-    { "topic", required_argument, NULL, 't' },
-    { "interface", required_argument, NULL, 'i' },
-    { "filter", required_argument, NULL, 'f' },
-    { NULL, 0, NULL, 0 } };
+        {"name", optional_argument, NULL, 'n'},
+        {"topic", required_argument, NULL, 't'},
+        {"interface", required_argument, NULL, 'i'},
+        {"filter", required_argument, NULL, 'f'},
+        {NULL, 0, NULL, 0}};
 
 int main(int argc, char **argv)
 {
@@ -89,20 +134,25 @@ int main(int argc, char **argv)
 
     reassembler_.clear_streams();
     Tins::SnifferConfiguration scfg;
-    scfg.set_buffer_size(32 * 1024 * 1024);
+    scfg.set_buffer_size(128 * 1024 * 1024);
+    scfg.set_snap_len(2048);
     scfg.set_promisc_mode(true);
+    scfg.set_immediate_mode(true);
+    scfg.set_timeout(10);
     scfg.set_filter(g_filter);
 
-    Tins::Sniffer sniffer(g_interface, scfg);
+    sniffer_ = std::make_shared<Tins::Sniffer>(g_interface, scfg);
+    sniffer_->stop_sniff();
 
-    g_node = new YONode(g_name.c_str());
+    g_node = std::make_shared<YONode>(g_name.c_str());
+    g_node->addSignalFunction(SIGINT, sig_fn, 0);
     g_node->advertise(g_topic.c_str());
     g_node->connect();
 
-    sniffer.sniff_loop(callback);
+    run_tins();
+    //sniffer_->sniff_loop(callback);
 
     g_node->disconnect();
     g_node->shutdown();
-
     return 0;
 }

@@ -8,12 +8,17 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/bin)
 set (CMAKE_PREFIX_PATH  ${YODPS_PATH}/third_party/rbfx/share/CMake)
 find_package(Urho3D REQUIRED)
 
-message (${Urho3D_LIBRARIES} === )
+file(GLOB CONVERT_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/convert/*.cpp"
+)
 
 # This project will output an executable file
 add_executable(${PROJECT_NAME} 
 main.cpp
-#YOViewer.cpp
+YOViewer.cpp
+YOGui.cpp
+YOFlyController.cpp
+YOConverter.cpp
+${CONVERT_SOURCES}
 )
 
 # Include the configuration header in the build
@@ -25,5 +30,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC
  ${YODPS_PATH}/third_party/rbfx/include/Urho3D/ThirdParty/tracy
 )
   
-target_link_libraries(${PROJECT_NAME}  yo_utils Urho3D) 
+target_link_libraries(${PROJECT_NAME}  yo_utils Urho3D ImGui ImGuizmo) 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})

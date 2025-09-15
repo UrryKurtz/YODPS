@@ -1,0 +1,11 @@
+<!-- Data/Materials/AlwaysOnTopTextured.xml -->
+<material>
+  <technique name="Techniques/Unlit.xml">
+    <pass name="base">
+      <depthwrite value="false"/>
+      <depthtest value="always"/>
+      <!--blend value="alpha"/-->
+    </pass>
+  </technique>
+  <renderorder value="245"/>
+</material>

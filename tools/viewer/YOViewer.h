@@ -32,6 +32,8 @@
 #include <Input/InputEvents.h>
 #include <Input/FreeFlyController.h>
 #include <Graphics/Camera.h>
+#include <Graphics/CustomGeometry.h>
+#include <Graphics/Graphics.h>
 #include <Graphics/Model.h>
 #include <Graphics/Octree.h>
 #include <Graphics/Renderer.h>
@@ -39,107 +41,100 @@
 #include <Graphics/Viewport.h>
 #include <Graphics/Zone.h>
 #include <Resource/ResourceCache.h>
+#include <Scene/Node.h>
+
 
 #include <Scene/Scene.h>
 #include <Scene/Node.h>
 
+#include "YOFlyController.h"
+#include "YOGui.h"
+
+#include "YONode.h"
+#include "YOVariant.h"
+#include <queue>
+
+#include <GL/gl.h>
+
+#include <pthread.h>
+
+#define YO_LMASK_WORLD (0x0001)
+#define YO_LMASK_OVERLAY (0x0010)
+
+
+
 using namespace Urho3D;
+
 
 class YOViewer: public Application
 {
 URHO3D_OBJECT(YOViewer, Application)
-    ;
+
+pthread_t thread_inputs_{};
+//pthread_t thread_videos_;
 
 public:
     YOViewer(Context *context) : Application(context)
     {
+        exit_ = false;
     }
-
-    void Setup() override
+    virtual ~YOViewer()
     {
-        engineParameters_[EP_WINDOW_TITLE] = "YOViewer";
-        engineParameters_[EP_FULL_SCREEN] = false;
+        pthread_join(thread_inputs_, NULL);
     }
-
-    void Start() override
+    void Setup() override;
+    void Start() override;
+    void Stop() override
     {
-        CreateScene();
-        CreateCamera();
-
-        // Вьюпорт
-        auto *renderer = GetSubsystem<Renderer>();
-        SharedPtr<Viewport>viewport(new Viewport(context_, scene_, cameraNode_->GetComponent<Camera>()));
-        renderer->SetViewport(0, viewport);
-
-        // Подписка на клавиши
-        SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(YOViewer, HandleKeyDown));
+        std::cout << " STOP " << std::endl;
+        pthread_cancel(thread_inputs_);
     }
+    void AddFrame(std::shared_ptr<YOVariant> frame, int frame_id);
+
+    void createMaterial(int input, int type, YOVariant &style);
 
 private:
+    bool exit_;
+    std::shared_ptr<YOVariant> config_;
+    std::shared_ptr<YOGui> gui_;
+
     SharedPtr<Scene>scene_;
+
+    SharedPtr<Material> materials_[YO_INPUT_NUM][YO_TYPE_NUM];
+    bool materials_update[YO_INPUT_NUM][YO_TYPE_NUM];
+
     SharedPtr<Node>world_;
+    SharedPtr<Node>world_geom_;
+
+    SharedPtr<Node>overlay_;
+    SharedPtr<Node>overlay_geom_;
+
+    SharedPtr<Node>internal_;
+
+    SharedPtr<Node>grid_;
     SharedPtr<Node>cameraNode_;
     SharedPtr<Camera>camera_;
-    SharedPtr<FreeFlyController>controller_;
+    SharedPtr<YOFlyController>controller_;
 
-    void CreateScene()
-    {
-        scene_ = new Scene(context_);
-        scene_->CreateComponent<Octree>();
+    SharedPtr<Technique> technique_;
+    SharedPtr<Technique> technique_overlay_;
 
-        world_ = scene_->CreateChild("WorldRoot");
-        world_->SetRotation(Quaternion(0, -90, 0));
+    std::array<std::shared_ptr<YOVariant>, YO_INPUT_NUM> data_in_;
+    std::array<Node*, YO_INPUT_NUM> data_;
+    std::array<std::mutex, YO_INPUT_NUM> data_lock_;
 
-        // Зона (фон, освещение)
-        Node *zoneNode = world_->CreateChild("Zone");
-        auto *zone = zoneNode->CreateComponent<Zone>();
-        zone->SetAmbientColor(Color(0.3f, 0.3f, 0.3f));
-        zone->SetFogColor(Color(0.5f, 0.5f, 0.7f));
-        zone->SetFogStart(50.0f);
-        zone->SetFogEnd(200.0f);
-        zone->SetBoundingBox(BoundingBox(-1000.0f, 1000.0f));
+    void CreateCamera();
+    void CreateScene();
+    void CreateLight();
 
-        // Направленный свет (как солнце)
-        Node *lightNode = world_->CreateChild("DirectionalLight");
-        lightNode->SetDirection(Vector3(0.5f, -1.0f, 0.5f));
-        auto *light = lightNode->CreateComponent<Light>();
-        light->SetLightType(LIGHT_DIRECTIONAL);
-        light->SetBrightness(1.2f);
+    void CreateConfig();
 
-        // Несколько кубиков
-        ResourceCache *cache = GetSubsystem<ResourceCache>();
+    Node* ConvertFrame(std::shared_ptr<YOVariant>, int id);
 
-        for (int i = 0; i < 5; ++i)
-        {
-            Node *boxNode = world_->CreateChild("Box");
-            boxNode->SetPosition(Vector3(i * 2.0f, 0.0f, 0.0f));
-            boxNode->SetScale(1.0f);
+    void CreateXYGrid(Node *parent, int cellsX = 10, int cellsY = 10, float spacing = 1.0f, float z = 0.0f);
 
-            auto *boxModel = boxNode->CreateComponent<StaticModel>();
-            boxModel->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
-            boxModel->SetMaterial(cache->GetResource<Material>("Materials/Stone.xml"));
-        }
-    }
-
-    void CreateCamera()
-    {
-        // Камера
-        cameraNode_ = world_->CreateChild("Camera");
-        camera_ = cameraNode_->CreateComponent<Camera>();
-
-        // FreeFly контрол
-        controller_ = cameraNode_->CreateComponent<FreeFlyController>();
-        controller_->SetSpeed(10.0f);
-
-        //controller->SetRotationSpeed(0.2f);
-    }
-
-    void HandleKeyDown(StringHash, VariantMap &eventData)
-    {
-        using namespace KeyDown;
-        if (eventData[P_KEY].GetInt() == KEY_ESCAPE)
-            engine_->Exit();
-
-        printf("cam pos: (%0.02f, %0.02f, %0.02f)\n", cameraNode_->GetPosition().x_, cameraNode_->GetPosition().y_, cameraNode_->GetPosition().z_);
-    }
+    void HandleKeyDown(StringHash eventType, VariantMap& eventData);
+    void HandleUpdate(StringHash eventType, VariantMap& eventData);
+    void RenderUI();
+    void ProcessChange();
 };
