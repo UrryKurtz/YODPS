@@ -13,7 +13,7 @@
 #include <YOTypes.h>
 
 #define YO_INPUT_NUM 10
-#define YO_TYPE_NUM 32
+#define YO_TYPE_NUM 16
 
 inline std::map<std::string, std::string > yo_keys;
 inline std::map<std::string, std::string > yo_keys_rev;

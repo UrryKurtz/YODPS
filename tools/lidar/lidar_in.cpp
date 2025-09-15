@@ -23,6 +23,9 @@ float angles[] = {
         -12.00f, 9.33f, -10.67f, 10.67f
 };
 
+float sins[32];
+float coss[32];
+
 #pragma pack(1)
 
 struct Laser
@@ -71,31 +74,39 @@ YOColor4CList colors = {
 static uint16_t last_ang = 0;
 static YOVariant frame("Frame Cloud #0");
 
+static YOVector3List *vert_list[16];
+
 uint16_t g_counter = 0;
 
 void create_frame()
 {
     //std::cout  << " create_frame: !!! " << std::endl;
-    frame[yo::k::objects] = YOArray(32);
+    frame[yo::k::objects] = YOArray(16);
 
-    for(uint32_t i = 0; i < 32 ; i++)
+    for(uint32_t i = 0; i < 16 ; i++)
     {
-        frame[yo::k::objects][i][yo::k::color][yo::k::line] = convert(colors[i]);
-        frame[yo::k::objects][i][yo::k::color][yo::k::fill] = YOColor4F{0.3f, 0.3f, 0.3f, 0.5f};
-        frame[yo::k::objects][i][yo::k::color][yo::k::text] = YOColor4F{1.0f, 1.0f, 1.0f, 0.8f};
-        frame[yo::k::objects][i][yo::k::type] = (int) YOPointCloud;
-        frame[yo::k::objects][i][yo::k::style_id] = i;
-        frame[yo::k::objects][i][yo::k::overlay] = false;
-        frame[yo::k::objects][i][yo::k::vertices] = YOVector3List();
+        YOVariant &type = frame[yo::k::objects][i];
+
+        YOVariant &color = type[yo::k::color];
+        color[yo::k::line] = convert(colors[i * 2]);
+        color[yo::k::fill] = YOColor4F{0.3f, 0.3f, 0.3f, 0.5f};
+        color[yo::k::text] = YOColor4F{1.0f, 1.0f, 1.0f, 0.8f};
+        type[yo::k::type] = (int) YOPointCloud;
+        type[yo::k::style_id] = i;
+        type[yo::k::overlay] = false;
+        type[yo::k::vertices] = YOVector3List();
+        vert_list[i] = (YOVector3List*)&type[yo::k::vertices].m_value;
+        vert_list[i]->reserve(50000);
     }
 
     frame[yo::k::sender] = "Velodyne decoder";
     frame[yo::k::enabled] = true;
     frame[yo::k::frame_id] = g_counter++;
 
-    frame[yo::k::transform][yo::k::position] = YOVector3{0, 0, 0};
-    frame[yo::k::transform][yo::k::rotation] = YOVector3{0, 0, 0};
-    frame[yo::k::transform][yo::k::scale] = YOVector3{1.0f, 1.0f, 1.0f};
+    YOVariant &transform = frame[yo::k::transform];
+    transform[yo::k::position] = YOVector3{0, 0, 0};
+    transform[yo::k::rotation] = YOVector3{0, 0, 0};
+    transform[yo::k::scale] = YOVector3{1.0f, 1.0f, 1.0f};
     frame[yo::k::colors] = colors;
 }
 
@@ -106,57 +117,34 @@ int fn_hdl32(const std::string &topic, std::shared_ptr<YOMessage> message, void 
     {
         create_frame();
     }
-    //std::cout  << topic << " A: " << std::endl;
 
     LidarData *data = (LidarData*) message->getData();
 
     for (int i = 0; i < 12; i++)
     {
-        //static uint16_t last_ang = data->Data[i].header.Rotation;
-//        if (data->Data[i].header.Rotation - last_ang > 30)
-//            std::cout << i << " +++ rot " << data->Data[i].header.Rotation << " PREV: " << last_ang << " DIFF: " << data->Data[i].header.Rotation - last_ang << std::endl;
-
-        //if(data->Data[i].header.Rotation - last_ang  > 30)
-        //  std::cout <<  "+++" <<  std::endl;
-
-        uint8_t clr = (int) data->Data[i].header.Rotation / 1000;
-        //std::cout <<  "COLOR " << (int ) clr <<  std::endl;
-        if (data->Data[i].header.Rotation < last_ang) //&& (last_ang - data->Data[i].header.Rotation) > 35900
+        FiringData *fd = &data->Data[i];
+        if (fd->header.Rotation < last_ang) //&& (last_ang - data->Data[i].header.Rotation) > 35900
         {
-            //std::cout << "----------------------------------------------------------------------------------- " << std::endl;
-            //frame.print();
-
             YOMessage msg(frame);
             g_node->sendMessage("INPUT0", msg);
-
             create_frame();
-            //frame = YOVariant("Frame Cloud #0");
-            //frame["Objects"].Resize(32);
-
-            //std::cout << "---------- NEW MEASURMENT -------------------- SEND CLOUD " << str.size() << std::endl;
         }
-        //std::cout << " " << data->Data[i].header.LaserBlockID <<  " rot: " << data->Data[i].header.Rotation << std::endl;
-        //static
-        float rot = 0.000174533f * data->Data[i].header.Rotation;
+        float rot = 0.000174533f * fd->header.Rotation;
 
         for (int j = 0; j < 32; j++)
         {
-            frame[yo::k::objects][j][yo::k::type_id] = j;
-
-            if (data->Data[i].laser[j].Distance)
+            Laser *laser = &fd->laser[j];
+            if (laser->Distance)
             {
-                //std::vector<uint8_t> &pointsd = frame["Objects"][data->Data[i].laser[j].Intencity / 8]["Vertices"].GetData();
-                //std::vector<float> &points = (std::vector<float>&) frame["Objects"][data->Data[i].laser[j].Intencity / 8]["Vertices"].GetData();
-                //std::vector<float> &points = (std::vector<float> &) frame["Objects"][j]["Vertices"].GetData();
-                int id = data->Data[i].laser[j].Intencity / 8;
-                float r = 0.002f * data->Data[i].laser[j].Distance;
-                float x = r * cos(angles[j]) * cos(rot);
-                float y = r * cos(angles[j]) * sin(rot);
-                float z = r * sin(angles[j]) + 2.2f;
+                int id = laser->Intencity / 16;
+                float r = 0.002f * laser->Distance;
+                float rcos = r * coss[j];
+                float x = rcos * cos(rot);
+                float y = rcos * sin(rot);
+                float z = r * sins[j] + 2.2f;
 
-                YOVector3List &list = frame[yo::k::objects][id][yo::k::vertices];
-                //std::cout << "LIST size " << list.size() << std::endl;
-                list.push_back(YOVector3{x,y,z});
+                YOVector3List *list = vert_list[id];
+                list->push_back(YOVector3{x,y,z});
             }
         }
         last_ang = data->Data[i].header.Rotation;
@@ -201,7 +189,12 @@ int main(int argc, char **argv)
     create_frame();
 
     for (int i = 0; i < 32; i++)
+    {
         angles[i] = 0.0174533f * angles[i];
+        sins[i] = sin(angles[i]);
+        coss[i] = cos(angles[i]);
+    }
+
 
     g_node = new YONode(g_type.c_str());
     g_node->advertise(g_output.c_str());

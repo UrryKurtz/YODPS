@@ -71,9 +71,7 @@ void YOViewer::Start()
     YOFlyController::RegisterObject(context_);
 
     CreateConfig();
-
     CreateCamera();
-
     CreateScene();
     CreateLight();
 
@@ -89,9 +87,7 @@ void YOViewer::Start()
     glEnable(GL_LINE_WIDTH);
     glEnable(GL_LINE_SMOOTH);
 
-    GetSubsystem<Engine>()->SetMaxFps(30);   // 0 = без лимита
-        // Не забудь отключить VSync, иначе он сильнее:
-    //GetSubsystem<Graphics>()->SetVSync(false);
+    GetSubsystem<Engine>()->SetMaxFps(30);
 
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(YOViewer, HandleKeyDown));
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(YOViewer, HandleUpdate));
@@ -154,7 +150,6 @@ void YOViewer::CreateConfig()
         }
         //config_->print();
     }
-
     gui_ = std::make_shared<YOGui>(config_);
 }
 
@@ -162,7 +157,6 @@ void YOViewer::CreateScene()
 {
     ResourceCache *cache = GetSubsystem<ResourceCache>();
     technique_ = cache->GetResource<Technique>("Techniques/NoTextureVColAddAlpha.xml");
-
     technique_overlay_ = cache->GetResource<Technique>("Techniques/NoTextureAlpha.xml")->Clone("Overlay");
 
     for(int i = 0; i < technique_overlay_->GetNumPasses(); i++ )
@@ -267,23 +261,25 @@ void YOViewer::createMaterial(int input, int type, YOVariant &style)
 Node* YOViewer::ConvertFrame(std::shared_ptr<YOVariant> frame, int frame_id)
 {
     YOVariant &input_cfg = config_->get(yo::k::world)[frame_id];
+    YOVariant &transform = input_cfg[yo::k::transform];
+    YOVector3 &rot = transform[yo::k::rotation].get<YOVector3>();
 
     Node *fnode = world_->CreateChild();
     fnode->SetTemporary(true);
-    YOVector3 &rot = input_cfg[yo::k::transform][yo::k::rotation].get<YOVector3>();
 
-    fnode->SetPosition( *(Vector3*)&input_cfg[yo::k::transform][yo::k::position].get<YOVector3>());
+    fnode->SetPosition( *(Vector3*)&transform[yo::k::position].get<YOVector3>());
     fnode->SetRotation(Quaternion(rot.x, rot.y, rot.z));
-    fnode->SetScale(*(Vector3*)&input_cfg[yo::k::transform][yo::k::scale].get<YOVector3>());
+    fnode->SetScale(*(Vector3*)&transform[yo::k::scale].get<YOVector3>());
 
     YOVariant &objects = frame->get(yo::k::objects);
     YOColor4CList &colors = frame->get(yo::k::colors);
+    YOVariant &types_list = input_cfg[yo::k::types];
 
     for(int i = 0; i < objects.getArraySize(); i++)
     {
         YOVariant &obj = objects[i];
         uint32_t type = obj[yo::k::style_id];
-        YOVariant &type_cfg = input_cfg[yo::k::types][type];
+        YOVariant &type_cfg = types_list[type];
 
         Node *node = fnode->CreateChild();
         node->SetTemporary(true);
@@ -301,7 +297,6 @@ Node* YOViewer::ConvertFrame(std::shared_ptr<YOVariant> frame, int frame_id)
 
         if(!materials_update[frame_id][type])
         {
-            std::cout << "!!!!!!!! materials_update " << frame_id << " " << type << std::endl;
             createMaterial(frame_id, type, type_cfg);
         }
         cg->SetMaterial(materials_[frame_id][type]);
@@ -417,7 +412,7 @@ void YOViewer::ProcessChange()
     std::string path = gui_->getPath();
     std::string param = gui_->getParam();
     YOVariant *cfg = getConfig(*config_, path);
-    std::cout << " Got config " << cfg->m_name << " type: " <<  YOValue_type_name(cfg->m_value.index())  << " Value :" << cfg->m_value << std::endl;
+    std::cout << " Got config path: " << path << " name: " << cfg->m_name << " type: " <<  YOValue_type_name(cfg->m_value.index())  << " Value :" << cfg->m_value << std::endl;
 }
 
 void YOViewer::RenderUI(){
