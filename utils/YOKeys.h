@@ -132,7 +132,7 @@ inline void createStyleCfg(uint32_t i, YOVariant &style, const std::string &name
 
     style[yo::k::line][yo::k::enabled] = true;
     style[yo::k::line][yo::k::color] = YOColor4F{1.0f, 1.0f, 1.0f, 1.0f};
-    style[yo::k::line][yo::k::width] = YOLimitF{1.0f, 0.0f, 32.0f, 0.1f};
+    style[yo::k::line][yo::k::width] = YOLimitF{1.0f, 0.0f, 16.0f, 0.1f};
 
     style[yo::k::fill][yo::k::enabled] = true;
     style[yo::k::fill][yo::k::color] = YOColor4F{1.0f, 1.0f, 1.0f, 1.0f};

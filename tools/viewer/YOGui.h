@@ -27,7 +27,7 @@ public:
     std::string getPath() {return path_;}
 
     bool draw();
-    void drawCfg(YOVariant &cfg, const std::string &name = "", bool add = true);
+    void drawCfg(YOVariant &cfg, const std::string &name = "", bool add = true, bool show_name = true);
 
 };
 

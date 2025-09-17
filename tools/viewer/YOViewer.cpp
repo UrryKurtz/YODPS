@@ -5,14 +5,20 @@
  *      Author: kurtz
  */
 #include "YOViewer.h"
-#include "UI/Text3D.h"
-#include "UI/Font.h"
 #include "YOKeys.h"
 #include "YOXML.h"
 
+#include <Urho3D/UI/Text3D.h>
+#include <Urho3D/UI/Font.h>
+#include <Urho3D/UI/UI.h>
+#include <Urho3D/UI/Sprite.h>
+#include <Urho3D/IO/File.h>
+#include <Urho3D/RenderPipeline/ShaderConsts.h>
 #include <Urho3D/SystemUI/SystemUI.h>
 #include <Urho3D/SystemUI/SystemUIEvents.h> // E_SYSTEMUI
-//#include <Urho3D/SystemUI/imgui.h>
+#include <Urho3D/SystemUI/ImGui.h>
+
+
 
 int fn_input(const std::string &topic, std::shared_ptr<YOMessage> message, void *param)
 {
@@ -69,11 +75,15 @@ void YOViewer::Setup()
 void YOViewer::Start()
 {
     YOFlyController::RegisterObject(context_);
+    glEnable(GL_PROGRAM_POINT_SIZE);
+    glEnable(GL_LINE_WIDTH);
+    glEnable(GL_LINE_SMOOTH);
 
     CreateConfig();
     CreateCamera();
     CreateScene();
     CreateLight();
+    CreateTextures();
 
     CreateXYGrid(world_, 200, 50, 1.0f, 0.0f);
     CreateXYGrid(world_, 20, 5, 10.0f, 0.0f);
@@ -82,10 +92,6 @@ void YOViewer::Start()
     auto *renderer = GetSubsystem<Renderer>();
     SharedPtr<Viewport>viewport(new Viewport(context_, scene_, cameraNode_->GetComponent<Camera>()));
     renderer->SetViewport(0, viewport);
-
-    glEnable(GL_PROGRAM_POINT_SIZE);
-    glEnable(GL_LINE_WIDTH);
-    glEnable(GL_LINE_SMOOTH);
 
     GetSubsystem<Engine>()->SetMaxFps(30);
 
@@ -102,7 +108,7 @@ void YOViewer::CreateLight()
     auto *light = lightNode->CreateComponent<Light>();
     light->SetLightType(LIGHT_DIRECTIONAL);
     light->SetBrightness(1.2f);
-    light->SetLightMask(YO_LMASK_WORLD);
+    //!!! light->SetLightMask(YO_LMASK_WORLD);
     {
         Node *lightNode = overlay_->CreateChild("DirectionalLight");
         lightNode->SetPosition(Vector3(1.0f, 2.0f, 100.0f));
@@ -110,7 +116,7 @@ void YOViewer::CreateLight()
         auto *light = lightNode->CreateComponent<Light>();
         light->SetLightType(LIGHT_DIRECTIONAL);
         light->SetBrightness(1.2f);
-        light->SetLightMask(YO_LMASK_OVERLAY);
+        //!!!!light->SetLightMask(YO_LMASK_OVERLAY);
     }
 }
 
@@ -155,9 +161,8 @@ void YOViewer::CreateConfig()
 
 void YOViewer::CreateScene()
 {
-    ResourceCache *cache = GetSubsystem<ResourceCache>();
-    technique_ = cache->GetResource<Technique>("Techniques/NoTextureVColAddAlpha.xml");
-    technique_overlay_ = cache->GetResource<Technique>("Techniques/NoTextureAlpha.xml")->Clone("Overlay");
+    technique_ = cache_->GetResource<Technique>("Techniques/NoTextureVColAddAlpha.xml");
+    technique_overlay_ = cache_->GetResource<Technique>("Techniques/NoTextureAlpha.xml")->Clone("Overlay");
 
     for(int i = 0; i < technique_overlay_->GetNumPasses(); i++ )
     {
@@ -181,41 +186,38 @@ void YOViewer::CreateScene()
         myNode->SetRotation(Urho3D::Quaternion(180, 0, -90));
 
         Urho3D::StaticModel* myObject = myNode->CreateComponent<Urho3D::StaticModel>();
-        myObject->SetModel(cache->GetResource<Urho3D::Model>("Models/Passat.mdl"));
-        auto matp = cache->GetResource<Urho3D::Material>("Materials/Passat.xml");
+        myObject->SetModel(cache_->GetResource<Urho3D::Model>("Models/Passat.mdl"));
+        auto matp = cache_->GetResource<Urho3D::Material>("Materials/Passat.xml");
         myObject->SetMaterial(matp);
     }
     {
         Node *boxNode = overlay_->CreateChild("Plane");
 
         auto *boxModel = boxNode->CreateComponent<StaticModel>();
-        boxModel->SetModel(cache->GetResource<Model>("Models/box.mdl"));
-        boxNode->SetPosition(Vector3(10,20,0));
+        boxModel->SetModel(cache_->GetResource<Model>("Models/box.mdl"));
+        boxNode->SetPosition(Vector3(15,20,0));
         boxNode->Rotate(Quaternion(0,45,45));
 
         //SharedPtr<Material>mat(new Material(context_));
-        auto mat = cache->GetResource<Material>("Materials/DefaultGrey.xml")->Clone("R");
+        auto mat = cache_->GetResource<Material>("Materials/DefaultGrey.xml")->Clone("R");
         mat->SetTechnique(0, technique_overlay_);
         mat->SetRenderOrder(250);
         mat->SetShaderParameter("MatDiffColor", Color(1, 1, 1, 0.95));
         //mat->SetCullMode(CULL_NONE);
         boxModel->SetMaterial(mat);
-        boxModel->SetLightMask(YO_LMASK_OVERLAY);
+        //!!!boxModel->SetLightMask(YO_LMASK_OVERLAY);
         //boxModel->SetViewMask();
 
         //Node* label = boxNode->CreateChild("Label");
         //label->SetPosition(Vector3(-2,2,0));
         auto* txt = boxNode->CreateComponent<Text3D>();
-        txt->SetLightMask(YO_LMASK_OVERLAY);
+        //!!!txt->SetLightMask(YO_LMASK_OVERLAY);
         //auto* cache = GetSubsystem<ResourceCache>();
         txt->SetText("    OVERLAY #9");
-        txt->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 15);
+        txt->SetFont(cache_->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 15);
         txt->SetFaceCameraMode(FC_ROTATE_XYZ);
         txt->SetFixedScreenSize(true);
         txt->SetDepthTest(false);
-        //txt->SetMaterial(mat->Clone(":"));
-        //txt->SetColor(Color(Color::WHITE));
-        //txt->SetMaterial(mat->Clone("TXT"));
     }
 }
 
@@ -239,37 +241,93 @@ void YOViewer::CreateCamera()
     //camera_->SetOrthographic(true);
 }
 
-void YOViewer::createMaterial(int input, int type, YOVariant &style)
+SharedPtr<Texture2D> YOViewer::CreateTexture()
 {
-    materials_update[input][type] = true;
-    std::cout << "-------------CREATE MATERIAL " << input << " " << type << std::endl;
-    materials_[input][type] = SharedPtr<Material>(new Material(context_));
-    auto *cache = GetSubsystem<ResourceCache>();
-    auto tech = cache->GetResource<Technique>("Techniques/YOPoints.xml");
-    YOLimitF &limWidth = style[yo::k::line][yo::k::width];
+	SharedPtr<Texture2D> tex = MakeShared<Texture2D>(context_);
+    tex->SetNumLevels(1); // no MIPs
+    tex->SetAddressMode(TextureCoordinate::U, ADDRESS_CLAMP);
+    tex->SetAddressMode(TextureCoordinate::V, ADDRESS_CLAMP);
+    tex->SetSize(YO_INPUT_NUM, YO_TYPE_NUM, TextureFormat::TEX_FORMAT_RGBA32_FLOAT, TextureFlag::BindRenderTarget | TextureFlag::BindUnorderedAccess );
+    tex->SetFilterMode(FILTER_NEAREST);
+    return tex;
+}
 
-     if (materials_[input][type] && tech)
-     {
-         materials_[input][type]->SetTechnique(0, tech);
-         materials_[input][type]->SetCullMode(CULL_NONE);
-         materials_[input][type]->SetShaderParameter("PointSize", limWidth.value, true);
-     }
+void YOViewer::CreateSprite(SharedPtr<Texture2D> tex, Vector2 pos)
+{
+    auto* ui = GetSubsystem<UI>();
+    auto* root = ui->GetRoot();
+	Sprite* spr = root->CreateChild<Sprite>();
+	spr->SetTexture(tex);
+	spr->SetSize(tex->GetWidth(), tex->GetHeight());
+	spr->SetBlendMode(BLEND_ADDALPHA);
+	spr->SetPosition(pos);
+	spr->SetPriority(0);
+	spr->SetScale(8);
+}
+
+void YOViewer::CreateTextures()
+{
+    YOVariant &wrld = config_->get(yo::k::world);
+
+    texture_param_ = CreateTexture();
+    texture_line_ = CreateTexture();
+    texture_fill_ = CreateTexture();
+    texture_text_ = CreateTexture();
+
+    material_line_ =  cache_->GetResource<Material>("Materials/YOTextureOnly.xml");
+    material_line_->SetTexture(ShaderResources::Albedo, texture_line_);
+    material_line_->SetTexture(ShaderResources::Properties, texture_param_);
+    material_line_->SetCullMode(CULL_NONE);
+    //material_line_->SetShaderParameter("PointSize", 3.0f, true);
+
+    for(int input = 0; input < wrld.getArraySize(); input++)
+    {
+        YOVariant &inp_cfg = wrld[input][yo::k::types];
+        for(int type = 0; type < inp_cfg.getArraySize(); type++)
+        {
+            YOVariant &type_cfg = inp_cfg[type];
+            YOVariant &line_cfg = type_cfg[yo::k::line];
+            texture_line_->SetData(0, input, type, 1, 1, &line_cfg[yo::k::color].get<YOColor4F>());
+
+            YOLimitF &line_width = line_cfg[yo::k::width].get<YOLimitF>();
+            YOColor4F width{line_width.value / 16.0f, 1.0f, 1.0f, 1.0f};
+            texture_param_->SetData(0, input, type, 1, 1, &width);
+
+            YOVariant &fill_cfg = type_cfg[yo::k::fill];
+            texture_fill_->SetData(0, input, type, 1, 1, &fill_cfg[yo::k::color].get<YOColor4F>());
+
+            YOVariant &text_cfg = type_cfg[yo::k::text];
+            texture_text_->SetData(0, input, type, 1, 1, &text_cfg[yo::k::color].get<YOColor4F>());
+        }
+    }
+
+    CreateSprite(texture_line_, Vector2{20,20});
+    CreateSprite(texture_fill_, Vector2{120,20});
+    CreateSprite(texture_text_, Vector2{220,20});
+    CreateSprite(texture_param_, Vector2{320,20});
+}
+
+void YOViewer::CreateMaterial(int input, int type, YOVariant &style)
+{
+
 }
 
 #define DEG2RAD(x) ((x) * 0.0174532925199433)
 
-Node* YOViewer::ConvertFrame(std::shared_ptr<YOVariant> frame, int frame_id)
+std::shared_ptr<YOInputData> YOViewer::ConvertFrame(std::shared_ptr<YOVariant> frame, int frame_id)
 {
     YOVariant &input_cfg = config_->get(yo::k::world)[frame_id];
     YOVariant &transform = input_cfg[yo::k::transform];
     YOVector3 &rot = transform[yo::k::rotation].get<YOVector3>();
 
-    Node *fnode = world_->CreateChild();
-    fnode->SetTemporary(true);
+    std::shared_ptr<YOInputData> fdata = std::make_shared<YOInputData>();
 
-    fnode->SetPosition((Vector3&)transform[yo::k::position].get<YOVector3>());
-    fnode->SetRotation(Quaternion(rot.x, rot.y, rot.z));
-    fnode->SetScale((Vector3&)transform[yo::k::scale].get<YOVector3>());
+    fdata->root = world_->CreateChild();
+    fdata->root->SetTemporary(true);
+
+    fdata->root->SetPosition((Vector3&)transform[yo::k::position].get<YOVector3>());
+    fdata->root->SetRotation(Quaternion(rot.x, rot.y, rot.z));
+    fdata->root->SetScale((Vector3&)transform[yo::k::scale].get<YOVector3>());
 
     YOVariant &objects = frame->get(yo::k::objects);
     YOColor4CList &colors = frame->get(yo::k::colors);
@@ -281,28 +339,30 @@ Node* YOViewer::ConvertFrame(std::shared_ptr<YOVariant> frame, int frame_id)
         uint32_t type = obj[yo::k::style_id];
         YOVariant &type_cfg = types_list[type];
 
-        Node *node = fnode->CreateChild();
+        Node *node = fdata->root->CreateChild();
+        fdata->types[type].push_back(node);
+        fdata->enabled[type] = type_cfg[yo::k::enabled].get<bool>();
+
+		node->SetEnabled(type_cfg[yo::k::enabled].get<bool>());
         node->SetTemporary(true);
         auto *cg = node->CreateComponent<CustomGeometry>();
         cg->BeginGeometry(0, POINT_LIST);
 
         YOColor4F &clr = type_cfg[yo::k::line][yo::k::color];
         YOVector3List &vertices = obj[yo::k::vertices];
+
         for( auto &vertex : vertices)
         {
             cg->DefineNormal(Vector3::FORWARD);
             cg->DefineVertex((Urho3D::Vector3&)vertex);
-            cg->DefineColor(*(Color*)&clr);
+            cg->DefineTexCoord(Vector2( (float) frame_id / YO_INPUT_NUM, (float) type / YO_TYPE_NUM));
         }
-
-        if(!materials_update[frame_id][type])
-        {
-            createMaterial(frame_id, type, type_cfg);
-        }
-        cg->SetMaterial(materials_[frame_id][type]);
+        cg->SetMaterial(material_line_);
         cg->Commit();
     }
-    return fnode;
+    //fnode->SetEnabledRecursive(input_cfg[yo::k::enabled].get<bool>());
+    //fnode->ApplyAttributes();
+    return fdata;
 }
 
 void YOViewer::HandleUpdate(StringHash eventType, VariantMap& eventData)
@@ -331,13 +391,12 @@ void YOViewer::HandleUpdate(StringHash eventType, VariantMap& eventData)
        {
            //std::cout << "UPDATE !!!! " << i << " : " << data_in_[i]->m_name << std::endl;
            if(data_[i] != nullptr)
-               data_[i]->Remove();
+               data_[i]->root->Remove();
 
            data_[i] = ConvertFrame(frame, i);
        }
     }
     RenderUI();
-
 }
 
 void YOViewer::HandleKeyDown(StringHash eventType, VariantMap &eventData)
@@ -384,7 +443,7 @@ void YOViewer::CreateXYGrid(Node *parent, int cellsX, int cellsY, float spacing,
     grid_cg->SetMaterial(grid_mat);
 }
 
-YOVariant *YOViewer::getConfig(YOVariant  &config, const std::string &path)
+YOVariant *YOViewer::GetConfig(YOVariant  &config, const std::string &path)
 {
     YOVariant *res = &config;
     auto plist = split_by_string(path.c_str() + strlen("/config/"), "/");
@@ -403,11 +462,52 @@ YOVariant *YOViewer::getConfig(YOVariant  &config, const std::string &path)
             res = &res->get(n);
         }
     }
+
+    std::string &param = plist[plist.size() - 1];
     if(addr[0]>-1 && addr[1]>-1)
     {
-        materials_update[addr[0]][addr[1]] = false;
+        printf("!!!!! %s Changed Input: %d, Type: %d\n", param.c_str(), addr[0], addr[1]);
+
+        if(ends_with(path, "/line/enabled"))
+        {
+
+        }
+        else if(ends_with(path, "/line/color"))
+        {
+            texture_line_->SetData(0, addr[0], addr[1], 1, 1, &res->get<YOColor4F>());
+        }
+        else if(ends_with(path, "/line/width"))
+        {
+            YOLimitF &line_width = res->get<YOLimitF>();
+            YOColor4F width{line_width.value / 16.0f, 1.0f, 1.0f, 1.0f};
+            texture_param_->SetData(0, addr[0], addr[1], 1, 1, &width);
+        }
+        else if(ends_with(path, "/text/enabled"))
+        {
+
+        }
+        else if(ends_with(path, "/text/color"))
+        {
+            texture_text_->SetData(0, addr[0], addr[1], 1, 1, &res->get<YOColor4F>());
+        }
+        else if(ends_with(path, "/fill/enabled"))
+        {
+
+        }
+        else if(ends_with(path, "/fill/color"))
+        {
+        	texture_fill_->SetData(0, addr[0], addr[1], 1, 1, &res->get<YOColor4F>());
+        }
+        else if(ends_with(path, "/enabled"))
+        {
+        	for( Node *n : data_[addr[0]]->types[addr[1]])
+        	{
+        		n->SetEnabled(res->get<bool>());
+        	}
+        }
     }
-    printf("Changed Input: %d, Type: %d\n", addr[0], addr[1]);
+
+    printf("Changed [%s] Input: %d, Type: %d\n", path.c_str(), addr[0], addr[1]);
     return res;
 }
 
@@ -415,7 +515,7 @@ void YOViewer::ProcessChange()
 {
     std::string path = gui_->getPath();
     std::string param = gui_->getParam();
-    YOVariant *cfg = getConfig(*config_, path);
+    YOVariant *cfg = GetConfig(*config_, path);
     std::cout << " Got config path: " << path << " name: " << cfg->m_name << " type: " <<  YOValue_type_name(cfg->m_value.index())  << " Value :" << cfg->m_value << std::endl;
 }
 

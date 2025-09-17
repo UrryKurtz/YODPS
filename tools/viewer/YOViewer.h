@@ -38,6 +38,7 @@
 #include <Graphics/Octree.h>
 #include <Graphics/Renderer.h>
 #include <Graphics/StaticModel.h>
+#include <Graphics/Texture2D.h>
 #include <Graphics/Viewport.h>
 #include <Graphics/Zone.h>
 #include <Resource/ResourceCache.h>
@@ -53,6 +54,7 @@
 #include "YONode.h"
 #include "YOVariant.h"
 #include <queue>
+#include <array>
 
 #include <GL/gl.h>
 
@@ -61,10 +63,14 @@
 #define YO_LMASK_WORLD (0x0001)
 #define YO_LMASK_OVERLAY (0x0010)
 
-
-
 using namespace Urho3D;
 
+struct YOInputData
+{
+	Node* root;
+	std::array<std::vector<Node*>, YO_TYPE_NUM> types;
+	std::array<bool, YO_TYPE_NUM> enabled;
+};
 
 class YOViewer: public Application
 {
@@ -77,6 +83,7 @@ public:
     YOViewer(Context *context) : Application(context)
     {
         exit_ = false;
+        cache_ = GetSubsystem<ResourceCache>();
     }
     virtual ~YOViewer()
     {
@@ -90,19 +97,20 @@ public:
         pthread_cancel(thread_inputs_);
     }
     void AddFrame(std::shared_ptr<YOVariant> frame, int frame_id);
-
-    void createMaterial(int input, int type, YOVariant &style);
-    YOVariant *getConfig(YOVariant  &config, const std::string &path);
+    void CreateMaterial(int input, int type, YOVariant &style);
+    YOVariant *GetConfig(YOVariant  &config, const std::string &path);
 
 private:
+
+    ResourceCache *cache_;
     bool exit_;
     std::shared_ptr<YOVariant> config_;
     std::shared_ptr<YOGui> gui_;
 
     SharedPtr<Scene>scene_;
 
-    SharedPtr<Material> materials_[YO_INPUT_NUM][YO_TYPE_NUM];
-    bool materials_update[YO_INPUT_NUM][YO_TYPE_NUM];
+    //SharedPtr<Material> materials_[YO_INPUT_NUM][YO_TYPE_NUM] = {0};
+    //bool materials_update[YO_INPUT_NUM][YO_TYPE_NUM] = {false};
 
     SharedPtr<Node>world_;
     SharedPtr<Node>world_geom_;
@@ -120,17 +128,33 @@ private:
     SharedPtr<Technique> technique_;
     SharedPtr<Technique> technique_overlay_;
 
+    SharedPtr<Texture2D> texture_line_;
+    SharedPtr<Material> material_line_;
+
+    SharedPtr<Texture2D> texture_param_;
+    SharedPtr<Material> material_param_;
+
+    SharedPtr<Texture2D> texture_fill_;
+    SharedPtr<Material> material_fill_;
+
+    SharedPtr<Texture2D> texture_text_;
+    SharedPtr<Material> material_text_;
+
     std::array<std::shared_ptr<YOVariant>, YO_INPUT_NUM> data_in_;
-    std::array<Node*, YO_INPUT_NUM> data_;
+    std::array<std::shared_ptr<YOInputData>, YO_INPUT_NUM> data_;
+    //std::array<Node*, YO_INPUT_NUM> data_;
+
     std::array<std::mutex, YO_INPUT_NUM> data_lock_;
 
     void CreateCamera();
     void CreateScene();
     void CreateLight();
-
+    SharedPtr<Texture2D> CreateTexture();
+    void CreateTextures();
     void CreateConfig();
+    void CreateSprite(SharedPtr<Texture2D> tex, Vector2 pos);
 
-    Node* ConvertFrame(std::shared_ptr<YOVariant>, int id);
+    std::shared_ptr<YOInputData> ConvertFrame(std::shared_ptr<YOVariant>, int id);
 
     void CreateXYGrid(Node *parent, int cellsX = 10, int cellsY = 10, float spacing = 1.0f, float z = 0.0f);
 

@@ -18,8 +18,6 @@ YOGui::~YOGui()
 {
 }
 
-
-
 bool YOGui::draw()
 {
     changed_ = false;
@@ -29,7 +27,7 @@ bool YOGui::draw()
     return changed_;
 }
 
-void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add)
+void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show_name )
 {
     bool changed = false;
     ui::Indent();
@@ -51,6 +49,12 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add)
     if(cfg.hasChild(yo::k::name))
     {
         name += " [" + cfg[yo::k::name].get<std::string>() + "]";
+    }
+
+    if(cfg.hasChild(yo::k::enabled))
+    {
+    	drawCfg(cfg[yo::k::enabled], new_path, true, false);
+    	ui::SameLine();
     }
 
     ui::SetNextItemWidth(250);
@@ -111,7 +115,7 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add)
        break;
 
         case 6: //bool
-        if(ui::Checkbox(name.c_str(), ( bool*) &cfg.m_value))
+        if(ui::Checkbox(show_name ? name.c_str() : "", ( bool*) &cfg.m_value))
         {
             changed = true;
         }
