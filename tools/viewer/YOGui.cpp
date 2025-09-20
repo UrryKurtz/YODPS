@@ -30,7 +30,6 @@ bool YOGui::draw()
 void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show_name )
 {
     bool changed = false;
-    ui::Indent();
     ui::PushID(&cfg);
 
     std::string name =  yo_keys.count(cfg.m_name) ? yo_keys[cfg.m_name] : cfg.m_name;
@@ -50,24 +49,24 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
     {
         name += " [" + cfg[yo::k::name].get<std::string>() + "]";
     }
-
-    if(cfg.hasChild(yo::k::enabled))
-    {
-    	drawCfg(cfg[yo::k::enabled], new_path, true, false);
-    	ui::SameLine();
-    }
-
     ui::SetNextItemWidth(250);
 
     switch (size_t xtype = cfg.m_value.index())
     {
         case 0: //map
-        if (ui::CollapsingHeader(name.c_str()))
+		if(cfg.hasChild(yo::k::enabled))
+		{
+			drawCfg(cfg[yo::k::enabled], new_path, true, false);
+			ui::SameLine();
+		}
+		if (ui::CollapsingHeader(name.c_str()))
         {
-            for (auto &pair : cfg.get<YOMap>() )
-            {
-                drawCfg(pair.second, new_path, true);
-            }
+        	ui::Indent();
+			for (auto &pair : cfg.get<YOMap>() )
+			{
+				drawCfg(pair.second, new_path, true);
+			}
+			ui::Unindent();
         }
             break;
         case 1: //array
@@ -75,10 +74,12 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
             name += " [" + std::to_string(cfg.getArraySize()) + "]";
             if (ui::CollapsingHeader(name.c_str()))
             {
-                for (int i = 0; i < cfg.getArraySize(); i++)
+            	ui::Indent();
+            	for (int i = 0; i < cfg.getArraySize(); i++)
                 {
-                    drawCfg(cfg[i], new_path + "/" + std::to_string(i), false);
+                	drawCfg(cfg[i], new_path + "/" + std::to_string(i), false);
                 }
+                ui::Unindent();
             }
         }
             break;
@@ -123,10 +124,7 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
 
         case 7: //float
         {
-            limits_[new_path][yo::k::min] = 0.0f;
-            limits_[new_path][yo::k::max] = 32.0f;
-            limits_[new_path][yo::k::width] = 100.0f;
-            if(ui::SliderScalar(name.c_str(), ImGuiDataType_Float,  &cfg.get<float>(), 0, 0, "%0.02f", 0))
+            if(ui::DragScalar(name.c_str(), ImGuiDataType_Float,  &cfg.get<float>(), 0.01f))
             {
                 changed = true;
             }
@@ -237,5 +235,5 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
 
     //ui::SameLine(); ui::TextUnformatted(new_path.c_str());
     ui::PopID();
-    ui::Unindent();
+
 }

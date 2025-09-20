@@ -12,6 +12,7 @@
 #include <YOVariant.h>
 #include <YOTypes.h>
 
+#define YO_VIDEO_NUM 10
 #define YO_INPUT_NUM 10
 #define YO_TYPE_NUM 16
 
@@ -68,8 +69,10 @@ namespace yo::k {
     YO_KEY(object_id,  "oid")
     YO_KEY(object_type,"oty")
     YO_KEY(objects,    "obs")
+	YO_KEY(opacity,    "opa")
     YO_KEY(orthogonal, "ort")
     YO_KEY(overlay,    "oly")
+	YO_KEY(plane,      "pln")
     YO_KEY(pointer,    "ptr")
     YO_KEY(port,       "prt")
     YO_KEY(position,   "pos")
@@ -92,6 +95,7 @@ namespace yo::k {
     YO_KEY(version,    "ver")
     YO_KEY(vertex,     "vtx")
     YO_KEY(vertices,   "vts")
+	YO_KEY(video,      "vid")
     YO_KEY(width,      "wdt")
     YO_KEY(world,      "wld")
 #undef YO_KEY
@@ -164,13 +168,25 @@ inline void createInputCfg(uint32_t i, YOVariant &input)
     }
 }
 
-inline void createVideoCfg(YOVariant &video)
+inline void createVideoCfg(uint32_t i, YOVariant &config, const std::string &name)
 {
-    video[yo::k::position] = YOVector3{0.0f, 0.0f, 0.0f};
-    video[yo::k::rotation] = YOVector4{0.0f, 0.0f, 0.0f, 0.0f};
-    video[yo::k::width] = 0;
-    video[yo::k::height] = 0;
-    video[yo::k::overlay] = false;
+	config.m_name = name;
+	config[yo::k::enabled] = true;
+	config[yo::k::id] = i;
+	config[yo::k::name] = (yo_keys[name] + " " + std::to_string(i)).c_str();
+	config[yo::k::comment] = "";
+	config[yo::k::overlay] = true;
+	config[yo::k::opacity] = YOLimitF{.value = 1.0f, .min=0.0f, .max=1.0f, .speed=0.01};
+
+	config[yo::k::size][yo::k::width] = (uint16_t) 0;
+	config[yo::k::size][yo::k::height] = (uint16_t) 0;
+
+	config[yo::k::plane][yo::k::width] = 3.0f;
+	config[yo::k::plane][yo::k::height] = 4.0f;
+
+    config[yo::k::transform][yo::k::position] = YOVector3{};
+    config[yo::k::transform][yo::k::rotation] = YOVector3{};
+    config[yo::k::transform][yo::k::scale] = YOVector3{1.0f, 1.0f, 1.0f};
 }
 
 inline void createCameraCfg(YOVariant &camera)

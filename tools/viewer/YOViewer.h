@@ -43,10 +43,9 @@
 #include <Graphics/Zone.h>
 #include <Resource/ResourceCache.h>
 #include <Scene/Node.h>
-
-
 #include <Scene/Scene.h>
 #include <Scene/Node.h>
+#include <UI/Sprite.h>
 
 #include "YOFlyController.h"
 #include "YOGui.h"
@@ -77,7 +76,7 @@ class YOViewer: public Application
 URHO3D_OBJECT(YOViewer, Application)
 
 pthread_t thread_inputs_{};
-//pthread_t thread_videos_;
+pthread_t thread_videos_{};
 
 public:
     YOViewer(Context *context) : Application(context)
@@ -88,6 +87,7 @@ public:
     virtual ~YOViewer()
     {
         pthread_join(thread_inputs_, NULL);
+        pthread_join(thread_videos_, NULL);
     }
     void Setup() override;
     void Start() override;
@@ -95,10 +95,15 @@ public:
     {
         std::cout << " STOP " << std::endl;
         pthread_cancel(thread_inputs_);
+        pthread_cancel(thread_videos_);
     }
     void AddFrame(std::shared_ptr<YOVariant> frame, int frame_id);
+    void AddVideo(SharedPtr<Image> frame, int frame_id);
+
     void CreateMaterial(int input, int type, YOVariant &style);
     YOVariant *GetConfig(YOVariant  &config, const std::string &path);
+    void RegisterTopic(const std::string &name, int num);
+    int GetTopicId(const std::string &name);
 
 private:
 
@@ -142,9 +147,16 @@ private:
 
     std::array<std::shared_ptr<YOVariant>, YO_INPUT_NUM> data_in_;
     std::array<std::shared_ptr<YOInputData>, YO_INPUT_NUM> data_;
-    //std::array<Node*, YO_INPUT_NUM> data_;
-
     std::array<std::mutex, YO_INPUT_NUM> data_lock_;
+
+    std::array<SharedPtr<Texture2D>, YO_VIDEO_NUM> video_;
+    std::array<std::mutex, YO_VIDEO_NUM> video_lock_;
+    std::array<SharedPtr<Sprite>, YO_VIDEO_NUM> video_pad_;
+    std::array<SharedPtr<Image>, YO_VIDEO_NUM> video_img_;
+
+    std::map<std::string, int> topics_;
+
+    //std::array<Node*, YO_INPUT_NUM> data_;
 
     void CreateCamera();
     void CreateScene();
@@ -155,6 +167,7 @@ private:
     void CreateSprite(SharedPtr<Texture2D> tex, Vector2 pos);
 
     std::shared_ptr<YOInputData> ConvertFrame(std::shared_ptr<YOVariant>, int id);
+    void ConvertVideos();
 
     void CreateXYGrid(Node *parent, int cellsX = 10, int cellsY = 10, float spacing = 1.0f, float z = 0.0f);
 

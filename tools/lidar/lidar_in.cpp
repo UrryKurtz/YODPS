@@ -136,7 +136,9 @@ int fn_hdl32(const std::string &topic, std::shared_ptr<YOMessage> message, void 
             Laser *laser = &fd->laser[j];
             if (laser->Distance)
             {
-                int id = laser->Intencity / 16;
+            	//std::cout << " "  << laser->Intencity << std::endl;
+                int id = (int)log2((laser->Intencity * sqrt(laser->Intencity) + 1)); //laser->Intencity / 16;log(laser->Intencity);
+                //std::cout << id << " "  << (int) laser->Intencity << std::endl;
                 float r = 0.002f * laser->Distance;
                 float rcos = r * coss[j];
                 float x = rcos * cos(rot);

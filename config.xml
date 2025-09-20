@@ -5068,6 +5068,218 @@
                 </map>
             </map>
         </array>
+        <array name="vid" type="YOArray">
+            <map name="vid" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="true" name="enb" type="bool"/>
+                <element value="0" name="id" type="uint32_t"/>
+                <element value="video 0" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="1" min="0" max="1" speed="0.0099999998" name="opa" type="YOLimitF"/>
+                <map name="pln" type="YOMap">
+                    <element value="4" name="hgt" type="float"/>
+                    <element value="3" name="wdt" type="float"/>
+                </map>
+                <map name="sz" type="YOMap">
+                    <element value="0" name="hgt" type="uint16_t"/>
+                    <element value="0" name="wdt" type="uint16_t"/>
+                </map>
+                <map name="tfm" type="YOMap">
+                    <element x="180" y="280" z="0" name="pos" type="YOVector3"/>
+                    <element x="0" y="0" z="0" name="rot" type="YOVector3"/>
+                    <element x="0.5" y="0.5" z="1" name="scl" type="YOVector3"/>
+                </map>
+            </map>
+            <map name="vid" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="true" name="enb" type="bool"/>
+                <element value="1" name="id" type="uint32_t"/>
+                <element value="video 1" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="0.62" min="0" max="1" speed="0.0099999998" name="opa" type="YOLimitF"/>
+                <map name="pln" type="YOMap">
+                    <element value="4" name="hgt" type="float"/>
+                    <element value="3" name="wdt" type="float"/>
+                </map>
+                <map name="sz" type="YOMap">
+                    <element value="0" name="hgt" type="uint16_t"/>
+                    <element value="0" name="wdt" type="uint16_t"/>
+                </map>
+                <map name="tfm" type="YOMap">
+                    <element x="178" y="528" z="0" name="pos" type="YOVector3"/>
+                    <element x="0" y="0" z="0" name="rot" type="YOVector3"/>
+                    <element x="0.5" y="0.5" z="1" name="scl" type="YOVector3"/>
+                </map>
+            </map>
+            <map name="vid" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="true" name="enb" type="bool"/>
+                <element value="2" name="id" type="uint32_t"/>
+                <element value="video 2" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="1" min="0" max="1" speed="0.0099999998" name="opa" type="YOLimitF"/>
+                <map name="pln" type="YOMap">
+                    <element value="4" name="hgt" type="float"/>
+                    <element value="3" name="wdt" type="float"/>
+                </map>
+                <map name="sz" type="YOMap">
+                    <element value="0" name="hgt" type="uint16_t"/>
+                    <element value="0" name="wdt" type="uint16_t"/>
+                </map>
+                <map name="tfm" type="YOMap">
+                    <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                    <element x="0" y="0" z="0" name="rot" type="YOVector3"/>
+                    <element x="1" y="1" z="1" name="scl" type="YOVector3"/>
+                </map>
+            </map>
+            <map name="vid" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="true" name="enb" type="bool"/>
+                <element value="3" name="id" type="uint32_t"/>
+                <element value="video 3" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="1" min="0" max="1" speed="0.0099999998" name="opa" type="YOLimitF"/>
+                <map name="pln" type="YOMap">
+                    <element value="4" name="hgt" type="float"/>
+                    <element value="3" name="wdt" type="float"/>
+                </map>
+                <map name="sz" type="YOMap">
+                    <element value="0" name="hgt" type="uint16_t"/>
+                    <element value="0" name="wdt" type="uint16_t"/>
+                </map>
+                <map name="tfm" type="YOMap">
+                    <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                    <element x="0" y="0" z="0" name="rot" type="YOVector3"/>
+                    <element x="1" y="1" z="1" name="scl" type="YOVector3"/>
+                </map>
+            </map>
+            <map name="vid" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="true" name="enb" type="bool"/>
+                <element value="4" name="id" type="uint32_t"/>
+                <element value="video 4" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="1" min="0" max="1" speed="0.0099999998" name="opa" type="YOLimitF"/>
+                <map name="pln" type="YOMap">
+                    <element value="4" name="hgt" type="float"/>
+                    <element value="3" name="wdt" type="float"/>
+                </map>
+                <map name="sz" type="YOMap">
+                    <element value="0" name="hgt" type="uint16_t"/>
+                    <element value="0" name="wdt" type="uint16_t"/>
+                </map>
+                <map name="tfm" type="YOMap">
+                    <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                    <element x="0" y="0" z="0" name="rot" type="YOVector3"/>
+                    <element x="1" y="1" z="1" name="scl" type="YOVector3"/>
+                </map>
+            </map>
+            <map name="vid" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="true" name="enb" type="bool"/>
+                <element value="5" name="id" type="uint32_t"/>
+                <element value="video 5" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="1" min="0" max="1" speed="0.0099999998" name="opa" type="YOLimitF"/>
+                <map name="pln" type="YOMap">
+                    <element value="4" name="hgt" type="float"/>
+                    <element value="3" name="wdt" type="float"/>
+                </map>
+                <map name="sz" type="YOMap">
+                    <element value="0" name="hgt" type="uint16_t"/>
+                    <element value="0" name="wdt" type="uint16_t"/>
+                </map>
+                <map name="tfm" type="YOMap">
+                    <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                    <element x="0" y="0" z="0" name="rot" type="YOVector3"/>
+                    <element x="1" y="1" z="1" name="scl" type="YOVector3"/>
+                </map>
+            </map>
+            <map name="vid" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="true" name="enb" type="bool"/>
+                <element value="6" name="id" type="uint32_t"/>
+                <element value="video 6" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="1" min="0" max="1" speed="0.0099999998" name="opa" type="YOLimitF"/>
+                <map name="pln" type="YOMap">
+                    <element value="4" name="hgt" type="float"/>
+                    <element value="3" name="wdt" type="float"/>
+                </map>
+                <map name="sz" type="YOMap">
+                    <element value="0" name="hgt" type="uint16_t"/>
+                    <element value="0" name="wdt" type="uint16_t"/>
+                </map>
+                <map name="tfm" type="YOMap">
+                    <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                    <element x="0" y="0" z="0" name="rot" type="YOVector3"/>
+                    <element x="1" y="1" z="1" name="scl" type="YOVector3"/>
+                </map>
+            </map>
+            <map name="vid" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="true" name="enb" type="bool"/>
+                <element value="7" name="id" type="uint32_t"/>
+                <element value="video 7" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="1" min="0" max="1" speed="0.0099999998" name="opa" type="YOLimitF"/>
+                <map name="pln" type="YOMap">
+                    <element value="4" name="hgt" type="float"/>
+                    <element value="3" name="wdt" type="float"/>
+                </map>
+                <map name="sz" type="YOMap">
+                    <element value="0" name="hgt" type="uint16_t"/>
+                    <element value="0" name="wdt" type="uint16_t"/>
+                </map>
+                <map name="tfm" type="YOMap">
+                    <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                    <element x="0" y="0" z="0" name="rot" type="YOVector3"/>
+                    <element x="1" y="1" z="1" name="scl" type="YOVector3"/>
+                </map>
+            </map>
+            <map name="vid" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="true" name="enb" type="bool"/>
+                <element value="8" name="id" type="uint32_t"/>
+                <element value="video 8" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="1" min="0" max="1" speed="0.0099999998" name="opa" type="YOLimitF"/>
+                <map name="pln" type="YOMap">
+                    <element value="4" name="hgt" type="float"/>
+                    <element value="3" name="wdt" type="float"/>
+                </map>
+                <map name="sz" type="YOMap">
+                    <element value="0" name="hgt" type="uint16_t"/>
+                    <element value="0" name="wdt" type="uint16_t"/>
+                </map>
+                <map name="tfm" type="YOMap">
+                    <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                    <element x="0" y="0" z="0" name="rot" type="YOVector3"/>
+                    <element x="1" y="1" z="1" name="scl" type="YOVector3"/>
+                </map>
+            </map>
+            <map name="vid" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="true" name="enb" type="bool"/>
+                <element value="9" name="id" type="uint32_t"/>
+                <element value="video 9" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="1" min="0" max="1" speed="0.0099999998" name="opa" type="YOLimitF"/>
+                <map name="pln" type="YOMap">
+                    <element value="4" name="hgt" type="float"/>
+                    <element value="3" name="wdt" type="float"/>
+                </map>
+                <map name="sz" type="YOMap">
+                    <element value="0" name="hgt" type="uint16_t"/>
+                    <element value="0" name="wdt" type="uint16_t"/>
+                </map>
+                <map name="tfm" type="YOMap">
+                    <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                    <element x="0" y="0" z="0" name="rot" type="YOVector3"/>
+                    <element x="1" y="1" z="1" name="scl" type="YOVector3"/>
+                </map>
+            </map>
+        </array>
         <array name="wld" type="YOArray">
             <map name="inp" type="YOMap">
                 <element value="" name="com" type="std::string"/>
@@ -5105,9 +5317,9 @@
                         </map>
                         <element value="0" name="id" type="uint32_t"/>
                         <map name="ln" type="YOMap">
-                            <element r="0.1254902" g="0.062745102" b="0.94117647" a="1" name="clr" type="YOColor4F"/>
+                            <element r="0.1254902" g="0.062745102" b="0.81568629" a="1" name="clr" type="YOColor4F"/>
                             <element value="true" name="enb" type="bool"/>
-                            <element value="2" min="0" max="32" speed="0.1" name="wdt" type="YOLimitF"/>
+                            <element value="4" min="0" max="32" speed="0.1" name="wdt" type="YOLimitF"/>
                         </map>
                         <element value="type 0" name="nam" type="std::string"/>
                         <element value="true" name="rps" type="bool"/>

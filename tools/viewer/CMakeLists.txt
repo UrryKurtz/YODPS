@@ -30,5 +30,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC
  ${YODPS_PATH}/third_party/rbfx/include/Urho3D/ThirdParty/tracy
 )
   
-target_link_libraries(${PROJECT_NAME}  yo_utils Urho3D ImGui ImGuizmo) 
+target_link_libraries(${PROJECT_NAME}  yo_utils Urho3D ImGui ImGuizmo turbojpeg) 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})

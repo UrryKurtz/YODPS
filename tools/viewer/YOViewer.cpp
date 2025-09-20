@@ -7,18 +7,18 @@
 #include "YOViewer.h"
 #include "YOKeys.h"
 #include "YOXML.h"
+#include <turbojpeg.h>
 
 #include <Urho3D/UI/Text3D.h>
 #include <Urho3D/UI/Font.h>
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/Sprite.h>
 #include <Urho3D/IO/File.h>
+#include <Urho3D/IO/MemoryBuffer.h>
 #include <Urho3D/RenderPipeline/ShaderConsts.h>
 #include <Urho3D/SystemUI/SystemUI.h>
 #include <Urho3D/SystemUI/SystemUIEvents.h> // E_SYSTEMUI
 #include <Urho3D/SystemUI/ImGui.h>
-
-
 
 int fn_input(const std::string &topic, std::shared_ptr<YOMessage> message, void *param)
 {
@@ -26,9 +26,52 @@ int fn_input(const std::string &topic, std::shared_ptr<YOMessage> message, void 
     //std::cout  << topic << " fn_hdl32 !!! data size: "  << message->getDataSize() << std::endl;
     std::shared_ptr<YOVariant> frame = std::make_shared<YOVariant>(message->getDataSize(), (const char*)message->getData());
     //frame->print();
-    viewer->AddFrame(frame, 0);
+    viewer->AddFrame(frame, viewer->GetTopicId(topic));
     return 0;
 }
+
+inline bool DecodeJpegToRGBA(const uint8_t* data, size_t size, SharedPtr<Image> rgba, int& width, int& height)
+{
+    tjhandle tj = tjInitDecompress();
+    if (!tj)
+    	return false;
+
+    int subsamp = 0, colorspace = 0;
+    if (tjDecompressHeader3(tj, data, (unsigned long)size, &width, &height, &subsamp, &colorspace) != 0)
+    {
+    	tjDestroy(tj);
+    	return false;
+    }
+    rgba->SetSize(width,height, 4);
+    const int flags = TJFLAG_FASTDCT; //TJFLAG_ACCURATEDCT; //TJFLAG_FASTDCT;
+    if (tjDecompress2(tj, data, (unsigned long)size, rgba->GetData(), width, 0, height, TJPF_RGBA, flags) != 0)
+    {
+    	tjDestroy(tj);
+    	return false;
+    }
+    tjDestroy(tj);
+    return true;
+}
+
+int fn_video(const std::string &topic, std::shared_ptr<YOMessage> message, void *param)
+{
+    YOViewer *viewer = (YOViewer *)param;
+	YOImageData *img_info = (YOImageData *)message->getData();
+	if(img_info->format == YOFrameFormat::YO_JPEG)
+	{
+		int width, height;
+		auto rgba = MakeShared<Image>(viewer->GetContext());
+		if(DecodeJpegToRGBA(message->getExtData(), message->getExtDataSize(), rgba, width, height))
+		{
+			int input = viewer->GetTopicId(topic);
+
+			viewer->AddVideo(rgba, input);
+		}
+	}
+    //viewer->AddVideo(message, viewer->GetTopicId(topic));
+    return 0;
+}
+
 void sig_fn(int signal, void *data)
 {
     std::cout << signal << " sig_fn " << std::endl;
@@ -37,29 +80,50 @@ void sig_fn(int signal, void *data)
 
 void *fn_thread_input(void *param)
 {
-    std::cout << "START!!! "<< std::endl;
-
-    YONode node("RECEIVER");
+    YONode node("GEOM");
     node.connect();
     node.addSignalFunction(SIGINT, sig_fn, &node);
-
-    node.subscribe("INPUT0", fn_input, param);
-    node.subscribe("INPUT1", fn_input, param);
-    node.subscribe("INPUT2", fn_input, param);
-    node.subscribe("INPUT3", fn_input, param);
-    node.subscribe("INPUT4", fn_input, param);
-    node.subscribe("INPUT5", fn_input, param);
-    node.subscribe("INPUT6", fn_input, param);
-    node.subscribe("INPUT7", fn_input, param);
-    node.subscribe("INPUT8", fn_input, param);
-    node.subscribe("INPUT9", fn_input, param);
-    std::cout << "START RECEIVER "<< std::endl;
+    for(int i = 0; i < YO_INPUT_NUM; i++)
+    {
+    	std::string topic = "INPUT" + std::to_string(i);
+    	YOViewer *viewer = (YOViewer *)param;
+    	viewer->RegisterTopic(topic, i);
+    	node.subscribe(topic.c_str(), fn_input, param);
+    }
     node.start();
-    std::cout << "STOP RECEIVER "<< std::endl;
     node.disconnect();
     node.shutdown();
     return  param;
 }
+
+void *fn_thread_video(void *param)
+{
+    YONode node("VIDEO");
+    node.connect();
+    node.addSignalFunction(SIGINT, sig_fn, &node);
+    for(int i = 0; i < YO_VIDEO_NUM; i++)
+    {
+    	std::string topic = "VIDEO" + std::to_string(i);
+    	YOViewer *viewer = (YOViewer *)param;
+    	viewer->RegisterTopic(topic, i);
+    	node.subscribe(topic.c_str(), fn_video, param);
+    }
+    node.start();
+    node.disconnect();
+    node.shutdown();
+    return  param;
+}
+
+void YOViewer::RegisterTopic(const std::string &name, int num)
+{
+	topics_[name] = num;
+}
+
+int YOViewer::GetTopicId(const std::string &name)
+{
+	return topics_[name];
+}
+
 
 void YOViewer::Setup()
 {
@@ -98,6 +162,7 @@ void YOViewer::Start()
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(YOViewer, HandleKeyDown));
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(YOViewer, HandleUpdate));
     pthread_create(&thread_inputs_, NULL, fn_thread_input, this);
+    pthread_create(&thread_videos_, NULL, fn_thread_video, this);
 }
 
 void YOViewer::CreateLight()
@@ -127,6 +192,13 @@ void YOViewer::AddFrame(std::shared_ptr<YOVariant> frame, int frame_id)
     data_lock_[frame_id].unlock();
 }
 
+void YOViewer::AddVideo(SharedPtr<Image> frame, int frame_id)
+{
+    video_lock_[frame_id].lock();
+    video_img_[frame_id] = frame;
+    video_lock_[frame_id].unlock();
+}
+
 void YOViewer::CreateConfig()
 {
     config_ = std::make_shared<YOVariant>(yo::k::config);
@@ -137,25 +209,34 @@ void YOViewer::CreateConfig()
         std::cout << "ERROR LOADING CONFIG" << std::endl;
 
         YOVariant &world = config_->get(yo::k::world);
-        YOVariant &internal = config_->get(yo::k::internal);
-        YOVariant &global = config_->get(yo::k::global);
-
-        internal.m_name = yo::k::internal;
-        internal.m_value = YOArray(YO_INPUT_NUM);
-
         world.m_name = yo::k::world;
         world.m_value = YOArray(YO_INPUT_NUM);
 
-        global[yo::k::broker][yo::k::sender]   = YOIPv4{ {127, 0, 0, 1}, 4444 };
-        global[yo::k::broker][yo::k::receiver] = YOIPv4{ {127, 0, 0, 1}, 4445 };
+        YOVariant &internal = config_->get(yo::k::internal);
+        internal.m_name = yo::k::internal;
+        internal.m_value = YOArray(YO_INPUT_NUM);
 
         for(int i = 0; i < YO_INPUT_NUM; i++)
         {
             createInputCfg(i, world[i]);
             createInputCfg(i, internal[i]);
         }
+
+        YOVariant &global = config_->get(yo::k::global);
+        global[yo::k::broker][yo::k::sender]   = YOIPv4{ {127, 0, 0, 1}, 4444 };
+        global[yo::k::broker][yo::k::receiver] = YOIPv4{ {127, 0, 0, 1}, 4445 };
+
+        YOVariant &video = config_->get(yo::k::video);
+        video.m_name = yo::k::video;
+        video.m_value = YOArray(YO_INPUT_NUM);
+        for(int i = 0; i < YO_VIDEO_NUM; i++)
+        {
+            createVideoCfg(i, video[i], yo::k::video);
+        }
         //config_->print();
     }
+
+
     gui_ = std::make_shared<YOGui>(config_);
 }
 
@@ -305,6 +386,30 @@ void YOViewer::CreateTextures()
     CreateSprite(texture_fill_, Vector2{120,20});
     CreateSprite(texture_text_, Vector2{220,20});
     CreateSprite(texture_param_, Vector2{320,20});
+
+    auto* ui = GetSubsystem<UI>();
+	auto* root = ui->GetRoot();
+
+	YOVariant &video_cfg = config_->get(yo::k::video);
+	int idx = 0;
+	for(auto &v : video_)
+	{
+		v = MakeShared<Texture2D>(context_);
+		video_img_[idx] = MakeShared<Image>(context_);
+
+		YOVariant &cur_vid = video_cfg[idx];
+		YOVariant &transform = cur_vid[yo::k::transform];
+		YOVector3 &pos = transform[yo::k::position];
+		YOVector3 &scale = transform[yo::k::scale];
+
+		video_pad_[idx] = root->CreateChild<Sprite>();
+		video_pad_[idx]->SetTexture(v);
+		video_pad_[idx]->SetSize(v->GetSize());
+		video_pad_[idx]->SetBlendMode(BLEND_ALPHA);
+		video_pad_[idx]->SetPosition(pos.x, pos.y);
+		video_pad_[idx]->SetScale(scale.x, scale.y);
+		idx++;
+	}
 }
 
 void YOViewer::CreateMaterial(int input, int type, YOVariant &style)
@@ -313,6 +418,29 @@ void YOViewer::CreateMaterial(int input, int type, YOVariant &style)
 }
 
 #define DEG2RAD(x) ((x) * 0.0174532925199433)
+
+
+void YOViewer::ConvertVideos()
+{
+	for(int i = 0; i < YO_VIDEO_NUM; i++)
+	{
+		video_lock_[i].lock();
+		SharedPtr<Image> img = video_img_[i];
+		video_img_[i].Reset();
+		if(img)
+		{
+			video_[i]->SetData(img);
+			if(img->GetWidth() != video_pad_[i]->GetWidth() || img->GetHeight() != video_pad_[i]->GetHeight())
+			{
+				 std::cout << "RESIZE " << video_[i]->GetWidth() << " " << video_[i]->GetHeight() << std::endl;
+				 video_pad_[i]->SetSize(img->GetSize().x_, img->GetSize().y_);
+				 video_pad_[i]->SetHotSpot(img->GetSize().x_/2, img->GetSize().y_/2);
+				 video_pad_[i]->SetTexture(video_[i]);
+			}
+		}
+		video_lock_[i].unlock();
+	}
+}
 
 std::shared_ptr<YOInputData> YOViewer::ConvertFrame(std::shared_ptr<YOVariant> frame, int frame_id)
 {
@@ -379,6 +507,8 @@ void YOViewer::HandleUpdate(StringHash eventType, VariantMap& eventData)
 
     auto *cache = GetSubsystem<ResourceCache>();
 
+    ConvertVideos();
+
     for (std::size_t i = 0; i < data_in_.size(); ++i)
     {
        data_lock_[i].lock();
@@ -386,10 +516,9 @@ void YOViewer::HandleUpdate(StringHash eventType, VariantMap& eventData)
        data_in_[i] = nullptr;
        data_lock_[i].unlock();
 
-       //std::cout << "UPDATE !!!! " << i << " : " << std::endl;
        if(frame != nullptr )
        {
-           //std::cout << "UPDATE !!!! " << i << " : " << data_in_[i]->m_name << std::endl;
+           //std::cout << "UPDATE !!!! " << i << " : " << frame->m_name << std::endl;
            if(data_[i] != nullptr)
                data_[i]->root->Remove();
 
@@ -464,11 +593,11 @@ YOVariant *YOViewer::GetConfig(YOVariant  &config, const std::string &path)
     }
 
     std::string &param = plist[plist.size() - 1];
-    if(addr[0]>-1 && addr[1]>-1)
-    {
-        printf("!!!!! %s Changed Input: %d, Type: %d\n", param.c_str(), addr[0], addr[1]);
+    std::string &subsystem = plist[0];
 
-        if(ends_with(path, "/line/enabled"))
+    if(subsystem == "world" && addr[0]>-1 && addr[1]>-1)
+    {
+    	if(ends_with(path, "/line/enabled"))
         {
 
         }
@@ -500,14 +629,57 @@ YOVariant *YOViewer::GetConfig(YOVariant  &config, const std::string &path)
         }
         else if(ends_with(path, "/enabled"))
         {
-        	for( Node *n : data_[addr[0]]->types[addr[1]])
-        	{
-        		n->SetEnabled(res->get<bool>());
-        	}
+        	if(data_[addr[0]])
+				for( Node *n : data_[addr[0]]->types[addr[1]])
+				{
+					n->SetEnabled(res->get<bool>());
+				}
         }
     }
 
-    printf("Changed [%s] Input: %d, Type: %d\n", path.c_str(), addr[0], addr[1]);
+    if(subsystem == "world" && addr[0]>-1 && addr[1]==-1)
+    {
+        if(ends_with(path, "/enabled") && data_[addr[0]])
+        {
+			for( Node *n : data_[addr[0]]->types[addr[1]])
+			{
+				n->SetEnabled(res->get<bool>());
+			}
+        }
+    }
+
+    if(plist[0] == "video" && addr[0]>-1 )
+    {
+
+        if(ends_with(path, "/enabled"))
+        {
+        	std::cout << " VIDEO " << res->get<bool>() << std::endl;
+        	video_pad_[addr[0]]->SetVisible(res->get<bool>());
+        }
+        else if(ends_with(path, "/transform/position"))
+        {
+        	YOVector3 pos = res->get<YOVector3>();
+
+        	video_pad_[addr[0]]->SetHotSpot(video_pad_[addr[0]]->GetWidth()/2, video_pad_[addr[0]]->GetHeight()/2);
+        	video_pad_[addr[0]]->SetPosition(pos.x, pos.y);
+        }
+        else if(ends_with(path, "/transform/scale"))
+        {
+        	YOVector3 pos = res->get<YOVector3>();
+        	video_pad_[addr[0]]->SetScale(pos.x, pos.y);
+        }
+        else if(ends_with(path, "/transform/rotation"))
+        {
+        	YOVector3 pos = res->get<YOVector3>();
+        	video_pad_[addr[0]]->SetRotation(pos.z);
+        }
+        else if(ends_with(path, "/opacity"))
+        {
+        	YOLimitF op = res->get<YOLimitF>();
+        	video_pad_[addr[0]]->SetOpacity(op.value);
+        }
+    }
+    printf("CFG: %s Changed [%s] Input: %d, Type: %d\n", plist[0].c_str(), path.c_str(), addr[0], addr[1]);
     return res;
 }
 
