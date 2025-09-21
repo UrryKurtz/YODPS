@@ -9,6 +9,9 @@
 #include "YOXML.h"
 #include <turbojpeg.h>
 
+
+#include <Urho3D/Graphics/DebugRenderer.h>
+
 #include <Urho3D/UI/Text3D.h>
 #include <Urho3D/UI/Font.h>
 #include <Urho3D/UI/UI.h>
@@ -154,7 +157,8 @@ void YOViewer::Start()
     CreateXYGrid(world_, 4, 1, 50.0f, 0.0f);
 
     auto *renderer = GetSubsystem<Renderer>();
-    SharedPtr<Viewport>viewport(new Viewport(context_, scene_, cameraNode_->GetComponent<Camera>()));
+    //SharedPtr<Viewport>viewport(new Viewport(context_, scene_, cameraNode_->GetComponent<Camera>()));
+    SharedPtr<Viewport>viewport(new Viewport(context_, scene_, camera_));
     renderer->SetViewport(0, viewport);
 
     GetSubsystem<Engine>()->SetMaxFps(30);
@@ -228,14 +232,20 @@ void YOViewer::CreateConfig()
 
         YOVariant &video = config_->get(yo::k::video);
         video.m_name = yo::k::video;
-        video.m_value = YOArray(YO_INPUT_NUM);
+        video.m_value = YOArray(YO_VIDEO_NUM);
         for(int i = 0; i < YO_VIDEO_NUM; i++)
         {
             createVideoCfg(i, video[i], yo::k::video);
         }
-        //config_->print();
-    }
 
+        YOVariant &camera = config_->get(yo::k::camera);
+        camera.m_name = yo::k::camera;
+        camera.m_value = YOArray(YO_CAMERA_NUM);
+        for(int i = 0; i < YO_CAMERA_NUM; i++)
+        {
+            createCameraCfg(i, camera[i], yo::k::camera);
+        }
+    }
 
     gui_ = std::make_shared<YOGui>(config_);
 }
@@ -254,13 +264,13 @@ void YOViewer::CreateScene()
     }
 
     Node *zoneNode = world_->CreateChild("Zone");
+
     auto *zone = zoneNode->CreateComponent<Zone>();
     zone->SetAmbientColor(Color(0.03f, 0.03f, 0.03f));
 //        zone->SetFogColor(Color(0.25f, 0.25f, 0.25f));
 //        zone->SetFogStart(50.0f);
 //        zone->SetFogEnd(200.0f);
     zone->SetBoundingBox(BoundingBox(-1000.0f, 1000.0f));
-
     {
         Urho3D::Node *myNode = world_->CreateChild("SampleNode");
         myNode->SetPosition(Urho3D::Vector3(0.0f, 0.0f, 0.0f));
@@ -310,15 +320,32 @@ void YOViewer::CreateCamera()
     internal_ = scene_->CreateChild("Internal");
 
     cameraNode_ = world_->CreateChild("Camera");
+
     overlay_ = cameraNode_->CreateChild("Overlay");
     overlay_->SetPosition(Vector3(0, 0, 50));
     overlay_->Rotate(Quaternion(0, 0, 90));
 
-    cameraNode_->SetPosition(Vector3(0, 0, 100));
-    cameraNode_->LookAt(Vector3(0, 0, 0), Vector3(1, 0, 0), TS_WORLD);
+    cameraNode_->SetPosition(Vector3(0, 0, 0));
+    //cameraNode_->LookAt(Vector3(0, 0, 0), Vector3(1, 0, 0), TS_WORLD);
+
     controller_ = cameraNode_->CreateComponent<YOFlyController>();
     // Camera
-    camera_ = cameraNode_->CreateComponent<Camera>();
+    camera_ = scene_->CreateComponent<Camera>();
+    controller_->SetCamera(camera_);
+
+    for(int i = 0; i < YO_CAMERA_NUM; i++)
+    {
+    	YOVariant &cam = config_->get(yo::k::camera)[i];
+        if(cam[yo::k::select])
+        {
+        	camera_select_ = i;
+    		YOVector3 &pos = cam[yo::k::position].get<YOVector3>();
+			YOVector3 &rot = cam[yo::k::rotation].get<YOVector3>();
+			YOLimitF &fov = cam[yo::k::fov];
+			controller_->MoveTo(1, (Vector3&)pos, rot.z, rot.y, rot.x, fov.value);
+			return;
+        }
+    }
     //camera_->SetOrthographic(true);
 }
 
@@ -526,6 +553,25 @@ void YOViewer::HandleUpdate(StringHash eventType, VariantMap& eventData)
        }
     }
     RenderUI();
+
+    if(camera_select_>-1)
+    {
+    	if(config_->get(yo::k::camera)[camera_select_][yo::k::record])
+    	{
+    		//std::cout <<  " CAME "  << config_->get(yo::k::camera)[camera_select_][yo::k::position].m_value << ;
+			//std::cout <<"  " << config_->get(yo::k::camera)[camera_select_][yo::k::rotation].m_value << std::endl;
+
+    		config_->get(yo::k::camera)[camera_select_][yo::k::position] = (YOVector3&)cameraNode_->GetPosition();
+    		//const Quaternion &rot = controller_->GetRotation();
+
+    		Vector3 ang = controller_->GetRotation();
+
+    		//config_->get(yo::k::camera)[camera_select_][yo::k::rotation] = YOVector3 {rot.PitchAngle(), rot.YawAngle(), rot.RollAngle()};
+
+    		config_->get(yo::k::camera)[camera_select_][yo::k::rotation] = YOVector3 {ang.x_, ang.y_, ang.z_};
+    	}
+
+    }
 }
 
 void YOViewer::HandleKeyDown(StringHash eventType, VariantMap &eventData)
@@ -594,6 +640,34 @@ YOVariant *YOViewer::GetConfig(YOVariant  &config, const std::string &path)
 
     std::string &param = plist[plist.size() - 1];
     std::string &subsystem = plist[0];
+
+    if(subsystem == "camera" && addr[0]>-1)
+    {
+    	std::cout << "!!! CAMERA" << addr[0] << " " << path << std::endl;
+    	if(ends_with(path, "/position"))
+		{
+    		cameraNode_->SetPosition((Vector3&)res->get<YOVector3>());
+		}
+    	else if(ends_with(path, "/rotation"))
+		{
+    		YOVector3& rot = res->get<YOVector3>();
+    		controller_->SetRotation(rot.x, rot.y, rot.z);
+    		std::cout << "Rotation: " << rot << std::endl;
+		}
+    	else if(ends_with(path, "/fov"))
+		{
+    		camera_->SetFov(res->get<YOLimitF>().value);
+		}
+    	else if(ends_with(path, "/select"))
+		{
+    		camera_select_ = addr[0];
+    		YOVariant &cam = config_->get(yo::k::camera)[addr[0]];
+    		YOVector3 &pos = cam[yo::k::position].get<YOVector3>();
+			YOVector3 &rot = cam[yo::k::rotation].get<YOVector3>();
+			YOLimitF &fov = cam[yo::k::fov];
+			controller_->MoveTo(cam[yo::k::frames].get<uint32_t>(), (Vector3&)pos, rot.z, rot.y, rot.x, fov.value);
+		}
+    }
 
     if(subsystem == "world" && addr[0]>-1 && addr[1]>-1)
     {
@@ -688,7 +762,7 @@ void YOViewer::ProcessChange()
     std::string path = gui_->getPath();
     std::string param = gui_->getParam();
     YOVariant *cfg = GetConfig(*config_, path);
-    std::cout << " Got config path: " << path << " name: " << cfg->m_name << " type: " <<  YOValue_type_name(cfg->m_value.index())  << " Value :" << cfg->m_value << std::endl;
+    std::cout << " Got config path: " << path << " name: " << cfg->m_name << " type: " <<  YOValue_type_name(cfg->m_value.index())  << std::endl;
 }
 
 void YOViewer::RenderUI(){

@@ -27,7 +27,7 @@ bool YOGui::draw()
     return changed_;
 }
 
-void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show_name )
+void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show_name, int *select, int value)
 {
     bool changed = false;
     ui::PushID(&cfg);
@@ -59,12 +59,14 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
 			drawCfg(cfg[yo::k::enabled], new_path, true, false);
 			ui::SameLine();
 		}
+
 		if (ui::CollapsingHeader(name.c_str()))
         {
         	ui::Indent();
+
 			for (auto &pair : cfg.get<YOMap>() )
 			{
-				drawCfg(pair.second, new_path, true);
+				drawCfg(pair.second, new_path, true, true, select, value);
 			}
 			ui::Unindent();
         }
@@ -75,9 +77,35 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
             if (ui::CollapsingHeader(name.c_str()))
             {
             	ui::Indent();
+	        	int select = 0;
             	for (int i = 0; i < cfg.getArraySize(); i++)
                 {
-                	drawCfg(cfg[i], new_path + "/" + std::to_string(i), false);
+    				if(cfg[i].hasChild(yo::k::select) && cfg[i][yo::k::select])
+    				{
+    					select = i;
+    				}
+                }
+
+            	for (int i = 0; i < cfg.getArraySize(); i++)
+                {
+    				if(cfg[i].hasChild(yo::k::select))
+    				{
+    					if( i != select)
+    					{
+    						cfg[i][yo::k::select] = false;
+    					}
+    					drawCfg(cfg[i][yo::k::select], new_path + "/" + std::to_string(i), true, false, &select, i); ui::SameLine();
+//    					if(ui::RadioButton(("##" + std::to_string(i)).c_str(), &select, i))
+//    					{
+//    						select = i;
+//    						std::cout << i << std::endl;
+//    						cfg[i][yo::k::select] = true;
+//						    //changed = true;
+//    					}
+    					ui::SameLine();
+    				}
+
+                	drawCfg(cfg[i], new_path + "/" + std::to_string(i), false, false, &select, i);
                 }
                 ui::Unindent();
             }
@@ -118,7 +146,8 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
         case 6: //bool
         if(ui::Checkbox(show_name ? name.c_str() : "", ( bool*) &cfg.m_value))
         {
-            changed = true;
+        	changed = true;
+        	if( select ) *select = value;
         }
         break;
 

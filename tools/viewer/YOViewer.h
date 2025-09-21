@@ -83,6 +83,7 @@ public:
     {
         exit_ = false;
         cache_ = GetSubsystem<ResourceCache>();
+        camera_select_ = 0; //TODO read from config
     }
     virtual ~YOViewer()
     {
@@ -126,6 +127,8 @@ private:
     SharedPtr<Node>internal_;
 
     SharedPtr<Node>grid_;
+
+    int camera_select_;
     SharedPtr<Node>cameraNode_;
     SharedPtr<Camera>camera_;
     SharedPtr<YOFlyController>controller_;
