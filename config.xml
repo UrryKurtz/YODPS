@@ -12,7 +12,7 @@
                 <element x="-92.496002" y="-76.960434" z="42.089085" name="pos" type="YOVector3"/>
                 <element value="false" name="rec" type="bool"/>
                 <element x="0" y="-67.000015" z="39.599998" name="rot" type="YOVector3"/>
-                <element value="true" name="sel" type="bool"/>
+                <element value="false" name="sel" type="bool"/>
             </map>
             <map name="cam" type="YOMap">
                 <element value="" name="com" type="std::string"/>
@@ -22,7 +22,7 @@
                 <element value="camera 1" name="nam" type="std::string"/>
                 <element value="true" name="oly" type="bool"/>
                 <element value="false" name="ort" type="bool"/>
-                <element x="2.3739152e-05" y="2.6226044e-05" z="39.738174" name="pos" type="YOVector3"/>
+                <element x="2.3739152e-05" y="2.6226044e-05" z="50" name="pos" type="YOVector3"/>
                 <element value="false" name="rec" type="bool"/>
                 <element x="-7.6293954e-06" y="2.4318695e-05" z="1.3113022e-05" name="rot" type="YOVector3"/>
                 <element value="false" name="sel" type="bool"/>
@@ -129,7 +129,7 @@
                 <element x="-37.130917" y="-0.17841747" z="25.94503" name="pos" type="YOVector3"/>
                 <element value="false" name="rec" type="bool"/>
                 <element x="9.094947e-13" y="-59.200001" z="0.1999888" name="rot" type="YOVector3"/>
-                <element value="false" name="sel" type="bool"/>
+                <element value="true" name="sel" type="bool"/>
             </map>
         </array>
         <map name="glb" type="YOMap">
@@ -5941,7 +5941,7 @@
                         <sub value="From Data"/>
                         <sub value="Combine"/>
                     </element>
-                    <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                    <element x="0" y="90" z="25" name="pos" type="YOVector3"/>
                     <element x="0" y="0" z="0" name="rot" type="YOVector3"/>
                     <element x="1" y="1" z="1" name="scl" type="YOVector3"/>
                 </map>
@@ -6447,7 +6447,7 @@
                         <sub value="From Data"/>
                         <sub value="Combine"/>
                     </element>
-                    <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                    <element x="0" y="-133" z="0" name="pos" type="YOVector3"/>
                     <element x="0" y="0" z="0" name="rot" type="YOVector3"/>
                     <element x="1" y="1" z="1" name="scl" type="YOVector3"/>
                 </map>
@@ -6463,7 +6463,7 @@
                         <map name="ln" type="YOMap">
                             <element r="1" g="1" b="1" a="1" name="clr" type="YOColor4F"/>
                             <element value="true" name="enb" type="bool"/>
-                            <element value="1" min="0" max="32" speed="0.1" name="wdt" type="YOLimitF"/>
+                            <element value="1.6" min="0" max="32" speed="0.1" name="wdt" type="YOLimitF"/>
                         </map>
                         <element value="type 0" name="nam" type="std::string"/>
                         <element value="true" name="rps" type="bool"/>

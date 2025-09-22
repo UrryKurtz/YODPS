@@ -89,7 +89,7 @@ struct YOStringList {
 };
 
 using YOData = std::vector<uint8_t>;
-using YODataF = std::vector<float>;
+using YOFloatList = std::vector<float>;
 
 using YOVector2IList = std::vector<YOVector2I>;
 using YOVector2UList = std::vector<YOVector2U>;

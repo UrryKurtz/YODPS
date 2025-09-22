@@ -11,6 +11,7 @@
 
 
 #include <Urho3D/Graphics/DebugRenderer.h>
+#include <Urho3D/Graphics/Geometry.h>
 
 #include <Urho3D/UI/Text3D.h>
 #include <Urho3D/UI/Font.h>
@@ -333,19 +334,22 @@ void YOViewer::CreateCamera()
     camera_ = scene_->CreateComponent<Camera>();
     controller_->SetCamera(camera_);
 
+    camera_select_ = 0; // Load Camera 0 by default
+    YOVariant &cams = config_->get(yo::k::camera);
+
     for(int i = 0; i < YO_CAMERA_NUM; i++)
     {
-    	YOVariant &cam = config_->get(yo::k::camera)[i];
-        if(cam[yo::k::select])
+        if(cams[i][yo::k::select].get<bool>())
         {
         	camera_select_ = i;
-    		YOVector3 &pos = cam[yo::k::position].get<YOVector3>();
-			YOVector3 &rot = cam[yo::k::rotation].get<YOVector3>();
-			YOLimitF &fov = cam[yo::k::fov];
-			controller_->MoveTo(1, (Vector3&)pos, rot.z, rot.y, rot.x, fov.value);
-			return;
+			break;
         }
     }
+	YOVector3 &pos = cams[camera_select_][yo::k::position].get<YOVector3>();
+	YOVector3 &rot = cams[camera_select_][yo::k::rotation].get<YOVector3>();
+	YOLimitF &fov = cams[camera_select_][yo::k::fov];
+	controller_->MoveTo(1, (Vector3&)pos, rot.z, rot.y, rot.x, fov.value);
+
     //camera_->SetOrthographic(true);
 }
 
@@ -469,51 +473,82 @@ void YOViewer::ConvertVideos()
 	}
 }
 
+void YOViewer::ConvertGeometry(YOVariant &obj, std::shared_ptr<YOInputData> fdata, YOVariant &input_cfg, int frame_id)
+{
+    Node *node = fdata->root->CreateChild();
+    node->SetTemporary(true);
+
+    YOVariant &types = input_cfg[yo::k::types];
+    YOVariant &geoms = obj[yo::k::geometries];
+    bool en_input = input_cfg[yo::k::enabled].get<bool>();
+
+    for( int i = 0; i < geoms.getArraySize(); i++)
+    {
+    	YOVariant &geom = geoms[i];
+    	uint32_t type_id = geom[yo::k::style_id];
+    	YOVariant &type_cfg = types[type_id];
+    	PrimitiveType geomType = (PrimitiveType) geom[yo::k::geometry_type].get<int32_t>();
+    	YOVector3List &vertices = (YOVector3List &) geom[yo::k::vertices].get<YOFloatList>();
+    	bool en_type = type_cfg[yo::k::enabled].get<bool>();
+
+        auto *cg = node->CreateComponent<CustomGeometry>();
+		//cg->SetEnabled([yo::k::enabled].get<bool>());
+
+        cg->SetNumGeometries(1);
+    	cg->BeginGeometry(0,  geomType);
+
+    	bool en_geom = true;
+
+    	switch(geomType)
+    	{
+    	case TRIANGLE_LIST:
+    	case TRIANGLE_FAN:
+    	case TRIANGLE_STRIP:
+    		cg->SetMaterial(0, material_fill_);
+    		en_geom = type_cfg[yo::k::fill][yo::k::enabled].get<bool>();
+    		fdata->geom_fills[type_id].push_back(cg);
+    		break;
+    	case LINE_LIST:
+    	case POINT_LIST:
+    	case LINE_STRIP:
+    		cg->SetMaterial(0, material_line_);
+    		en_geom = type_cfg[yo::k::line][yo::k::enabled].get<bool>();
+    		fdata->geom_lines[type_id].push_back(cg);
+    		break;
+    	}
+
+    	cg->SetEnabled(en_geom && en_type && en_input);
+
+    	for( auto &vertex : vertices)
+		{
+			cg->DefineNormal(Vector3::FORWARD);
+			cg->DefineVertex((Urho3D::Vector3&)vertex);
+	    	cg->DefineTexCoord(Vector2( (float) frame_id / YO_INPUT_NUM, (float) type_id / YO_TYPE_NUM));
+		}
+    	cg->Commit();
+    	fdata->geoms[type_id].push_back(cg);
+    }
+}
+
 std::shared_ptr<YOInputData> YOViewer::ConvertFrame(std::shared_ptr<YOVariant> frame, int frame_id)
 {
     YOVariant &input_cfg = config_->get(yo::k::world)[frame_id];
     YOVariant &transform = input_cfg[yo::k::transform];
     YOVector3 &rot = transform[yo::k::rotation].get<YOVector3>();
-
     std::shared_ptr<YOInputData> fdata = std::make_shared<YOInputData>();
 
     fdata->root = world_->CreateChild();
     fdata->root->SetTemporary(true);
-
     fdata->root->SetPosition((Vector3&)transform[yo::k::position].get<YOVector3>());
     fdata->root->SetRotation(Quaternion(rot.x, rot.y, rot.z));
     fdata->root->SetScale((Vector3&)transform[yo::k::scale].get<YOVector3>());
-
     YOVariant &objects = frame->get(yo::k::objects);
-    YOColor4CList &colors = frame->get(yo::k::colors);
+    //YOColor4CList &colors = frame->get(yo::k::colors);
     YOVariant &types_list = input_cfg[yo::k::types];
 
     for(int i = 0; i < objects.getArraySize(); i++)
     {
-        YOVariant &obj = objects[i];
-        uint32_t type = obj[yo::k::style_id];
-        YOVariant &type_cfg = types_list[type];
-
-        Node *node = fdata->root->CreateChild();
-        fdata->types[type].push_back(node);
-        fdata->enabled[type] = type_cfg[yo::k::enabled].get<bool>();
-
-		node->SetEnabled(type_cfg[yo::k::enabled].get<bool>());
-        node->SetTemporary(true);
-        auto *cg = node->CreateComponent<CustomGeometry>();
-        cg->BeginGeometry(0, POINT_LIST);
-
-        YOColor4F &clr = type_cfg[yo::k::line][yo::k::color];
-        YOVector3List &vertices = obj[yo::k::vertices];
-
-        for( auto &vertex : vertices)
-        {
-            cg->DefineNormal(Vector3::FORWARD);
-            cg->DefineVertex((Urho3D::Vector3&)vertex);
-            cg->DefineTexCoord(Vector2( (float) frame_id / YO_INPUT_NUM, (float) type / YO_TYPE_NUM));
-        }
-        cg->SetMaterial(material_line_);
-        cg->Commit();
+        ConvertGeometry(objects[i], fdata, input_cfg, frame_id);
     }
     //fnode->SetEnabledRecursive(input_cfg[yo::k::enabled].get<bool>());
     //fnode->ApplyAttributes();
@@ -558,19 +593,10 @@ void YOViewer::HandleUpdate(StringHash eventType, VariantMap& eventData)
     {
     	if(config_->get(yo::k::camera)[camera_select_][yo::k::record])
     	{
-    		//std::cout <<  " CAME "  << config_->get(yo::k::camera)[camera_select_][yo::k::position].m_value << ;
-			//std::cout <<"  " << config_->get(yo::k::camera)[camera_select_][yo::k::rotation].m_value << std::endl;
-
     		config_->get(yo::k::camera)[camera_select_][yo::k::position] = (YOVector3&)cameraNode_->GetPosition();
-    		//const Quaternion &rot = controller_->GetRotation();
-
     		Vector3 ang = controller_->GetRotation();
-
-    		//config_->get(yo::k::camera)[camera_select_][yo::k::rotation] = YOVector3 {rot.PitchAngle(), rot.YawAngle(), rot.RollAngle()};
-
     		config_->get(yo::k::camera)[camera_select_][yo::k::rotation] = YOVector3 {ang.x_, ang.y_, ang.z_};
     	}
-
     }
 }
 
@@ -673,7 +699,13 @@ YOVariant *YOViewer::GetConfig(YOVariant  &config, const std::string &path)
     {
     	if(ends_with(path, "/line/enabled"))
         {
-
+    		if(data_[addr[0]])
+			{
+				for( CustomGeometry *cg : data_[addr[0]]->geom_lines[addr[1]])
+				{
+					cg->SetViewMask(res->get<bool>());
+				}
+			}
         }
         else if(ends_with(path, "/line/color"))
         {
@@ -695,7 +727,7 @@ YOVariant *YOViewer::GetConfig(YOVariant  &config, const std::string &path)
         }
         else if(ends_with(path, "/fill/enabled"))
         {
-
+        	//TODO CHECK input, type, geom enabled...
         }
         else if(ends_with(path, "/fill/color"))
         {
@@ -704,10 +736,16 @@ YOVariant *YOViewer::GetConfig(YOVariant  &config, const std::string &path)
         else if(ends_with(path, "/enabled"))
         {
         	if(data_[addr[0]])
+        	{
 				for( Node *n : data_[addr[0]]->types[addr[1]])
 				{
 					n->SetEnabled(res->get<bool>());
 				}
+				for( CustomGeometry *cg : data_[addr[0]]->geoms[addr[1]])
+				{
+					cg->SetViewMask(res->get<bool>());
+				}
+        	}
         }
     }
 
@@ -715,10 +753,10 @@ YOVariant *YOViewer::GetConfig(YOVariant  &config, const std::string &path)
     {
         if(ends_with(path, "/enabled") && data_[addr[0]])
         {
-			for( Node *n : data_[addr[0]]->types[addr[1]])
-			{
-				n->SetEnabled(res->get<bool>());
-			}
+    		if(data_[addr[0]])
+    		{
+    			data_[addr[0]]->root->SetEnabledRecursive(res->get<bool>());
+    		}
         }
     }
 

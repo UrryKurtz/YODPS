@@ -50,6 +50,7 @@ namespace yo::k {
     YO_KEY(frame_id,   "fid")
     YO_KEY(geometry,   "geo")
     YO_KEY(geometries, "ges")
+	YO_KEY(geometry_type, "gtp")
     YO_KEY(global,     "glb")
     YO_KEY(height,     "hgt")
     YO_KEY(id,         "id")
@@ -120,12 +121,18 @@ enum YOCoordType
 
 enum YOObjectType
 {
-    YOPointCloud,
-    YOLineList,
+	YOGeomery,
+	YOModel,
+};
+
+enum YOGeomType
+{
+	YOTriangleList,
+	YOLineList,
+	YOPointList,
+	YOTriangleStrip,
     YOLineStrip,
-    YOTriangleList,
-    YOTriangleFan,
-    YOModel
+    YOTriangleFan
 };
 
 inline void createStyleCfg(uint32_t i, YOVariant &style, const std::string &name)
@@ -253,6 +260,8 @@ inline bool ends_with(const std::string& str, const std::string& suffix) {
 
   <model />
   <geoms />
+  <data />
+  <text />
 </object>
 
 <geoms>
@@ -263,12 +272,12 @@ inline bool ends_with(const std::string& str, const std::string& suffix) {
 </geoms>
 
 <geom>
+  <geom_type id int32/>
   <style id int32/>
   <color line />
   <color fill />
-  <vector vertices />
-  <vector normals />
-  <vector colors />
+  <YOVector3List vertices />
+  <YOColor4CList colors opt />
 </geom>
 
 <model>

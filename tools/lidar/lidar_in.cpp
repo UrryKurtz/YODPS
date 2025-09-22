@@ -74,29 +74,37 @@ YOColor4CList colors = {
 static uint16_t last_ang = 0;
 static YOVariant frame("Frame Cloud #0");
 
-static YOVector3List *vert_list[16];
+//static YOVector3List *vert_list[16];
+static YOFloatList *vert_list[16];
 
 uint16_t g_counter = 0;
 
 void create_frame()
 {
     //std::cout  << " create_frame: !!! " << std::endl;
-    frame[yo::k::objects] = YOArray(16);
+    frame[yo::k::objects] = YOArray(1);
+
+    YOVariant &cloud = frame[yo::k::objects][0];
+    cloud[yo::k::object_type] = YOObjectType::YOGeomery;
+
+    cloud[yo::k::geometries] = YOArray(16);
+    YOVariant &geoms = cloud[yo::k::geometries];
 
     for(uint32_t i = 0; i < 16 ; i++)
     {
-        YOVariant &type = frame[yo::k::objects][i];
-
-        YOVariant &color = type[yo::k::color];
+        YOVariant &geom = geoms[i];
+        YOVariant &color = geom[yo::k::color];
         color[yo::k::line] = convert(colors[i * 2]);
         color[yo::k::fill] = YOColor4F{0.3f, 0.3f, 0.3f, 0.5f};
-        color[yo::k::text] = YOColor4F{1.0f, 1.0f, 1.0f, 0.8f};
-        type[yo::k::type] = (int) YOPointCloud;
-        type[yo::k::style_id] = i;
-        type[yo::k::overlay] = false;
-        type[yo::k::vertices] = YOVector3List();
-        vert_list[i] = (YOVector3List*)&type[yo::k::vertices].m_value;
-        vert_list[i]->reserve(50000);
+        //color[yo::k::text] = YOColor4F{1.0f, 1.0f, 1.0f, 0.8f};
+        geom[yo::k::geometry_type] = YOGeomType::YOPointList;
+        geom[yo::k::style_id] = i;
+        geom[yo::k::overlay] = false;
+        //geom[yo::k::vertices] = YOVector3List();
+        //vert_list[i] = &geom[yo::k::vertices].get<YOVector3List>();
+        geom[yo::k::vertices] = YOFloatList();
+        vert_list[i] = &geom[yo::k::vertices].get<YOFloatList>();
+        vert_list[i]->reserve(100000);
     }
 
     frame[yo::k::sender] = "Velodyne decoder";
@@ -126,7 +134,7 @@ int fn_hdl32(const std::string &topic, std::shared_ptr<YOMessage> message, void 
         if (fd->header.Rotation < last_ang) //&& (last_ang - data->Data[i].header.Rotation) > 35900
         {
             YOMessage msg(frame);
-            g_node->sendMessage("INPUT0", msg);
+            g_node->sendMessage(g_output.c_str(), msg);
             create_frame();
         }
         float rot = 0.000174533f * fd->header.Rotation;
@@ -145,8 +153,13 @@ int fn_hdl32(const std::string &topic, std::shared_ptr<YOMessage> message, void 
                 float y = rcos * sin(rot);
                 float z = r * sins[j];
 
-                YOVector3List *list = vert_list[id];
-                list->push_back(YOVector3{x,y,z});
+                //YOVector3List *list = vert_list[id];
+                //list->push_back(YOVector3{x,y,z});
+
+                YOFloatList *list = vert_list[id];
+                list->push_back(x);
+                list->push_back(y);
+                list->push_back(z);
             }
         }
         last_ang = data->Data[i].header.Rotation;
@@ -196,7 +209,6 @@ int main(int argc, char **argv)
         sins[i] = sin(angles[i]);
         coss[i] = cos(angles[i]);
     }
-
 
     g_node = new YONode(g_type.c_str());
     g_node->advertise(g_output.c_str());

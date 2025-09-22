@@ -83,7 +83,7 @@ void YOXML::readNode(YOVariant &cfg, tinyxml2::XMLElement* node,  const std::str
                 cfg.m_value = node->Attribute("value");
                break;
            case 3: //YODataF,    //3
-               cfg.m_value = YODataF();
+               cfg.m_value = YOFloatList();
                break;
            case 4: //std::string,//4
                cfg.m_value = node->Attribute("value");

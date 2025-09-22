@@ -68,7 +68,9 @@ struct YOInputData
 {
 	Node* root;
 	std::array<std::vector<Node*>, YO_TYPE_NUM> types;
-	std::array<bool, YO_TYPE_NUM> enabled;
+	std::array<std::vector<CustomGeometry*>, YO_TYPE_NUM> geom_lines;
+	std::array<std::vector<CustomGeometry*>, YO_TYPE_NUM> geom_fills;
+	std::array<std::vector<CustomGeometry*>, YO_TYPE_NUM> geoms;
 };
 
 class YOViewer: public Application
@@ -170,6 +172,8 @@ private:
     void CreateSprite(SharedPtr<Texture2D> tex, Vector2 pos);
 
     std::shared_ptr<YOInputData> ConvertFrame(std::shared_ptr<YOVariant>, int id);
+    void ConvertGeometry(YOVariant &obj, std::shared_ptr<YOInputData> fdata, YOVariant &input_cfg, int frame_id);
+
     void ConvertVideos();
 
     void CreateXYGrid(Node *parent, int cellsX = 10, int cellsY = 10, float spacing = 1.0f, float z = 0.0f);

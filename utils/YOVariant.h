@@ -50,7 +50,7 @@ YO_DECLARE_VARIANT(YOValue,
         YOMap,      //0
         YOArray,    //1
         YOData,     //2
-        YODataF,    //3
+        YOFloatList, //3
         std::string,//4
         YOStringList, //5
         bool,       //6
@@ -90,7 +90,7 @@ YO_DECLARE_VARIANT(YOValue,
 inline std::ostream& operator<<(std::ostream& os, const YOStringList& v)    {  return os << "YOStringList: " << v.items.size() ; }
 
 inline std::ostream& operator<<(std::ostream& os, const YOData& v)    {  return os << "size: " << v.size() ; }
-inline std::ostream& operator<<(std::ostream& os, const YODataF& v)    {  return os << "size: " << v.size() ; }
+inline std::ostream& operator<<(std::ostream& os, const YOFloatList& v)    {  return os << "size: " << v.size() ; }
 
 inline std::ostream& operator<<(std::ostream& os, const YOVector2& v) {  return os << "(" << v.x << ", " << v.y << ")"; }
 inline std::ostream& operator<<(std::ostream& os, const YOVector2I& v) { return os << "(" << v.x << ", " << v.y << ")"; }
