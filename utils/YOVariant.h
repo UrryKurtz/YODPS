@@ -159,6 +159,7 @@ public:
     virtual ~YOVariant();
 
     size_t getTypeId();
+    const std::string &getTypeName();
     void push_back(const YOVariant& node);
     YOVariant& back();
 

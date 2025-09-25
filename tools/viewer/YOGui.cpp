@@ -6,24 +6,24 @@
  */
 
 #include "YOGui.h"
-#include <Urho3D/SystemUI/SystemUI.h>
-#include <Urho3D/SystemUI/SystemUIEvents.h> // E_SYSTEMUI
 
-YOGui::YOGui(std::shared_ptr<YOVariant> config) : config_(config)
+YOGui::YOGui()
 {
     changed_ = false;
+    current_ = 0;
 }
 
 YOGui::~YOGui()
 {
 }
 
-bool YOGui::draw()
+bool YOGui::draw(YOVariant &cfg)
 {
     changed_ = false;
     param_ = "";
     path_ = "";
-    drawCfg(*config_);
+    index_.clear();
+    drawCfg(cfg);
     return changed_;
 }
 
@@ -32,7 +32,8 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
     bool changed = false;
     ui::PushID(&cfg);
 
-    std::string name =  yo_keys.count(cfg.m_name) ? yo_keys[cfg.m_name] : cfg.m_name;
+    //std::string name =  yo_keys.count(cfg.m_name) ? yo_keys[cfg.m_name] : cfg.m_name;
+    std::string name = yo_key(cfg.m_name);
     ui::AlignTextToFramePadding();
 
     std::string new_path = path;
@@ -73,7 +74,7 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
             break;
         case 1: //array
         {
-            name += " [" + std::to_string(cfg.getArraySize()) + "]";
+            name += "[" + std::to_string(cfg.getArraySize()) + "]";
             if (ui::CollapsingHeader(name.c_str()))
             {
             	ui::Indent();
@@ -85,7 +86,7 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
     					select = i;
     				}
                 }
-
+            	bool check = false;
             	for (int i = 0; i < cfg.getArraySize(); i++)
                 {
     				if(cfg[i].hasChild(yo::k::select))
@@ -94,18 +95,20 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
     					{
     						cfg[i][yo::k::select] = false;
     					}
-    					drawCfg(cfg[i][yo::k::select], new_path + "/" + std::to_string(i), true, false, &select, i); ui::SameLine();
-//    					if(ui::RadioButton(("##" + std::to_string(i)).c_str(), &select, i))
-//    					{
-//    						select = i;
-//    						std::cout << i << std::endl;
-//    						cfg[i][yo::k::select] = true;
-//						    //changed = true;
-//    					}
-    					ui::SameLine();
+    					drawCfg(cfg[i][yo::k::select], new_path + "/#" + std::to_string(index_.size()), true, false, &select, i);
+						ui::SameLine();
     				}
-
-                	drawCfg(cfg[i], new_path + "/" + std::to_string(i), false, false, &select, i);
+    				index_.push_back(i);
+    				drawCfg(cfg[i], new_path + "/#" + std::to_string(index_.size()-1), false, false, &select, i);
+    				if(changed_ && !check)
+    				{
+    					index_out_ = index_;
+    					check = true;
+    				}
+    				else
+    				{
+    					index_.pop_back();
+    				}
                 }
                 ui::Unindent();
             }
@@ -177,7 +180,6 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
         case 17: //IPv4
         {
             YOIPv4 &ip = cfg;
-
             if(ui::DragScalarN("ip", ImGuiDataType_U8, &ip.ip, 4, 1.0f))
             {
                 changed = true;
@@ -259,10 +261,8 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
         param_ = name;
         path_ = path + "/" + name;
         changed_ = true;
+        current_ = &cfg;
         //std::cout << "GUI changed " << new_path  << "  param : " << param_ << std::endl;
     }
-
-    //ui::SameLine(); ui::TextUnformatted(new_path.c_str());
     ui::PopID();
-
 }

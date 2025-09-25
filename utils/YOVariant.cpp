@@ -46,6 +46,12 @@ size_t YOVariant::getTypeId()
     return m_value.index();
 }
 
+const std::string &YOVariant::getTypeName()
+{
+	return YOValue_type_name(m_value.index());
+}
+
+
 YOVariant& YOVariant::get(size_t idx)
 {
     return std::get<YOArray>(m_value).at(idx);

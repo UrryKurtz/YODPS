@@ -32,7 +32,7 @@ bool YOXML::readXML(const std::string &file, YOVariant &cfg)
 
     for (tinyxml2::XMLElement* node = root->FirstChildElement("map"); node != nullptr; node = node->NextSiblingElement("map"))
     {
-        if(strcmp(node->Attribute("name"), "cfg") == 0)
+        //if(strcmp(node->Attribute("name"), "cfg") == 0)
         {
             std::cout << "READ FILE. CONFIG: " <<  node->Attribute("name") << std::endl;
             readNode(cfg, node);

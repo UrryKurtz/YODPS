@@ -18,11 +18,16 @@ YOViewer.cpp
 YOGui.cpp
 YOFlyController.cpp
 YOConverter.cpp
+YOConfig.cpp
+plugins/YOPolylinePlugin.cpp
+plugins/YOVideoPlugin.cpp
+plugins/YOCameraPlugin.cpp
+YOPluginBus.cpp
 ${CONVERT_SOURCES}
 )
 
 # Include the configuration header in the build
-target_include_directories(${PROJECT_NAME} PUBLIC 
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR} plugins
 "${PROJECT_BINARY_DIR}" 
  ${YODPS_PATH}/third_party/rbfx/include
  ${YODPS_PATH}/third_party/rbfx/include/Urho3D

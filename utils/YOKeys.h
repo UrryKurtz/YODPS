@@ -26,6 +26,17 @@ inline const char* yo_register_key(const char* name, const char* str) {
     return str;
 }
 
+inline std::string yo_key(const std::string &name) {
+
+	auto it = yo_keys.find(name);
+
+	if(it != yo_keys.end())
+	{
+		return yo_keys[name];
+	}       // "vts" -> "vertices"
+    return name;
+}
+
 #define YO_KEY(name, str) inline const char* name = yo_register_key(#name, str);
 
 namespace yo::k {
@@ -33,6 +44,7 @@ namespace yo::k {
     YO_KEY(apply,      "apl")
     YO_KEY(broker,     "bkr")
 	YO_KEY(camera,     "cam")
+	YO_KEY(cameras,    "cms")
     YO_KEY(color,      "clr")
     YO_KEY(colors,     "cls")
     YO_KEY(comment,    "com")
@@ -42,6 +54,7 @@ namespace yo::k {
     YO_KEY(data,       "dat")
     YO_KEY(disabled,   "dis")
     YO_KEY(enabled,    "enb")
+	YO_KEY(file,       "fle")
     YO_KEY(fill,       "fll")
     YO_KEY(fov,        "fov")
     YO_KEY(font,       "fnt")
@@ -56,6 +69,7 @@ namespace yo::k {
     YO_KEY(id,         "id")
     YO_KEY(internal,   "int")
     YO_KEY(input,      "inp")
+	YO_KEY(inputs,     "ins")
     YO_KEY(ip,         "ip")
     YO_KEY(length,     "len")
     YO_KEY(line,       "ln")
@@ -77,10 +91,13 @@ namespace yo::k {
     YO_KEY(orthogonal, "ort")
     YO_KEY(overlay,    "oly")
 	YO_KEY(plane,      "pln")
+	YO_KEY(plugin,     "plu")
+	YO_KEY(plugins,    "pls")
     YO_KEY(pointer,    "ptr")
     YO_KEY(port,       "prt")
     YO_KEY(position,   "pos")
     YO_KEY(projection, "prj")
+	YO_KEY(publish,    "pub")
     YO_KEY(receiver,   "rcv")
 	YO_KEY(record,     "rec")
     YO_KEY(replace,    "rps")
@@ -93,6 +110,7 @@ namespace yo::k {
     YO_KEY(step,       "stp")
     YO_KEY(step_fast,  "stf")
     YO_KEY(style_id,   "sid")
+	YO_KEY(subscribe,  "sub")
     YO_KEY(text,       "txt")
     YO_KEY(transform,  "tfm")
     YO_KEY(type,       "typ")
@@ -119,6 +137,13 @@ enum YOCoordType
     YOOverlay
 };
 
+enum YOSpaceType
+{
+    YOExternal,
+    YOInternal
+};
+
+
 enum YOObjectType
 {
 	YOGeomery,
@@ -134,88 +159,6 @@ enum YOGeomType
     YOLineStrip,
     YOTriangleFan
 };
-
-inline void createStyleCfg(uint32_t i, YOVariant &style, const std::string &name)
-{
-    //std::cout << " createStyleCfg " << name << std::endl;
-    style[yo::k::enabled] = true;
-    style[yo::k::replace] = true;
-
-    style[yo::k::name] = (yo_keys[name] + " " + std::to_string(i)).c_str();
-    style[yo::k::comment] = "";
-
-    style[yo::k::id] = i;
-
-    style[yo::k::line][yo::k::enabled] = true;
-    style[yo::k::line][yo::k::color] = YOColor4F{1.0f, 1.0f, 1.0f, 1.0f};
-    style[yo::k::line][yo::k::width] = YOLimitF{1.0f, 0.0f, 16.0f, 0.1f};
-
-    style[yo::k::fill][yo::k::enabled] = true;
-    style[yo::k::fill][yo::k::color] = YOColor4F{1.0f, 1.0f, 1.0f, 1.0f};
-
-    style[yo::k::text][yo::k::enabled] = true;
-    style[yo::k::text][yo::k::color] = YOColor4F{1.0f, 1.0f, 1.0f, 1.0f};
-    style[yo::k::text][yo::k::size]  = YOLimitF{12.0f, 1.0f, 32.0f, 0.1f};
-    style[yo::k::text][yo::k::position] = YOVector3{0.0f, 0.0f, 0.0f};
-    style[yo::k::text][yo::k::font]  = YOStringList{ .items = {"default", "Arial", "Courier", "Times", "Robo"}, .select = 0};
-
-    style.m_name = name;
-}
-
-inline void createInputCfg(uint32_t i, YOVariant &input)
-{
-    input[yo::k::transform][yo::k::position] = YOVector3{};
-    input[yo::k::transform][yo::k::rotation] = YOVector3{};
-    input[yo::k::transform][yo::k::scale] = YOVector3{1.0f, 1.0f, 1.0f};
-    input[yo::k::transform][yo::k::apply] = YOStringList {.items = {"Ignore", "From Config", "From Data", "Combine"}, .select = 1};
-
-    createStyleCfg(i, input, yo::k::input);
-
-    input[yo::k::types] = YOArray(YO_TYPE_NUM);
-
-    for(int j = 0; j < YO_TYPE_NUM; j++)
-    {
-        YOVariant &type = input[yo::k::types][j];
-        createStyleCfg(j, type, yo::k::type);
-    }
-}
-
-inline void createCameraCfg(uint32_t i, YOVariant &config, const std::string &name)
-{
-	config.m_name = name;
-	config[yo::k::select] = false;
-	config[yo::k::record] = false;
-	config[yo::k::frames] = 20u;
-	config[yo::k::id] = i;
-	config[yo::k::name] = (yo_keys[name] + " " + std::to_string(i)).c_str();
-	config[yo::k::comment] = "";
-	config[yo::k::overlay] = true;
-	config[yo::k::orthogonal] = false;
-	config[yo::k::position] = YOVector3{};
-    config[yo::k::rotation] = YOVector3{};
-    config[yo::k::fov] = YOLimitF { .value = 55.0f, .min = 0.0f, .max = 180.f, .speed = 0.1f};
-}
-
-inline void createVideoCfg(uint32_t i, YOVariant &config, const std::string &name)
-{
-	config.m_name = name;
-	config[yo::k::enabled] = true;
-	config[yo::k::id] = i;
-	config[yo::k::name] = (yo_keys[name] + " " + std::to_string(i)).c_str();
-	config[yo::k::comment] = "";
-	config[yo::k::overlay] = true;
-	config[yo::k::opacity] = YOLimitF{.value = 1.0f, .min=0.0f, .max=1.0f, .speed=0.01};
-
-	config[yo::k::size][yo::k::width] = (uint16_t) 0;
-	config[yo::k::size][yo::k::height] = (uint16_t) 0;
-
-	config[yo::k::plane][yo::k::width] = 3.0f;
-	config[yo::k::plane][yo::k::height] = 4.0f;
-
-    config[yo::k::transform][yo::k::position] = YOVector3{};
-    config[yo::k::transform][yo::k::rotation] = YOVector3{};
-    config[yo::k::transform][yo::k::scale] = YOVector3{1.0f, 1.0f, 1.0f};
-}
 
 inline bool ends_with(const std::string& str, const std::string& suffix) {
     if (suffix.size() > str.size()) return false;

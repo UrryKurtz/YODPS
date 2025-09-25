@@ -55,6 +55,7 @@ public:
     void SetInvertY(bool inv)                  { invertY_ = inv; }
     void EnableRoll(bool enable)               { enableRoll_ = enable; }
     Vector3 GetRotation();
+    const Vector3& GetPosition();
     void SetRotation(const float &roll, const float &pitch, const float &yaw);
     void SetPosition(const Vector3 &pos);
 

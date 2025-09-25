@@ -1,0 +1,137 @@
+<xml>
+    <map name="Camera" type="YOMap">
+        <map name="cfg" type="YOMap"/>
+        <array name="cms" type="YOArray">
+            <map name="cam" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="55" min="0" max="180" speed="0.1" name="fov" type="YOLimitF"/>
+                <element value="30" name="frs" type="uint32_t"/>
+                <element value="0" name="id" type="uint32_t"/>
+                <element value="camera 0" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="true" name="ort" type="bool"/>
+                <element x="-64.394463" y="-0.77055454" z="41.21096" name="pos" type="YOVector3"/>
+                <element value="false" name="rec" type="bool"/>
+                <element x="0" y="-59.399937" z="-7.1972609e-06" name="rot" type="YOVector3"/>
+                <element value="true" name="sel" type="bool"/>
+            </map>
+            <map name="cam" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="55" min="0" max="180" speed="0.1" name="fov" type="YOLimitF"/>
+                <element value="30" name="frs" type="uint32_t"/>
+                <element value="1" name="id" type="uint32_t"/>
+                <element value="camera 1" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="false" name="ort" type="bool"/>
+                <element x="-59.341202" y="-17.777622" z="67.381699" name="pos" type="YOVector3"/>
+                <element value="false" name="rec" type="bool"/>
+                <element x="0" y="-37.599983" z="15.999996" name="rot" type="YOVector3"/>
+                <element value="false" name="sel" type="bool"/>
+            </map>
+            <map name="cam" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="55" min="0" max="180" speed="0.1" name="fov" type="YOLimitF"/>
+                <element value="30" name="frs" type="uint32_t"/>
+                <element value="2" name="id" type="uint32_t"/>
+                <element value="camera 2" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="false" name="ort" type="bool"/>
+                <element x="-76.315994" y="29.900682" z="41.334251" name="pos" type="YOVector3"/>
+                <element value="false" name="rec" type="bool"/>
+                <element x="0" y="-64.000008" z="-20.800003" name="rot" type="YOVector3"/>
+                <element value="false" name="sel" type="bool"/>
+            </map>
+            <map name="cam" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="55" min="0" max="180" speed="0.1" name="fov" type="YOLimitF"/>
+                <element value="30" name="frs" type="uint32_t"/>
+                <element value="3" name="id" type="uint32_t"/>
+                <element value="camera 3" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="false" name="ort" type="bool"/>
+                <element x="-27.575058" y="51.119617" z="38.93232" name="pos" type="YOVector3"/>
+                <element value="true" name="rec" type="bool"/>
+                <element x="0" y="-63.800003" z="-67.999802" name="rot" type="YOVector3"/>
+                <element value="false" name="sel" type="bool"/>
+            </map>
+            <map name="cam" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="55" min="0" max="180" speed="0.1" name="fov" type="YOLimitF"/>
+                <element value="30" name="frs" type="uint32_t"/>
+                <element value="4" name="id" type="uint32_t"/>
+                <element value="camera 4" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="false" name="ort" type="bool"/>
+                <element x="15.823994" y="19.039991" z="18.112196" name="pos" type="YOVector3"/>
+                <element value="false" name="rec" type="bool"/>
+                <element x="0" y="-56.799988" z="-117.39999" name="rot" type="YOVector3"/>
+                <element value="false" name="sel" type="bool"/>
+            </map>
+            <map name="cam" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="55" min="0" max="180" speed="0.1" name="fov" type="YOLimitF"/>
+                <element value="30" name="frs" type="uint32_t"/>
+                <element value="5" name="id" type="uint32_t"/>
+                <element value="camera 5" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="false" name="ort" type="bool"/>
+                <element x="42.305119" y="7.8910317" z="24.649588" name="pos" type="YOVector3"/>
+                <element value="false" name="rec" type="bool"/>
+                <element x="0" y="-54.800014" z="-163.20004" name="rot" type="YOVector3"/>
+                <element value="false" name="sel" type="bool"/>
+            </map>
+            <map name="cam" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="55" min="0" max="180" speed="0.1" name="fov" type="YOLimitF"/>
+                <element value="30" name="frs" type="uint32_t"/>
+                <element value="6" name="id" type="uint32_t"/>
+                <element value="camera 6" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="false" name="ort" type="bool"/>
+                <element x="41.469101" y="-14.585042" z="21.334576" name="pos" type="YOVector3"/>
+                <element value="false" name="rec" type="bool"/>
+                <element x="0" y="-62.599987" z="-197.99998" name="rot" type="YOVector3"/>
+                <element value="false" name="sel" type="bool"/>
+            </map>
+            <map name="cam" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="55" min="0" max="180" speed="0.1" name="fov" type="YOLimitF"/>
+                <element value="30" name="frs" type="uint32_t"/>
+                <element value="7" name="id" type="uint32_t"/>
+                <element value="camera 7" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="false" name="ort" type="bool"/>
+                <element x="27.790873" y="-28.445412" z="33.336449" name="pos" type="YOVector3"/>
+                <element value="false" name="rec" type="bool"/>
+                <element x="0" y="-53.199989" z="-218.80002" name="rot" type="YOVector3"/>
+                <element value="false" name="sel" type="bool"/>
+            </map>
+            <map name="cam" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="55" min="0" max="180" speed="0.1" name="fov" type="YOLimitF"/>
+                <element value="30" name="frs" type="uint32_t"/>
+                <element value="8" name="id" type="uint32_t"/>
+                <element value="camera 8" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="false" name="ort" type="bool"/>
+                <element x="-26.409714" y="-28.833803" z="43.429752" name="pos" type="YOVector3"/>
+                <element value="false" name="rec" type="bool"/>
+                <element x="0" y="-38.599995" z="-313.79993" name="rot" type="YOVector3"/>
+                <element value="false" name="sel" type="bool"/>
+            </map>
+            <map name="cam" type="YOMap">
+                <element value="" name="com" type="std::string"/>
+                <element value="55" min="0" max="180" speed="0.1" name="fov" type="YOLimitF"/>
+                <element value="30" name="frs" type="uint32_t"/>
+                <element value="9" name="id" type="uint32_t"/>
+                <element value="camera 9" name="nam" type="std::string"/>
+                <element value="true" name="oly" type="bool"/>
+                <element value="false" name="ort" type="bool"/>
+                <element x="-49.196522" y="-9.2599134" z="25.497414" name="pos" type="YOVector3"/>
+                <element value="false" name="rec" type="bool"/>
+                <element x="0" y="-55.399998" z="-334.60004" name="rot" type="YOVector3"/>
+                <element value="false" name="sel" type="bool"/>
+            </map>
+        </array>
+    </map>
+</xml>

@@ -151,13 +151,13 @@ void YONode::sendMessage(const char *topic, YOMessage &message)
 
 void YONode::subscribe(const char *topic, YOSubFn fn, void *data)
 {
-    std::cout << " Subscribe fn to topic [" << topic << "]" << std::endl;
+    //std::cout << " Subscribe fn to topic [" << topic << "]" << std::endl;
     m_sub_map[topic] = {topic, fn, 0, data};
 }
 
 void YONode::subscribe(const char *topic, YOSubSharedFn fn, void *data)
 {
-    std::cout << " Subscribe shared fn to topic [" << topic << "]" << std::endl;
+    //std::cout << " Subscribe shared fn to topic [" << topic << "]" << std::endl;
     m_sub_map[topic] = {topic, 0, fn, data};
 }
 

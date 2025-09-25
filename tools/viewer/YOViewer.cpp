@@ -7,7 +7,6 @@
 #include "YOViewer.h"
 #include "YOKeys.h"
 #include "YOXML.h"
-#include <turbojpeg.h>
 
 
 #include <Urho3D/Graphics/DebugRenderer.h>
@@ -24,110 +23,15 @@
 #include <Urho3D/SystemUI/SystemUIEvents.h> // E_SYSTEMUI
 #include <Urho3D/SystemUI/ImGui.h>
 
-int fn_input(const std::string &topic, std::shared_ptr<YOMessage> message, void *param)
-{
-    YOViewer *viewer = (YOViewer *)param;
-    //std::cout  << topic << " fn_hdl32 !!! data size: "  << message->getDataSize() << std::endl;
-    std::shared_ptr<YOVariant> frame = std::make_shared<YOVariant>(message->getDataSize(), (const char*)message->getData());
-    //frame->print();
-    viewer->AddFrame(frame, viewer->GetTopicId(topic));
-    return 0;
-}
-
-inline bool DecodeJpegToRGBA(const uint8_t* data, size_t size, SharedPtr<Image> rgba, int& width, int& height)
-{
-    tjhandle tj = tjInitDecompress();
-    if (!tj)
-    	return false;
-
-    int subsamp = 0, colorspace = 0;
-    if (tjDecompressHeader3(tj, data, (unsigned long)size, &width, &height, &subsamp, &colorspace) != 0)
-    {
-    	tjDestroy(tj);
-    	return false;
-    }
-    rgba->SetSize(width,height, 4);
-    const int flags = TJFLAG_FASTDCT; //TJFLAG_ACCURATEDCT; //TJFLAG_FASTDCT;
-    if (tjDecompress2(tj, data, (unsigned long)size, rgba->GetData(), width, 0, height, TJPF_RGBA, flags) != 0)
-    {
-    	tjDestroy(tj);
-    	return false;
-    }
-    tjDestroy(tj);
-    return true;
-}
-
-int fn_video(const std::string &topic, std::shared_ptr<YOMessage> message, void *param)
-{
-    YOViewer *viewer = (YOViewer *)param;
-	YOImageData *img_info = (YOImageData *)message->getData();
-	if(img_info->format == YOFrameFormat::YO_JPEG)
-	{
-		int width, height;
-		auto rgba = MakeShared<Image>(viewer->GetContext());
-		if(DecodeJpegToRGBA(message->getExtData(), message->getExtDataSize(), rgba, width, height))
-		{
-			int input = viewer->GetTopicId(topic);
-
-			viewer->AddVideo(rgba, input);
-		}
-	}
-    //viewer->AddVideo(message, viewer->GetTopicId(topic));
-    return 0;
-}
+#include "YOPolylinePlugin.h"
+#include "YOVideoPlugin.h"
+#include "YOCameraPlugin.h"
 
 void sig_fn(int signal, void *data)
 {
     std::cout << signal << " sig_fn " << std::endl;
     exit(0);
 }
-
-void *fn_thread_input(void *param)
-{
-    YONode node("GEOM");
-    node.connect();
-    node.addSignalFunction(SIGINT, sig_fn, &node);
-    for(int i = 0; i < YO_INPUT_NUM; i++)
-    {
-    	std::string topic = "INPUT" + std::to_string(i);
-    	YOViewer *viewer = (YOViewer *)param;
-    	viewer->RegisterTopic(topic, i);
-    	node.subscribe(topic.c_str(), fn_input, param);
-    }
-    node.start();
-    node.disconnect();
-    node.shutdown();
-    return  param;
-}
-
-void *fn_thread_video(void *param)
-{
-    YONode node("VIDEO");
-    node.connect();
-    node.addSignalFunction(SIGINT, sig_fn, &node);
-    for(int i = 0; i < YO_VIDEO_NUM; i++)
-    {
-    	std::string topic = "VIDEO" + std::to_string(i);
-    	YOViewer *viewer = (YOViewer *)param;
-    	viewer->RegisterTopic(topic, i);
-    	node.subscribe(topic.c_str(), fn_video, param);
-    }
-    node.start();
-    node.disconnect();
-    node.shutdown();
-    return  param;
-}
-
-void YOViewer::RegisterTopic(const std::string &name, int num)
-{
-	topics_[name] = num;
-}
-
-int YOViewer::GetTopicId(const std::string &name)
-{
-	return topics_[name];
-}
-
 
 void YOViewer::Setup()
 {
@@ -151,7 +55,14 @@ void YOViewer::Start()
     CreateCamera();
     CreateScene();
     CreateLight();
-    CreateTextures();
+
+    plugin_bus_->SetConfig(&config_->get(yo::k::plugins));
+    plugin_bus_->AddPlugin("ExternalData", new YOPolylinePlugin(context_));
+    plugin_bus_->AddPlugin("InternalData", new YOPolylinePlugin(context_));
+    plugin_bus_->AddPlugin("Video", new YOVideoPlugin(context_));
+    plugin_bus_->AddPlugin("Camera", new YOCameraPlugin(context_, camera_, controller_));
+
+    plugin_bus_->OnStart(scene_);
 
     CreateXYGrid(world_, 200, 50, 1.0f, 0.0f);
     CreateXYGrid(world_, 20, 5, 10.0f, 0.0f);
@@ -166,8 +77,7 @@ void YOViewer::Start()
 
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(YOViewer, HandleKeyDown));
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(YOViewer, HandleUpdate));
-    pthread_create(&thread_inputs_, NULL, fn_thread_input, this);
-    pthread_create(&thread_videos_, NULL, fn_thread_video, this);
+    SubscribeToEvent(E_BEGINFRAME, URHO3D_HANDLER(YOViewer, HandleFrame));
 }
 
 void YOViewer::CreateLight()
@@ -190,65 +100,21 @@ void YOViewer::CreateLight()
     }
 }
 
-void YOViewer::AddFrame(std::shared_ptr<YOVariant> frame, int frame_id)
-{
-    data_lock_[frame_id].lock();
-    data_in_[frame_id] = frame;
-    data_lock_[frame_id].unlock();
-}
-
-void YOViewer::AddVideo(SharedPtr<Image> frame, int frame_id)
-{
-    video_lock_[frame_id].lock();
-    video_img_[frame_id] = frame;
-    video_lock_[frame_id].unlock();
-}
-
-void YOViewer::CreateConfig()
+void YOViewer::CreateConfig(std::string fileName)
 {
     config_ = std::make_shared<YOVariant>(yo::k::config);
     YOXML xml;
 
-    if(!xml.readXML("config.xml", *config_))
+    if(!xml.readXML(fileName, *config_))
     {
-        std::cout << "ERROR LOADING CONFIG" << std::endl;
-
-        YOVariant &world = config_->get(yo::k::world);
-        world.m_name = yo::k::world;
-        world.m_value = YOArray(YO_INPUT_NUM);
-
-        YOVariant &internal = config_->get(yo::k::internal);
-        internal.m_name = yo::k::internal;
-        internal.m_value = YOArray(YO_INPUT_NUM);
-
-        for(int i = 0; i < YO_INPUT_NUM; i++)
-        {
-            createInputCfg(i, world[i]);
-            createInputCfg(i, internal[i]);
-        }
-
+        std::cout << "Error loading " << fileName << ". Creating default config." << std::endl;
         YOVariant &global = config_->get(yo::k::global);
         global[yo::k::broker][yo::k::sender]   = YOIPv4{ {127, 0, 0, 1}, 4444 };
         global[yo::k::broker][yo::k::receiver] = YOIPv4{ {127, 0, 0, 1}, 4445 };
 
-        YOVariant &video = config_->get(yo::k::video);
-        video.m_name = yo::k::video;
-        video.m_value = YOArray(YO_VIDEO_NUM);
-        for(int i = 0; i < YO_VIDEO_NUM; i++)
-        {
-            createVideoCfg(i, video[i], yo::k::video);
-        }
+        YOVariant &plugins = config_->get(yo::k::plugins);
 
-        YOVariant &camera = config_->get(yo::k::camera);
-        camera.m_name = yo::k::camera;
-        camera.m_value = YOArray(YO_CAMERA_NUM);
-        for(int i = 0; i < YO_CAMERA_NUM; i++)
-        {
-            createCameraCfg(i, camera[i], yo::k::camera);
-        }
     }
-
-    gui_ = std::make_shared<YOGui>(config_);
 }
 
 void YOViewer::CreateScene()
@@ -317,6 +183,7 @@ void YOViewer::CreateCamera()
 {
     scene_ = new Scene(context_);
     scene_->CreateComponent<Octree>();
+
     world_ = scene_->CreateChild("WorldRoot");
     internal_ = scene_->CreateChild("Internal");
 
@@ -333,226 +200,15 @@ void YOViewer::CreateCamera()
     // Camera
     camera_ = scene_->CreateComponent<Camera>();
     controller_->SetCamera(camera_);
-
-    camera_select_ = 0; // Load Camera 0 by default
-    YOVariant &cams = config_->get(yo::k::camera);
-
-    for(int i = 0; i < YO_CAMERA_NUM; i++)
-    {
-        if(cams[i][yo::k::select].get<bool>())
-        {
-        	camera_select_ = i;
-			break;
-        }
-    }
-	YOVector3 &pos = cams[camera_select_][yo::k::position].get<YOVector3>();
-	YOVector3 &rot = cams[camera_select_][yo::k::rotation].get<YOVector3>();
-	YOLimitF &fov = cams[camera_select_][yo::k::fov];
-	controller_->MoveTo(1, (Vector3&)pos, rot.z, rot.y, rot.x, fov.value);
-
-    //camera_->SetOrthographic(true);
-}
-
-SharedPtr<Texture2D> YOViewer::CreateTexture()
-{
-	SharedPtr<Texture2D> tex = MakeShared<Texture2D>(context_);
-    tex->SetNumLevels(1); // no MIPs
-    tex->SetAddressMode(TextureCoordinate::U, ADDRESS_CLAMP);
-    tex->SetAddressMode(TextureCoordinate::V, ADDRESS_CLAMP);
-    tex->SetSize(YO_INPUT_NUM, YO_TYPE_NUM, TextureFormat::TEX_FORMAT_RGBA32_FLOAT, TextureFlag::BindRenderTarget | TextureFlag::BindUnorderedAccess );
-    tex->SetFilterMode(FILTER_NEAREST);
-    return tex;
-}
-
-void YOViewer::CreateSprite(SharedPtr<Texture2D> tex, Vector2 pos)
-{
-    auto* ui = GetSubsystem<UI>();
-    auto* root = ui->GetRoot();
-	Sprite* spr = root->CreateChild<Sprite>();
-	spr->SetTexture(tex);
-	spr->SetSize(tex->GetWidth(), tex->GetHeight());
-	spr->SetBlendMode(BLEND_ADDALPHA);
-	spr->SetPosition(pos);
-	spr->SetPriority(0);
-	spr->SetScale(8);
-}
-
-void YOViewer::CreateTextures()
-{
-    YOVariant &wrld = config_->get(yo::k::world);
-
-    texture_param_ = CreateTexture();
-    texture_line_ = CreateTexture();
-    texture_fill_ = CreateTexture();
-    texture_text_ = CreateTexture();
-
-    material_line_ =  cache_->GetResource<Material>("Materials/YOTextureOnly.xml");
-    material_line_->SetTexture(ShaderResources::Albedo, texture_line_);
-    material_line_->SetTexture(ShaderResources::Properties, texture_param_);
-    material_line_->SetCullMode(CULL_NONE);
-    //material_line_->SetShaderParameter("PointSize", 3.0f, true);
-
-    for(int input = 0; input < wrld.getArraySize(); input++)
-    {
-        YOVariant &inp_cfg = wrld[input][yo::k::types];
-        for(int type = 0; type < inp_cfg.getArraySize(); type++)
-        {
-            YOVariant &type_cfg = inp_cfg[type];
-            YOVariant &line_cfg = type_cfg[yo::k::line];
-            texture_line_->SetData(0, input, type, 1, 1, &line_cfg[yo::k::color].get<YOColor4F>());
-
-            YOLimitF &line_width = line_cfg[yo::k::width].get<YOLimitF>();
-            YOColor4F width{line_width.value / 16.0f, 1.0f, 1.0f, 1.0f};
-            texture_param_->SetData(0, input, type, 1, 1, &width);
-
-            YOVariant &fill_cfg = type_cfg[yo::k::fill];
-            texture_fill_->SetData(0, input, type, 1, 1, &fill_cfg[yo::k::color].get<YOColor4F>());
-
-            YOVariant &text_cfg = type_cfg[yo::k::text];
-            texture_text_->SetData(0, input, type, 1, 1, &text_cfg[yo::k::color].get<YOColor4F>());
-        }
-    }
-
-    CreateSprite(texture_line_, Vector2{20,20});
-    CreateSprite(texture_fill_, Vector2{120,20});
-    CreateSprite(texture_text_, Vector2{220,20});
-    CreateSprite(texture_param_, Vector2{320,20});
-
-    auto* ui = GetSubsystem<UI>();
-	auto* root = ui->GetRoot();
-
-	YOVariant &video_cfg = config_->get(yo::k::video);
-	int idx = 0;
-	for(auto &v : video_)
-	{
-		v = MakeShared<Texture2D>(context_);
-		video_img_[idx] = MakeShared<Image>(context_);
-
-		YOVariant &cur_vid = video_cfg[idx];
-		YOVariant &transform = cur_vid[yo::k::transform];
-		YOVector3 &pos = transform[yo::k::position];
-		YOVector3 &scale = transform[yo::k::scale];
-
-		video_pad_[idx] = root->CreateChild<Sprite>();
-		video_pad_[idx]->SetTexture(v);
-		video_pad_[idx]->SetSize(v->GetSize());
-		video_pad_[idx]->SetBlendMode(BLEND_ALPHA);
-		video_pad_[idx]->SetPosition(pos.x, pos.y);
-		video_pad_[idx]->SetScale(scale.x, scale.y);
-		idx++;
-	}
-}
-
-void YOViewer::CreateMaterial(int input, int type, YOVariant &style)
-{
-
 }
 
 #define DEG2RAD(x) ((x) * 0.0174532925199433)
 
-
-void YOViewer::ConvertVideos()
+void YOViewer::HandleFrame(StringHash eventType, VariantMap& eventData)
 {
-	for(int i = 0; i < YO_VIDEO_NUM; i++)
-	{
-		video_lock_[i].lock();
-		SharedPtr<Image> img = video_img_[i];
-		video_img_[i].Reset();
-		if(img)
-		{
-			video_[i]->SetData(img);
-			if(img->GetWidth() != video_pad_[i]->GetWidth() || img->GetHeight() != video_pad_[i]->GetHeight())
-			{
-				 std::cout << "RESIZE " << video_[i]->GetWidth() << " " << video_[i]->GetHeight() << std::endl;
-				 video_pad_[i]->SetSize(img->GetSize().x_, img->GetSize().y_);
-				 video_pad_[i]->SetHotSpot(img->GetSize().x_/2, img->GetSize().y_/2);
-				 video_pad_[i]->SetTexture(video_[i]);
-			}
-		}
-		video_lock_[i].unlock();
-	}
-}
-
-void YOViewer::ConvertGeometry(YOVariant &obj, std::shared_ptr<YOInputData> fdata, YOVariant &input_cfg, int frame_id)
-{
-    Node *node = fdata->root->CreateChild();
-    node->SetTemporary(true);
-
-    YOVariant &types = input_cfg[yo::k::types];
-    YOVariant &geoms = obj[yo::k::geometries];
-    bool en_input = input_cfg[yo::k::enabled].get<bool>();
-
-    for( int i = 0; i < geoms.getArraySize(); i++)
-    {
-    	YOVariant &geom = geoms[i];
-    	uint32_t type_id = geom[yo::k::style_id];
-    	YOVariant &type_cfg = types[type_id];
-    	PrimitiveType geomType = (PrimitiveType) geom[yo::k::geometry_type].get<int32_t>();
-    	YOVector3List &vertices = (YOVector3List &) geom[yo::k::vertices].get<YOFloatList>();
-    	bool en_type = type_cfg[yo::k::enabled].get<bool>();
-
-        auto *cg = node->CreateComponent<CustomGeometry>();
-		//cg->SetEnabled([yo::k::enabled].get<bool>());
-
-        cg->SetNumGeometries(1);
-    	cg->BeginGeometry(0,  geomType);
-
-    	bool en_geom = true;
-
-    	switch(geomType)
-    	{
-    	case TRIANGLE_LIST:
-    	case TRIANGLE_FAN:
-    	case TRIANGLE_STRIP:
-    		cg->SetMaterial(0, material_fill_);
-    		en_geom = type_cfg[yo::k::fill][yo::k::enabled].get<bool>();
-    		fdata->geom_fills[type_id].push_back(cg);
-    		break;
-    	case LINE_LIST:
-    	case POINT_LIST:
-    	case LINE_STRIP:
-    		cg->SetMaterial(0, material_line_);
-    		en_geom = type_cfg[yo::k::line][yo::k::enabled].get<bool>();
-    		fdata->geom_lines[type_id].push_back(cg);
-    		break;
-    	}
-
-    	cg->SetEnabled(en_geom && en_type && en_input);
-
-    	for( auto &vertex : vertices)
-		{
-			cg->DefineNormal(Vector3::FORWARD);
-			cg->DefineVertex((Urho3D::Vector3&)vertex);
-	    	cg->DefineTexCoord(Vector2( (float) frame_id / YO_INPUT_NUM, (float) type_id / YO_TYPE_NUM));
-		}
-    	cg->Commit();
-    	fdata->geoms[type_id].push_back(cg);
-    }
-}
-
-std::shared_ptr<YOInputData> YOViewer::ConvertFrame(std::shared_ptr<YOVariant> frame, int frame_id)
-{
-    YOVariant &input_cfg = config_->get(yo::k::world)[frame_id];
-    YOVariant &transform = input_cfg[yo::k::transform];
-    YOVector3 &rot = transform[yo::k::rotation].get<YOVector3>();
-    std::shared_ptr<YOInputData> fdata = std::make_shared<YOInputData>();
-
-    fdata->root = world_->CreateChild();
-    fdata->root->SetTemporary(true);
-    fdata->root->SetPosition((Vector3&)transform[yo::k::position].get<YOVector3>());
-    fdata->root->SetRotation(Quaternion(rot.x, rot.y, rot.z));
-    fdata->root->SetScale((Vector3&)transform[yo::k::scale].get<YOVector3>());
-    YOVariant &objects = frame->get(yo::k::objects);
-    //YOColor4CList &colors = frame->get(yo::k::colors);
-    YOVariant &types_list = input_cfg[yo::k::types];
-
-    for(int i = 0; i < objects.getArraySize(); i++)
-    {
-        ConvertGeometry(objects[i], fdata, input_cfg, frame_id);
-    }
-    //fnode->SetEnabledRecursive(input_cfg[yo::k::enabled].get<bool>());
-    //fnode->ApplyAttributes();
-    return fdata;
+	using namespace BeginFrame;
+	float dt = eventData[P_TIMESTEP].GetFloat();
+	plugin_bus_->OnUpdate(dt);
 }
 
 void YOViewer::HandleUpdate(StringHash eventType, VariantMap& eventData)
@@ -561,43 +217,14 @@ void YOViewer::HandleUpdate(StringHash eventType, VariantMap& eventData)
     {
         YOXML xml;
         xml.writeXML("config.xml", *config_);
+        plugin_bus_->OnStop();
         engine_->Exit();
     }
 
     using namespace Update;
     float dt = eventData[P_TIMESTEP].GetFloat();
 
-    auto *cache = GetSubsystem<ResourceCache>();
-
-    ConvertVideos();
-
-    for (std::size_t i = 0; i < data_in_.size(); ++i)
-    {
-       data_lock_[i].lock();
-       std::shared_ptr<YOVariant> frame = data_in_[i];
-       data_in_[i] = nullptr;
-       data_lock_[i].unlock();
-
-       if(frame != nullptr )
-       {
-           //std::cout << "UPDATE !!!! " << i << " : " << frame->m_name << std::endl;
-           if(data_[i] != nullptr)
-               data_[i]->root->Remove();
-
-           data_[i] = ConvertFrame(frame, i);
-       }
-    }
     RenderUI();
-
-    if(camera_select_>-1)
-    {
-    	if(config_->get(yo::k::camera)[camera_select_][yo::k::record])
-    	{
-    		config_->get(yo::k::camera)[camera_select_][yo::k::position] = (YOVector3&)cameraNode_->GetPosition();
-    		Vector3 ang = controller_->GetRotation();
-    		config_->get(yo::k::camera)[camera_select_][yo::k::rotation] = YOVector3 {ang.x_, ang.y_, ang.z_};
-    	}
-    }
 }
 
 void YOViewer::HandleKeyDown(StringHash eventType, VariantMap &eventData)
@@ -644,175 +271,33 @@ void YOViewer::CreateXYGrid(Node *parent, int cellsX, int cellsY, float spacing,
     grid_cg->SetMaterial(grid_mat);
 }
 
-YOVariant *YOViewer::GetConfig(YOVariant  &config, const std::string &path)
+void YOViewer::RenderUI()
 {
-    YOVariant *res = &config;
-    auto plist = split_by_string(path.c_str() + strlen("/config/"), "/");
-    int32_t addr[2] = {-1, -1};
-    uint32_t pos = 0;
-    for(auto &pelem : plist)
+    if (ui::BeginMainMenuBar())
     {
-        if(res->m_value.index() == 0) // map
+        if (ui::BeginMenu("File"))
         {
-            res = &res->get(yo_keys_rev[pelem]);
+            if (ui::MenuItem("Open..."))
+            {
+                // TODO: open logic
+            }
+            if (ui::MenuItem("Save"))
+            {
+                // TODO: save logic
+            }
+            ui::EndMenu();
         }
-        else if(res->m_value.index() == 1) // array
+        if (ui::BeginMenu("Plugins"))
         {
-            uint32_t n = std::atoi(pelem.c_str());
-            addr[pos++] = n;
-            res = &res->get(n);
+           plugin_bus_->OnMenu();
+           ui::EndMenu();
         }
+        if (ui::BeginMenu("Help"))
+        {
+            if (ui::MenuItem("About")) { /* … */ }
+            ui::EndMenu();
+        }
+        ui::EndMainMenuBar();
     }
-
-    std::string &param = plist[plist.size() - 1];
-    std::string &subsystem = plist[0];
-
-    if(subsystem == "camera" && addr[0]>-1)
-    {
-    	std::cout << "!!! CAMERA" << addr[0] << " " << path << std::endl;
-    	if(ends_with(path, "/position"))
-		{
-    		cameraNode_->SetPosition((Vector3&)res->get<YOVector3>());
-		}
-    	else if(ends_with(path, "/rotation"))
-		{
-    		YOVector3& rot = res->get<YOVector3>();
-    		controller_->SetRotation(rot.x, rot.y, rot.z);
-    		std::cout << "Rotation: " << rot << std::endl;
-		}
-    	else if(ends_with(path, "/fov"))
-		{
-    		camera_->SetFov(res->get<YOLimitF>().value);
-		}
-    	else if(ends_with(path, "/select"))
-		{
-    		camera_select_ = addr[0];
-    		YOVariant &cam = config_->get(yo::k::camera)[addr[0]];
-    		YOVector3 &pos = cam[yo::k::position].get<YOVector3>();
-			YOVector3 &rot = cam[yo::k::rotation].get<YOVector3>();
-			YOLimitF &fov = cam[yo::k::fov];
-			controller_->MoveTo(cam[yo::k::frames].get<uint32_t>(), (Vector3&)pos, rot.z, rot.y, rot.x, fov.value);
-		}
-    }
-
-    if(subsystem == "world" && addr[0]>-1 && addr[1]>-1)
-    {
-    	if(ends_with(path, "/line/enabled"))
-        {
-    		if(data_[addr[0]])
-			{
-				for( CustomGeometry *cg : data_[addr[0]]->geom_lines[addr[1]])
-				{
-					cg->SetViewMask(res->get<bool>());
-				}
-			}
-        }
-        else if(ends_with(path, "/line/color"))
-        {
-            texture_line_->SetData(0, addr[0], addr[1], 1, 1, &res->get<YOColor4F>());
-        }
-        else if(ends_with(path, "/line/width"))
-        {
-            YOLimitF &line_width = res->get<YOLimitF>();
-            YOColor4F width{line_width.value / 16.0f, 1.0f, 1.0f, 1.0f};
-            texture_param_->SetData(0, addr[0], addr[1], 1, 1, &width);
-        }
-        else if(ends_with(path, "/text/enabled"))
-        {
-
-        }
-        else if(ends_with(path, "/text/color"))
-        {
-            texture_text_->SetData(0, addr[0], addr[1], 1, 1, &res->get<YOColor4F>());
-        }
-        else if(ends_with(path, "/fill/enabled"))
-        {
-        	//TODO CHECK input, type, geom enabled...
-        }
-        else if(ends_with(path, "/fill/color"))
-        {
-        	texture_fill_->SetData(0, addr[0], addr[1], 1, 1, &res->get<YOColor4F>());
-        }
-        else if(ends_with(path, "/enabled"))
-        {
-        	if(data_[addr[0]])
-        	{
-				for( Node *n : data_[addr[0]]->types[addr[1]])
-				{
-					n->SetEnabled(res->get<bool>());
-				}
-				for( CustomGeometry *cg : data_[addr[0]]->geoms[addr[1]])
-				{
-					cg->SetViewMask(res->get<bool>());
-				}
-        	}
-        }
-    }
-
-    if(subsystem == "world" && addr[0]>-1 && addr[1]==-1)
-    {
-        if(ends_with(path, "/enabled") && data_[addr[0]])
-        {
-    		if(data_[addr[0]])
-    		{
-    			data_[addr[0]]->root->SetEnabledRecursive(res->get<bool>());
-    		}
-        }
-    }
-
-    if(plist[0] == "video" && addr[0]>-1 )
-    {
-
-        if(ends_with(path, "/enabled"))
-        {
-        	std::cout << " VIDEO " << res->get<bool>() << std::endl;
-        	video_pad_[addr[0]]->SetVisible(res->get<bool>());
-        }
-        else if(ends_with(path, "/transform/position"))
-        {
-        	YOVector3 pos = res->get<YOVector3>();
-
-        	video_pad_[addr[0]]->SetHotSpot(video_pad_[addr[0]]->GetWidth()/2, video_pad_[addr[0]]->GetHeight()/2);
-        	video_pad_[addr[0]]->SetPosition(pos.x, pos.y);
-        }
-        else if(ends_with(path, "/transform/scale"))
-        {
-        	YOVector3 pos = res->get<YOVector3>();
-        	video_pad_[addr[0]]->SetScale(pos.x, pos.y);
-        }
-        else if(ends_with(path, "/transform/rotation"))
-        {
-        	YOVector3 pos = res->get<YOVector3>();
-        	video_pad_[addr[0]]->SetRotation(pos.z);
-        }
-        else if(ends_with(path, "/opacity"))
-        {
-        	YOLimitF op = res->get<YOLimitF>();
-        	video_pad_[addr[0]]->SetOpacity(op.value);
-        }
-    }
-    printf("CFG: %s Changed [%s] Input: %d, Type: %d\n", plist[0].c_str(), path.c_str(), addr[0], addr[1]);
-    return res;
-}
-
-void YOViewer::ProcessChange()
-{
-    std::string path = gui_->getPath();
-    std::string param = gui_->getParam();
-    YOVariant *cfg = GetConfig(*config_, path);
-    std::cout << " Got config path: " << path << " name: " << cfg->m_name << " type: " <<  YOValue_type_name(cfg->m_value.index())  << std::endl;
-}
-
-void YOViewer::RenderUI(){
-
-    ui::SetNextWindowSize(ImVec2(550, 500), ImGuiCond_FirstUseEver);
-    ui::SetNextWindowPos(ImVec2(350, 50), ImGuiCond_FirstUseEver);
-
-    ui::Begin("YO::HUD");
-    bool changed = gui_->draw();
-    ui::End();
-    if(changed)
-    {
-        ProcessChange();
-    }
+    plugin_bus_->OnGui();
 }

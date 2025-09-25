@@ -122,6 +122,10 @@ Urho3D::Vector3 YOFlyController::GetRotation()
 	Vector3 rollV = cam_.rollDeg_ * userFwdL_;
 	return yawV + pitchV + rollV;
 }
+const Vector3& YOFlyController::GetPosition()
+{
+	return node_->GetPosition();
+}
 
 void YOFlyController::SetPosition(const Vector3 &pos)
 {
