@@ -17,12 +17,12 @@ main.cpp
 YOViewer.cpp
 YOGui.cpp
 YOFlyController.cpp
-YOConverter.cpp
-YOConfig.cpp
+YOPluginBus.cpp
 plugins/YOPolylinePlugin.cpp
+plugins/YORootLogic.cpp
+plugins/YONodeLogic.cpp
 plugins/YOVideoPlugin.cpp
 plugins/YOCameraPlugin.cpp
-YOPluginBus.cpp
 ${CONVERT_SOURCES}
 )
 

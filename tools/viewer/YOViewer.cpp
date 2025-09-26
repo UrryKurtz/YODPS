@@ -47,6 +47,9 @@ void YOViewer::Setup()
 void YOViewer::Start()
 {
     YOFlyController::RegisterObject(context_);
+    YORootLogic::RegisterObject(context_);
+    YONodeLogic::RegisterObject(context_);
+
     glEnable(GL_PROGRAM_POINT_SIZE);
     glEnable(GL_LINE_WIDTH);
     glEnable(GL_LINE_SMOOTH);

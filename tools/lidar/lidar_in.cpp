@@ -81,30 +81,26 @@ uint16_t g_counter = 0;
 
 void create_frame()
 {
-    //std::cout  << " create_frame: !!! " << std::endl;
-    frame[yo::k::objects] = YOArray(1);
-
-    YOVariant &cloud = frame[yo::k::objects][0];
-    cloud[yo::k::object_type] = YOObjectType::YOGeomery;
-
-    cloud[yo::k::geometries] = YOArray(16);
-    YOVariant &geoms = cloud[yo::k::geometries];
+    std::cout  << " create_frame: !!! " << std::endl;
+    frame[yo::k::objects] = YOArray(16);
+    YOVariant &objects = frame[yo::k::objects];
 
     for(uint32_t i = 0; i < 16 ; i++)
     {
-        YOVariant &geom = geoms[i];
-        YOVariant &color = geom[yo::k::color];
-        color[yo::k::line] = convert(colors[i * 2]);
-        color[yo::k::fill] = YOColor4F{0.3f, 0.3f, 0.3f, 0.5f};
-        //color[yo::k::text] = YOColor4F{1.0f, 1.0f, 1.0f, 0.8f};
+        YOVariant &object = objects[i];
+        object[yo::k::object_type] = YOObjectType::YOGeomery;
+        object[yo::k::overlay] = false;
+        object[yo::k::style_id] = i;
+
+        YOVariant &geom = object[yo::k::geometry];
         geom[yo::k::geometry_type] = YOGeomType::YOPointList;
-        geom[yo::k::style_id] = i;
-        geom[yo::k::overlay] = false;
-        //geom[yo::k::vertices] = YOVector3List();
-        //vert_list[i] = &geom[yo::k::vertices].get<YOVector3List>();
         geom[yo::k::vertices] = YOFloatList();
         vert_list[i] = &geom[yo::k::vertices].get<YOFloatList>();
         vert_list[i]->reserve(100000);
+        //YOVariant &color = geom[yo::k::color];
+        //color[yo::k::line] = convert(colors[i * 2]);
+        //color[yo::k::fill] = YOColor4F{0.3f, 0.3f, 0.3f, 0.5f};
+        //color[yo::k::text] = YOColor4F{1.0f, 1.0f, 1.0f, 0.8f};
     }
 
     frame[yo::k::sender] = "Velodyne decoder";
@@ -155,7 +151,6 @@ int fn_hdl32(const std::string &topic, std::shared_ptr<YOMessage> message, void 
 
                 //YOVector3List *list = vert_list[id];
                 //list->push_back(YOVector3{x,y,z});
-
                 YOFloatList *list = vert_list[id];
                 list->push_back(x);
                 list->push_back(y);

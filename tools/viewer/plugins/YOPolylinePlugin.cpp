@@ -10,7 +10,6 @@
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/Sprite.h>
 
-
 inline void createStyleCfg(uint32_t i, YOVariant &style, const std::string &name)
 {
     //std::cout << " createStyleCfg " << name << std::endl;
@@ -114,10 +113,12 @@ void YOPolylinePlugin::OnStart()
     texture_fill_ = CreateTexture();
     texture_text_ = CreateTexture();
 
-    material_line_ =  cache_->GetResource<Material>("Materials/YOTextureOnly.xml")->Clone();
+    material_line_ = cache_->GetResource<Material>("Materials/YOTextureOnly.xml")->Clone();
     material_line_->SetTexture(ShaderResources::Albedo, texture_line_);
     material_line_->SetTexture(ShaderResources::Properties, texture_param_);
     material_line_->SetCullMode(CULL_NONE);
+
+    box_ = cache_->GetResource<Urho3D::Model>("Models/Box.mdl");
 
     YOVariant &wrld = config_->get(yo::k::inputs);
 
@@ -148,14 +149,14 @@ void YOPolylinePlugin::OnData(const std::string &topic, std::shared_ptr<YOMessag
 	//std::cout << " YOPolylinePlugin::OnData() " << topic << std::endl;
     std::shared_ptr<YOVariant> frame = std::make_shared<YOVariant>(message->getDataSize(), (const char*)message->getData());
     AddFrame(frame, GetTopicId(topic));
+
 }
 
-void YOPolylinePlugin::AddFrame(std::shared_ptr<YOVariant> frame, int frame_id)
+void YOPolylinePlugin::AddFrame(std::shared_ptr<YOVariant> frame, int input_id)
 {
-	//std::cout << "AddFrame!!!! " << frame->m_name << std::endl;
-    data_lock_[frame_id].lock();
-    data_in_[frame_id] = frame;
-    data_lock_[frame_id].unlock();
+    data_lock_[input_id].lock();
+    data_in_[input_id] = frame;
+    data_lock_[input_id].unlock();
 }
 
 void YOPolylinePlugin::OnUpdate(float timeStep)
@@ -287,37 +288,27 @@ void YOPolylinePlugin::OnGui()
 	}
 }
 
-std::shared_ptr<YOInputData> YOPolylinePlugin::ConvertFrame(std::shared_ptr<YOVariant> frame, int frame_id)
+std::shared_ptr<YOInputData> YOPolylinePlugin::ConvertFrame(std::shared_ptr<YOVariant> frame, int input_id)
 {
-    YOVariant &input_cfg = (*inputs_cfg_)[frame_id];
-    YOVariant &transform = input_cfg[yo::k::transform];
-    YOVector3 &rot = transform[yo::k::rotation].get<YOVector3>();
     std::shared_ptr<YOInputData> fdata = std::make_shared<YOInputData>();
-
     fdata->root = node_->CreateChild();
     fdata->root->SetTemporary(true);
-    fdata->root->SetPosition((Vector3&)transform[yo::k::position].get<YOVector3>());
-    fdata->root->SetRotation(Quaternion(rot.x, rot.y, rot.z));
-    fdata->root->SetScale((Vector3&)transform[yo::k::scale].get<YOVector3>());
-    YOVariant &objects = frame->get(yo::k::objects);
-    //YOColor4CList &colors = frame->get(yo::k::colors);
-    YOVariant &types_list = input_cfg[yo::k::types];
-
-    for(int i = 0; i < objects.getArraySize(); i++)
-    {
-        ConvertGeometry(objects[i], fdata, input_cfg, frame_id);
-    }
-    //fnode->SetEnabledRecursive(input_cfg[yo::k::enabled].get<bool>());
-    //fnode->ApplyAttributes();
+    fdata->logic = fdata->root->CreateComponent<YORootLogic>();
+    fdata->logic->setMaterials(material_fill_, material_line_, material_text_);
+    fdata->logic->ConvertRoot(frame, (*inputs_cfg_)[input_id]);
     return fdata;
 }
 
 void YOPolylinePlugin::OnGuiChanged(const std::string &path, std::vector<int> &addr,  YOVariant *cfg)
 {
 	std::cout << " OnGuiChanged " <<  path << std::endl;
+
+	YORootLogic *logic = data_[addr[0]]->logic;
+	int type = addr.size() > 1 ? addr[1] : -1;
+
 	if(path == "/inputs/#0/enabled")
 	{
-
+		//logic->SetEnable(type, cfg->get<bool>());
 	}
 	else if(path == "/inputs/#0/comment")
 	{
@@ -345,7 +336,7 @@ void YOPolylinePlugin::OnGuiChanged(const std::string &path, std::vector<int> &a
 	}
 	else if(path == "/inputs/#0/fill/enabled") // INPUT
 	{
-
+		//logic->SetFillEnabled(type, cfg->get<bool>());
 	}
 	else if(path == "/inputs/#0/fill/color")
 	{
@@ -383,7 +374,11 @@ void YOPolylinePlugin::OnGuiChanged(const std::string &path, std::vector<int> &a
 	{
 
 	}
-	else if(path == "/inputs/#0/types/#1/fill/enabled") // TYPE
+	else if(path == "/inputs/#0/types/#1/enabled") // TYPE
+	{
+		//logic->SetEnabled(type, cfg->get<bool>());
+	}
+	else if(path == "/inputs/#0/types/#1/fill/enabled")
 	{
 
 	}

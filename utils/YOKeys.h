@@ -112,6 +112,7 @@ namespace yo::k {
     YO_KEY(style_id,   "sid")
 	YO_KEY(subscribe,  "sub")
     YO_KEY(text,       "txt")
+	YO_KEY(texture,   "txr")
     YO_KEY(transform,  "tfm")
     YO_KEY(type,       "typ")
     YO_KEY(type_id,    "tid")
@@ -136,13 +137,6 @@ enum YOCoordType
     YOWorld,
     YOOverlay
 };
-
-enum YOSpaceType
-{
-    YOExternal,
-    YOInternal
-};
-
 
 enum YOObjectType
 {
@@ -198,21 +192,11 @@ inline bool ends_with(const std::string& str, const std::string& suffix) {
   <coord type world/onscreen />
   <style_ids int32 />
   <transform >
-
-  <ref pt />
-
   <model />
-  <geoms />
+  <geom />
   <data />
   <text />
 </object>
-
-<geoms>
-  <geom />
-  <geom />
-  ..
-  <geom />
-</geoms>
 
 <geom>
   <geom_type id int32/>

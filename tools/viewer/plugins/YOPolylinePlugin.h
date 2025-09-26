@@ -7,19 +7,28 @@
 
 #ifndef TOOLS_VIEWER_PLUGINS_YOPOLYLINEPLUGIN_H_
 #define TOOLS_VIEWER_PLUGINS_YOPOLYLINEPLUGIN_H_
-#include <Urho3D/Graphics/Texture2D.h>
-#include <Urho3D/Graphics/Material.h>
+
+#include <Urho3D/Container/Ptr.h>
 #include <Urho3D/Graphics/CustomGeometry.h>
+#include <Urho3D/Graphics/Material.h>
+#include <Urho3D/Graphics/Model.h>
+#include <Urho3D/Graphics/StaticModel.h>
+#include <Urho3D/Graphics/Texture2D.h>
+
+
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/RenderPipeline/ShaderConsts.h>
 
 #include "IPlugin.h"
 #include "YOKeys.h"
 #include "YOGui.h"
+#include "YORootLogic.h"
 
 struct YOInputData
 {
 	Node* root;
+	YORootLogic *logic;
+
 	std::array<std::vector<Node*>, YO_TYPE_NUM> types;
 	std::array<std::vector<CustomGeometry*>, YO_TYPE_NUM> geom_lines;
 	std::array<std::vector<CustomGeometry*>, YO_TYPE_NUM> geom_fills;
@@ -47,6 +56,8 @@ class YOPolylinePlugin : public IPlugin {
 	YOVariant *inputs_cfg_ {nullptr};
 	YOVariant *params_cfg_ {nullptr};
 
+	Model *box_ {nullptr};
+
 public:
 	YOPolylinePlugin(Context* context);
 	virtual ~YOPolylinePlugin();
@@ -58,11 +69,11 @@ public:
 	void OnGui() override;
 
 	SharedPtr<Texture2D> CreateTexture();
-	void AddFrame(std::shared_ptr<YOVariant> frame, int frame_id);
+	void AddFrame(std::shared_ptr<YOVariant> frame, int input_id);
     void OnGuiChanged(const std::string &path, std::vector<int> &addr,  YOVariant *cfg);
 
-    std::shared_ptr<YOInputData> ConvertFrame(std::shared_ptr<YOVariant> frame, int frame_id);
-    void ConvertGeometry(YOVariant &obj, std::shared_ptr<YOInputData> fdata, YOVariant &input_cfg, int frame_id);
+    std::shared_ptr<YOInputData> ConvertFrame(std::shared_ptr<YOVariant> frame, int input_id);
+    void ConvertGeometry(YOVariant &obj, std::shared_ptr<YOInputData> fdata, YOVariant &input_cfg, int input_id);
 
     void SetLineEnabled(const std::string &path, YOVariant *cfg, int input, int type);
     void SetLineColor(const std::string &path, YOVariant *cfg, int input, int type);
