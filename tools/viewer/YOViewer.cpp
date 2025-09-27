@@ -80,7 +80,10 @@ void YOViewer::Start()
 
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(YOViewer, HandleKeyDown));
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(YOViewer, HandleUpdate));
-    SubscribeToEvent(E_BEGINFRAME, URHO3D_HANDLER(YOViewer, HandleFrame));
+    //SubscribeToEvent(E_BEGINFRAME, URHO3D_HANDLER(YOViewer, HandleFrame));
+    SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(YOViewer, HandleFrame));
+
+
 }
 
 void YOViewer::CreateLight()
@@ -211,7 +214,7 @@ void YOViewer::HandleFrame(StringHash eventType, VariantMap& eventData)
 {
 	using namespace BeginFrame;
 	float dt = eventData[P_TIMESTEP].GetFloat();
-	plugin_bus_->OnUpdate(dt);
+	//plugin_bus_->OnUpdate(dt);
 }
 
 void YOViewer::HandleUpdate(StringHash eventType, VariantMap& eventData)
@@ -226,7 +229,7 @@ void YOViewer::HandleUpdate(StringHash eventType, VariantMap& eventData)
 
     using namespace Update;
     float dt = eventData[P_TIMESTEP].GetFloat();
-
+    plugin_bus_->OnUpdate(dt);
     RenderUI();
 }
 

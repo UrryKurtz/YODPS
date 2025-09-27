@@ -28,11 +28,8 @@ struct YOInputData
 {
 	Node* root;
 	YORootLogic *logic;
-
-	std::array<std::vector<Node*>, YO_TYPE_NUM> types;
-	std::array<std::vector<CustomGeometry*>, YO_TYPE_NUM> geom_lines;
-	std::array<std::vector<CustomGeometry*>, YO_TYPE_NUM> geom_fills;
-	std::array<std::vector<CustomGeometry*>, YO_TYPE_NUM> geoms;
+	std::shared_ptr<YOVariant> data;
+//	std::array<std::vector<Node*>, YO_TYPE_NUM> types;
 };
 
 class YOPolylinePlugin : public IPlugin {
@@ -56,7 +53,7 @@ class YOPolylinePlugin : public IPlugin {
 	YOVariant *inputs_cfg_ {nullptr};
 	YOVariant *params_cfg_ {nullptr};
 
-	Model *box_ {nullptr};
+	//Model *box_ {nullptr};
 
 public:
 	YOPolylinePlugin(Context* context);
@@ -72,8 +69,7 @@ public:
 	void AddFrame(std::shared_ptr<YOVariant> frame, int input_id);
     void OnGuiChanged(const std::string &path, std::vector<int> &addr,  YOVariant *cfg);
 
-    std::shared_ptr<YOInputData> ConvertFrame(std::shared_ptr<YOVariant> frame, int input_id);
-    void ConvertGeometry(YOVariant &obj, std::shared_ptr<YOInputData> fdata, YOVariant &input_cfg, int input_id);
+    void ConvertFrame(std::shared_ptr<YOInputData> &fdata, std::shared_ptr<YOVariant> frame, int input_id);
 
     void SetLineEnabled(const std::string &path, YOVariant *cfg, int input, int type);
     void SetLineColor(const std::string &path, YOVariant *cfg, int input, int type);

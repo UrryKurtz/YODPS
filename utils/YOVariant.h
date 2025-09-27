@@ -87,7 +87,11 @@ YO_DECLARE_VARIANT(YOValue,
         YOLimitU32 //37
 )
 
-inline std::ostream& operator<<(std::ostream& os, const YOStringList& v)    {  return os << "YOStringList: " << v.items.size() ; }
+inline std::ostream& operator<<(std::ostream& os, const YOStringList& v)    {
+	os << "YOStringList: " << v.items.size() << " {";
+	for (auto &str : v.items) os << str << " ";  os << "} select:" << v.select ;
+	return os;
+}
 
 inline std::ostream& operator<<(std::ostream& os, const YOData& v)    {  return os << "size: " << v.size() ; }
 inline std::ostream& operator<<(std::ostream& os, const YOFloatList& v)    {  return os << "size: " << v.size() ; }
@@ -114,9 +118,9 @@ inline std::ostream& operator<<(std::ostream& os, const YOColor4CList& v) {  ret
 inline std::ostream& operator<<(std::ostream& os, const YOColor3FList& v) {  return os << "YOColorFCList(" << v.size() << ")"; }
 inline std::ostream& operator<<(std::ostream& os, const YOColor4FList& v) {  return os << "YOColorFCList(" << v.size() << ")"; }
 
-inline std::ostream& operator<<(std::ostream& os, const YOLimitF& v)   {  return os << "YOLimitF(" << 0 << ")"; }
-inline std::ostream& operator<<(std::ostream& os, const YOLimitI32& v) {  return os << "YOLimitI32(" << 0 << ")"; }
-inline std::ostream& operator<<(std::ostream& os, const YOLimitU32& v) {  return os << "YOLimitU32(" << 0 << ")"; }
+inline std::ostream& operator<<(std::ostream& os, const YOLimitF& v)   {  return os << "YOLimitF( value:" << v.value << " min:" << v.min << " max:"  << v.max << " speed:" << v.speed << ")"; }
+inline std::ostream& operator<<(std::ostream& os, const YOLimitI32& v) {  return os << "YOLimitI32( value:" << v.value << " min:" << v.min << " max:"  << v.max << " speed:" << v.speed << ")"; }
+inline std::ostream& operator<<(std::ostream& os, const YOLimitU32& v) {  return os << "YOLimitU32( value:" << v.value << " min:" << v.min << " max:"  << v.max << " speed:" << v.speed << ")"; }
 
 std::ostream& operator<<(std::ostream& os, const YOValue& v);
 

@@ -30,7 +30,7 @@ bool YOGui::draw(YOVariant &cfg)
 void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show_name, int *select, int value)
 {
     bool changed = false;
-    ui::PushID(&cfg);
+    ui::PushID(path.c_str());
 
     //std::string name =  yo_keys.count(cfg.m_name) ? yo_keys[cfg.m_name] : cfg.m_name;
     std::string name = yo_key(cfg.m_name);
@@ -99,7 +99,9 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
 						ui::SameLine();
     				}
     				index_.push_back(i);
+    				ui::PushID(i);
     				drawCfg(cfg[i], new_path + "/#" + std::to_string(index_.size()-1), false, false, &select, i);
+    				ui::PopID();
     				if(changed_ && !check)
     				{
     					index_out_ = index_;
@@ -114,6 +116,19 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
             }
         }
             break;
+        case 3: //YOFloatList, //3
+        	{
+        		if (ui::CollapsingHeader(name.c_str()))
+				{
+					YOVector3List &list = (YOVector3List &)cfg.get<YOFloatList>();
+					int i = 0;
+					for(auto &pt : list)
+					{
+						ui::DragScalarN((name + std::to_string(i++)).c_str(), ImGuiDataType_Float, &pt, 3);
+					}
+				}
+        	}
+        	break;
 
         case 4: //std::string
         {
@@ -155,27 +170,66 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
         break;
 
         case 7: //float
-        {
-            if(ui::DragScalar(name.c_str(), ImGuiDataType_Float,  &cfg.get<float>(), 0.01f))
-            {
-                changed = true;
-            }
-        }
+		if(ui::DragScalar(name.c_str(), ImGuiDataType_Float,  &cfg.get<float>(), 0.01f))
+		{
+			changed = true;
+		}
             break;
-
+        case 8: //double,     //8
+		if(ui::DragScalar(name.c_str(), ImGuiDataType_Double,  &cfg.get<double>(), 0.01f))
+		{
+			changed = true;
+		}
+        	break;
+        case 9: //int8_t,     //9
+		if(ui::DragScalar(name.c_str(), ImGuiDataType_S8,  &cfg.get<int8_t>(), 0.01f))
+		{
+			changed = true;
+		}
+        	break;
+        case 10: //uint8_t,    //10
+		if(ui::DragScalar(name.c_str(), ImGuiDataType_U8,  &cfg.get<uint8_t>(), 0.01f))
+		{
+			changed = true;
+		}
+		   break;
+        case 11: //int16_t,    //11
+		if(ui::DragScalar(name.c_str(), ImGuiDataType_S16,  &cfg.get<int16_t>(), 0.01f))
+		{
+			changed = true;
+		}
+			break;
+        case 12: //uint16_t,   //12
+		if(ui::DragScalar(name.c_str(), ImGuiDataType_U16,  &cfg.get<uint16_t>(), 0.01f))
+		{
+			changed = true;
+		}
+		   break;
         case 13: //int32_t
-            if(ui::DragScalar(name.c_str(), ImGuiDataType_S32, &cfg.m_value, 1, 0, 0, "%u", (name == "id") ? ImGuiSliderFlags_ReadOnly : 0))
-            {
-                changed = true;
-            }
+		if(ui::DragScalar(name.c_str(), ImGuiDataType_S32, &cfg.m_value, 1, 0, 0, "%u", (name == "id") ? ImGuiSliderFlags_ReadOnly : 0))
+		{
+			changed = true;
+		}
             break;
 
         case 14: //uint32_t
-            if(ui::DragScalar(name.c_str(), ImGuiDataType_U32, &cfg.m_value, 1, 0, 0, "%u", (name == "id") ? ImGuiSliderFlags_ReadOnly : 0))
-            {
-                changed = true;
-            }
+		if(ui::DragScalar(name.c_str(), ImGuiDataType_U32, &cfg.m_value, 1, 0, 0, "%u", (name == "id") ? ImGuiSliderFlags_ReadOnly : 0))
+		{
+			changed = true;
+		}
             break;
+        case 15: //int64_t,    //15
+		if(ui::DragScalar(name.c_str(), ImGuiDataType_S64,  &cfg.get<int64_t>(), 0.01f))
+		{
+			changed = true;
+		}
+		   break;
+        case 16: //uint64_t,   //16
+		if(ui::DragScalar(name.c_str(), ImGuiDataType_U64,  &cfg.get<uint64_t>(), 0.01f))
+		{
+			changed = true;
+		}
+		   break;
 
         case 17: //IPv4
         {
@@ -234,21 +288,41 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
                 YOColor4F clr = convert(cfg.get<YOColor4C>());
                 if(ui::ColorEdit4(name.c_str(), (float *)&clr, ImGuiColorEditFlags_NoInputs))
                 {
-                    cfg.m_value = clr;
+                    cfg.m_value = convert(clr);
                     changed = true;
                 }
             }
             break;
+        case 34: //YOColor4CList, //34
+        {
+        	if (ui::CollapsingHeader(name.c_str()))
+			{
+				ui::Indent();
+				int i = 0;
+				for (auto &clr3c :cfg.get<YOColor4CList>())
+				{
+					YOColor4F clr = convert(clr3c);
+					if(ui::ColorEdit4((name + "[" + std::to_string(i++) + "]").c_str(), (float *)&clr, ImGuiColorEditFlags_NoInputs))
+					{
+						//TODO set color
+						//cfg.m_value = clr;
+						changed = true;
+					}
+				}
+				ui::Unindent();
+			}
+        }
 
+        	break;
         case 35: //YOLimitF
-            {
-                YOLimitF &lim = cfg;
-                if(ui::DragScalar(name.c_str(), ImGuiDataType_Float, &lim.value, lim.speed, &lim.min, &lim.max, "%0.02f", 0))
-                {
-                    changed = true;
-                }
-            }
-            break;
+		{
+			YOLimitF &lim = cfg;
+			if(ui::DragScalar(name.c_str(), ImGuiDataType_Float, &lim.value, lim.speed, &lim.min, &lim.max, "%0.02f", 0))
+			{
+				changed = true;
+			}
+		}
+			break;
 
         default:
         {

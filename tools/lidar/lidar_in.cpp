@@ -81,16 +81,18 @@ uint16_t g_counter = 0;
 
 void create_frame()
 {
-    std::cout  << " create_frame: !!! " << std::endl;
+    //std::cout  << " create_frame: !!! " << std::endl;
     frame[yo::k::objects] = YOArray(16);
     YOVariant &objects = frame[yo::k::objects];
 
     for(uint32_t i = 0; i < 16 ; i++)
     {
         YOVariant &object = objects[i];
+        object.m_name = "object";
         object[yo::k::object_type] = YOObjectType::YOGeomery;
         object[yo::k::overlay] = false;
         object[yo::k::style_id] = i;
+        object[yo::k::text] = ("TYPE" + std::to_string(i)).c_str();
 
         YOVariant &geom = object[yo::k::geometry];
         geom[yo::k::geometry_type] = YOGeomType::YOPointList;
@@ -104,7 +106,6 @@ void create_frame()
     }
 
     frame[yo::k::sender] = "Velodyne decoder";
-    frame[yo::k::enabled] = true;
     frame[yo::k::frame_id] = g_counter++;
 
     YOVariant &transform = frame[yo::k::transform];
@@ -129,6 +130,15 @@ int fn_hdl32(const std::string &topic, std::shared_ptr<YOMessage> message, void 
         FiringData *fd = &data->Data[i];
         if (fd->header.Rotation < last_ang) //&& (last_ang - data->Data[i].header.Rotation) > 35900
         {
+        	YOVariant &objects = frame[yo::k::objects];
+        	for(int i = 0 ; i < objects.getArraySize() ; i++)
+        	{
+        		YOVariant &obj = objects[i];
+        		int style_id = obj[yo::k::style_id].get<uint32_t>();
+        		int cloud_size = vert_list[style_id]->size() / 3;
+        		obj[yo::k::text] = std::string("Type " + std::to_string(style_id) + " Points: " + std::to_string(cloud_size)).c_str();
+        	}
+
             YOMessage msg(frame);
             g_node->sendMessage(g_output.c_str(), msg);
             create_frame();

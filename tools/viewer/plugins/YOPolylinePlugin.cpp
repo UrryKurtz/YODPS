@@ -118,30 +118,38 @@ void YOPolylinePlugin::OnStart()
     material_line_->SetTexture(ShaderResources::Properties, texture_param_);
     material_line_->SetCullMode(CULL_NONE);
 
-    box_ = cache_->GetResource<Urho3D::Model>("Models/Box.mdl");
+    material_fill_ = cache_->GetResource<Material>("Materials/YOTextureOnly.xml")->Clone();
+    material_fill_->SetTexture(ShaderResources::Albedo, texture_fill_);
+    material_fill_->SetTexture(ShaderResources::Properties, texture_param_);
+    material_fill_->SetCullMode(CULL_NONE);
+
+    material_text_ = cache_->GetResource<Material>("Materials/YOTextureOnly.xml")->Clone();
+    material_text_->SetTexture(ShaderResources::Albedo, texture_text_);
+    material_text_->SetTexture(ShaderResources::Properties, texture_param_);
+    material_text_->SetCullMode(CULL_NONE);
 
     YOVariant &wrld = config_->get(yo::k::inputs);
 
     for(int input = 0; input < wrld.getArraySize(); input++)
-        {
-            YOVariant &inp_cfg = wrld[input][yo::k::types];
-            for(int type = 0; type < inp_cfg.getArraySize(); type++)
-            {
-                YOVariant &type_cfg = inp_cfg[type];
-                YOVariant &line_cfg = type_cfg[yo::k::line];
-                texture_line_->SetData(0, input, type, 1, 1, &line_cfg[yo::k::color].get<YOColor4F>());
+	{
+		YOVariant &inp_cfg = wrld[input][yo::k::types];
+		for(int type = 0; type < inp_cfg.getArraySize(); type++)
+		{
+			YOVariant &type_cfg = inp_cfg[type];
+			YOVariant &line_cfg = type_cfg[yo::k::line];
+			texture_line_->SetData(0, input, type, 1, 1, &line_cfg[yo::k::color].get<YOColor4F>());
 
-                YOLimitF &line_width = line_cfg[yo::k::width].get<YOLimitF>();
-                YOColor4F width{line_width.value / 16.0f, 1.0f, 1.0f, 1.0f};
-                texture_param_->SetData(0, input, type, 1, 1, &width);
+			YOLimitF &line_width = line_cfg[yo::k::width].get<YOLimitF>();
+			YOColor4F width{line_width.value / 16.0f, 1.0f, 1.0f, 1.0f};
+			texture_param_->SetData(0, input, type, 1, 1, &width);
 
-                YOVariant &fill_cfg = type_cfg[yo::k::fill];
-                texture_fill_->SetData(0, input, type, 1, 1, &fill_cfg[yo::k::color].get<YOColor4F>());
+			YOVariant &fill_cfg = type_cfg[yo::k::fill];
+			texture_fill_->SetData(0, input, type, 1, 1, &fill_cfg[yo::k::color].get<YOColor4F>());
 
-                YOVariant &text_cfg = type_cfg[yo::k::text];
-                texture_text_->SetData(0, input, type, 1, 1, &text_cfg[yo::k::color].get<YOColor4F>());
-            }
-        }
+			YOVariant &text_cfg = type_cfg[yo::k::text];
+			texture_text_->SetData(0, input, type, 1, 1, &text_cfg[yo::k::color].get<YOColor4F>());
+		}
+	}
 }
 
 void YOPolylinePlugin::OnData(const std::string &topic, std::shared_ptr<YOMessage> message)
@@ -149,7 +157,6 @@ void YOPolylinePlugin::OnData(const std::string &topic, std::shared_ptr<YOMessag
 	//std::cout << " YOPolylinePlugin::OnData() " << topic << std::endl;
     std::shared_ptr<YOVariant> frame = std::make_shared<YOVariant>(message->getDataSize(), (const char*)message->getData());
     AddFrame(frame, GetTopicId(topic));
-
 }
 
 void YOPolylinePlugin::AddFrame(std::shared_ptr<YOVariant> frame, int input_id)
@@ -161,6 +168,7 @@ void YOPolylinePlugin::AddFrame(std::shared_ptr<YOVariant> frame, int input_id)
 
 void YOPolylinePlugin::OnUpdate(float timeStep)
 {
+	std::vector<std::shared_ptr<YOInputData>> tmp;
     for (std::size_t i = 0; i < data_in_.size(); ++i)
     {
        data_lock_[i].lock();
@@ -170,71 +178,10 @@ void YOPolylinePlugin::OnUpdate(float timeStep)
 
        if(frame != nullptr )
        {
-           if(data_[i] != nullptr)
-               data_[i]->root->Remove();
-
-           data_[i] = ConvertFrame(frame, i);
+    	   ConvertFrame(data_[i], frame, i);
        }
     }
 }
-
-void YOPolylinePlugin::ConvertGeometry(YOVariant &obj, std::shared_ptr<YOInputData> fdata, YOVariant &input_cfg, int frame_id)
-{
-    Node *node = fdata->root->CreateChild();
-
-    node->SetTemporary(true);
-
-    YOVariant &types = input_cfg[yo::k::types];
-    YOVariant &geoms = obj[yo::k::geometries];
-    bool en_input = input_cfg[yo::k::enabled].get<bool>();
-
-    for( int i = 0; i < geoms.getArraySize(); i++)
-    {
-    	YOVariant &geom = geoms[i];
-    	uint32_t type_id = geom[yo::k::style_id];
-    	YOVariant &type_cfg = types[type_id];
-    	PrimitiveType geomType = (PrimitiveType) geom[yo::k::geometry_type].get<int32_t>();
-    	YOVector3List &vertices = (YOVector3List &) geom[yo::k::vertices].get<YOFloatList>();
-    	bool en_type = type_cfg[yo::k::enabled].get<bool>();
-
-        auto *cg = node->CreateComponent<CustomGeometry>();
-		//cg->SetEnabled([yo::k::enabled].get<bool>());
-
-        cg->SetNumGeometries(1);
-    	cg->BeginGeometry(0,  geomType);
-
-    	bool en_geom = true;
-
-    	switch(geomType)
-    	{
-    	case TRIANGLE_LIST:
-    	case TRIANGLE_FAN:
-    	case TRIANGLE_STRIP:
-    		cg->SetMaterial(0, material_fill_);
-    		en_geom = type_cfg[yo::k::fill][yo::k::enabled].get<bool>();
-    		fdata->geom_fills[type_id].push_back(cg);
-    		break;
-    	case LINE_LIST:
-    	case POINT_LIST:
-    	case LINE_STRIP:
-    		cg->SetMaterial(0, material_line_);
-    		en_geom = type_cfg[yo::k::line][yo::k::enabled].get<bool>();
-    		fdata->geom_lines[type_id].push_back(cg);
-    		break;
-    	}
-
-    	//cg->SetEnabled(en_geom && en_type && en_input);
-    	for( auto &vertex : vertices)
-		{
-			cg->DefineNormal(Vector3::FORWARD);
-			cg->DefineVertex((Urho3D::Vector3&)vertex);
-	    	cg->DefineTexCoord(Vector2( (float) frame_id / YO_INPUT_NUM, (float) type_id / YO_TYPE_NUM));
-		}
-    	cg->Commit();
-    	fdata->geoms[type_id].push_back(cg);
-    }
-}
-
 
 void YOPolylinePlugin::SetLineEnabled(const std::string &path, YOVariant *cfg, int input, int type)
 {
@@ -243,6 +190,7 @@ void YOPolylinePlugin::SetLineEnabled(const std::string &path, YOVariant *cfg, i
 
 void YOPolylinePlugin::SetLineColor(const std::string &path, YOVariant *cfg, int input, int type)
 {
+	std::cout << __FUNCTION__ << " " << __LINE__ << std::endl;
 	texture_line_->SetData(0, input, type, 1, 1, &cfg->get<YOColor4F>());
 }
 
@@ -283,28 +231,58 @@ void YOPolylinePlugin::OnGui()
 		std::string path = gui_.getPath().substr(start);
 		YOVariant *res = gui_.getConfig();
 		std::vector<int> addr = gui_.getIndex();
-		std::cout << "GUI changed: " <<  path << std::endl;
 		OnGuiChanged(path, addr, res);
+	}
+	int i = 0;
+	if (ui::CollapsingHeader("Data"))
+	{
+		if(ui::BeginTable("TwoColsData", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingStretchProp ))
+		{
+			for(auto data : data_)
+			{
+				ui::PushID(i);
+				if(data)
+				{
+					ui::TableNextRow();
+					ui::TableSetColumnIndex(0);
+					ui::Text("INPUT%d", i) ; ui::SameLine();
+					ui::TableSetColumnIndex(1);
+					gui_.draw(*(data->data));
+				}
+				ui::PopID();
+				i++;
+			}
+			ui::EndTable();
+		}
 	}
 }
 
-std::shared_ptr<YOInputData> YOPolylinePlugin::ConvertFrame(std::shared_ptr<YOVariant> frame, int input_id)
+void YOPolylinePlugin::ConvertFrame(std::shared_ptr<YOInputData> &fdata, std::shared_ptr<YOVariant> frame, int input_id)
 {
-    std::shared_ptr<YOInputData> fdata = std::make_shared<YOInputData>();
-    fdata->root = node_->CreateChild();
-    fdata->root->SetTemporary(true);
-    fdata->logic = fdata->root->CreateComponent<YORootLogic>();
-    fdata->logic->setMaterials(material_fill_, material_line_, material_text_);
+    if(!fdata) {
+    	fdata = std::make_shared<YOInputData>();
+    	fdata->root = node_->CreateChild();
+		fdata->root->SetTemporary(true);
+		fdata->logic = fdata->root->CreateComponent<YORootLogic>();
+	    fdata->logic->setMaterials(material_fill_, material_line_, material_text_);
+    }
+	fdata->data = frame;
     fdata->logic->ConvertRoot(frame, (*inputs_cfg_)[input_id]);
-    return fdata;
 }
 
 void YOPolylinePlugin::OnGuiChanged(const std::string &path, std::vector<int> &addr,  YOVariant *cfg)
 {
-	std::cout << " OnGuiChanged " <<  path << std::endl;
+	int input = addr.size() > 0 ? addr[0] : -1;
+	int type = addr.size() > 1 ? addr[1] : -1;
+
+	std::cout << " OnGuiChanged " <<  path << " Input: " << input << " Type: " <<  type << " Value: " << cfg->m_value ;
+
+	if(input < 0 || !data_[input] )
+	{
+		return;
+	}
 
 	YORootLogic *logic = data_[addr[0]]->logic;
-	int type = addr.size() > 1 ? addr[1] : -1;
 
 	if(path == "/inputs/#0/enabled")
 	{
@@ -320,7 +298,7 @@ void YOPolylinePlugin::OnGuiChanged(const std::string &path, std::vector<int> &a
 	}
 	else if(path == "/inputs/#0/transform/apply")
 	{
-
+		std::cout << cfg->getTypeName() << std::endl;
 	}
 	else if(path == "/inputs/#0/transform/position")
 	{

@@ -8,7 +8,7 @@
                 <element value="" name="com" type="std::string"/>
                 <element value="true" name="enb" type="bool"/>
                 <map name="fll" type="YOMap">
-                    <element r="1" g="1" b="1" a="1" name="clr" type="YOColor4F"/>
+                    <element r="1" g="0" b="0" a="1" name="clr" type="YOColor4F"/>
                     <element value="true" name="enb" type="bool"/>
                 </map>
                 <element value="0" name="id" type="uint32_t"/>
@@ -20,7 +20,7 @@
                 <element value="input 0" name="nam" type="std::string"/>
                 <element value="true" name="rps" type="bool"/>
                 <map name="tfm" type="YOMap">
-                    <element select="1" name="apl" type="YOStringList">
+                    <element select="0" name="apl" type="YOStringList">
                         <sub value="Ignore"/>
                         <sub value="From Config"/>
                         <sub value="From Data"/>
@@ -85,7 +85,7 @@
                                 <sub value="Times"/>
                                 <sub value="Robo"/>
                             </element>
-                            <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                            <element x="0" y="0" z="1" name="pos" type="YOVector3"/>
                             <element value="12" min="1" max="32" speed="0.1" name="sz" type="YOLimitF"/>
                         </map>
                     </map>
@@ -114,7 +114,7 @@
                                 <sub value="Times"/>
                                 <sub value="Robo"/>
                             </element>
-                            <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                            <element x="0" y="0" z="2" name="pos" type="YOVector3"/>
                             <element value="12" min="1" max="32" speed="0.1" name="sz" type="YOLimitF"/>
                         </map>
                     </map>
@@ -143,7 +143,7 @@
                                 <sub value="Times"/>
                                 <sub value="Robo"/>
                             </element>
-                            <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                            <element x="0" y="0" z="3" name="pos" type="YOVector3"/>
                             <element value="12" min="1" max="32" speed="0.1" name="sz" type="YOLimitF"/>
                         </map>
                     </map>
@@ -172,7 +172,7 @@
                                 <sub value="Times"/>
                                 <sub value="Robo"/>
                             </element>
-                            <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                            <element x="0" y="0" z="4" name="pos" type="YOVector3"/>
                             <element value="12" min="1" max="32" speed="0.1" name="sz" type="YOLimitF"/>
                         </map>
                     </map>
@@ -201,7 +201,7 @@
                                 <sub value="Times"/>
                                 <sub value="Robo"/>
                             </element>
-                            <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                            <element x="0" y="0" z="5" name="pos" type="YOVector3"/>
                             <element value="12" min="1" max="32" speed="0.1" name="sz" type="YOLimitF"/>
                         </map>
                     </map>
@@ -230,7 +230,7 @@
                                 <sub value="Times"/>
                                 <sub value="Robo"/>
                             </element>
-                            <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                            <element x="0" y="0" z="6" name="pos" type="YOVector3"/>
                             <element value="12" min="1" max="32" speed="0.1" name="sz" type="YOLimitF"/>
                         </map>
                     </map>
@@ -259,7 +259,7 @@
                                 <sub value="Times"/>
                                 <sub value="Robo"/>
                             </element>
-                            <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                            <element x="0" y="0" z="7" name="pos" type="YOVector3"/>
                             <element value="12" min="1" max="32" speed="0.1" name="sz" type="YOLimitF"/>
                         </map>
                     </map>
@@ -288,7 +288,7 @@
                                 <sub value="Times"/>
                                 <sub value="Robo"/>
                             </element>
-                            <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                            <element x="0" y="0" z="8" name="pos" type="YOVector3"/>
                             <element value="12" min="1" max="32" speed="0.1" name="sz" type="YOLimitF"/>
                         </map>
                     </map>
@@ -317,7 +317,7 @@
                                 <sub value="Times"/>
                                 <sub value="Robo"/>
                             </element>
-                            <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                            <element x="0" y="0" z="9" name="pos" type="YOVector3"/>
                             <element value="12" min="1" max="32" speed="0.1" name="sz" type="YOLimitF"/>
                         </map>
                     </map>
@@ -346,7 +346,7 @@
                                 <sub value="Times"/>
                                 <sub value="Robo"/>
                             </element>
-                            <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                            <element x="0" y="0" z="10" name="pos" type="YOVector3"/>
                             <element value="12" min="1" max="32" speed="0.1" name="sz" type="YOLimitF"/>
                         </map>
                     </map>
@@ -375,7 +375,7 @@
                                 <sub value="Times"/>
                                 <sub value="Robo"/>
                             </element>
-                            <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                            <element x="0" y="0" z="11" name="pos" type="YOVector3"/>
                             <element value="12" min="1" max="32" speed="0.1" name="sz" type="YOLimitF"/>
                         </map>
                     </map>
@@ -404,7 +404,7 @@
                                 <sub value="Times"/>
                                 <sub value="Robo"/>
                             </element>
-                            <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                            <element x="0" y="0" z="12" name="pos" type="YOVector3"/>
                             <element value="12" min="1" max="32" speed="0.1" name="sz" type="YOLimitF"/>
                         </map>
                     </map>
@@ -433,7 +433,7 @@
                                 <sub value="Times"/>
                                 <sub value="Robo"/>
                             </element>
-                            <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                            <element x="0" y="0" z="13" name="pos" type="YOVector3"/>
                             <element value="12" min="1" max="32" speed="0.1" name="sz" type="YOLimitF"/>
                         </map>
                     </map>
@@ -462,7 +462,7 @@
                                 <sub value="Times"/>
                                 <sub value="Robo"/>
                             </element>
-                            <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                            <element x="0" y="0" z="14" name="pos" type="YOVector3"/>
                             <element value="12" min="1" max="32" speed="0.1" name="sz" type="YOLimitF"/>
                         </map>
                     </map>
@@ -491,7 +491,7 @@
                                 <sub value="Times"/>
                                 <sub value="Robo"/>
                             </element>
-                            <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                            <element x="0" y="0" z="15" name="pos" type="YOVector3"/>
                             <element value="12" min="1" max="32" speed="0.1" name="sz" type="YOLimitF"/>
                         </map>
                     </map>
@@ -532,7 +532,7 @@
                         <sub value="From Data"/>
                         <sub value="Combine"/>
                     </element>
-                    <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                    <element x="0" y="0" z="2.2" name="pos" type="YOVector3"/>
                     <element x="0" y="0" z="0" name="rot" type="YOVector3"/>
                     <element x="1" y="1" z="1" name="scl" type="YOVector3"/>
                 </map>
@@ -1533,7 +1533,7 @@
                 <map name="ln" type="YOMap">
                     <element r="1" g="1" b="1" a="1" name="clr" type="YOColor4F"/>
                     <element value="true" name="enb" type="bool"/>
-                    <element value="1" min="0" max="16" speed="0.1" name="wdt" type="YOLimitF"/>
+                    <element value="2" min="0" max="16" speed="0.1" name="wdt" type="YOLimitF"/>
                 </map>
                 <element value="input 3" name="nam" type="std::string"/>
                 <element value="true" name="rps" type="bool"/>
