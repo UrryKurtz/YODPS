@@ -176,9 +176,21 @@ void YOPolylinePlugin::OnUpdate(float timeStep)
        data_in_[i] = nullptr;
        data_lock_[i].unlock();
 
+       if(!data_[i]) {
+    	   data_[i] = std::make_shared<YOInputData>();
+    	   data_[i]->root = node_->CreateChild();
+    	   data_[i]->root->SetTemporary(true);
+    	   data_[i]->logic = data_[i]->root->CreateComponent<YORootLogic>();
+    	   data_[i]->logic->setMaterials(material_fill_, material_line_, material_text_);
+    	   data_[i]->logic->SetInputConfig((*inputs_cfg_)[i]);
+       }
+
+       data_[i]->logic->UpdateConfig();
+
        if(frame != nullptr )
        {
-    	   ConvertFrame(data_[i], frame, i);
+    	   data_[i]->data = frame;
+    	   data_[i]->logic->ConvertRoot(frame);
        }
     }
 }
@@ -190,7 +202,6 @@ void YOPolylinePlugin::SetLineEnabled(const std::string &path, YOVariant *cfg, i
 
 void YOPolylinePlugin::SetLineColor(const std::string &path, YOVariant *cfg, int input, int type)
 {
-	std::cout << __FUNCTION__ << " " << __LINE__ << std::endl;
 	texture_line_->SetData(0, input, type, 1, 1, &cfg->get<YOColor4F>());
 }
 
@@ -238,14 +249,14 @@ void YOPolylinePlugin::OnGui()
 	{
 		if(ui::BeginTable("TwoColsData", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingStretchProp ))
 		{
-			for(auto data : data_)
+			for(auto &data : data_)
 			{
 				ui::PushID(i);
-				if(data)
+				if(data && data->data)
 				{
 					ui::TableNextRow();
 					ui::TableSetColumnIndex(0);
-					ui::Text("INPUT%d", i) ; ui::SameLine();
+					ui::Text("INPUT%d", i);
 					ui::TableSetColumnIndex(1);
 					gui_.draw(*(data->data));
 				}
@@ -255,19 +266,6 @@ void YOPolylinePlugin::OnGui()
 			ui::EndTable();
 		}
 	}
-}
-
-void YOPolylinePlugin::ConvertFrame(std::shared_ptr<YOInputData> &fdata, std::shared_ptr<YOVariant> frame, int input_id)
-{
-    if(!fdata) {
-    	fdata = std::make_shared<YOInputData>();
-    	fdata->root = node_->CreateChild();
-		fdata->root->SetTemporary(true);
-		fdata->logic = fdata->root->CreateComponent<YORootLogic>();
-	    fdata->logic->setMaterials(material_fill_, material_line_, material_text_);
-    }
-	fdata->data = frame;
-    fdata->logic->ConvertRoot(frame, (*inputs_cfg_)[input_id]);
 }
 
 void YOPolylinePlugin::OnGuiChanged(const std::string &path, std::vector<int> &addr,  YOVariant *cfg)

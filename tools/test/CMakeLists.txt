@@ -17,3 +17,8 @@ set(YO_SENDER yo_sender)
 add_executable(${YO_SENDER} yo_sender.cpp)
 target_include_directories(${YO_SENDER} PUBLIC ${PROJECT_BINARY_DIR})
 target_link_libraries(${YO_SENDER} PRIVATE zmq yo_utils)
+
+set(YO_MODELS yo_models)
+add_executable(${YO_MODELS} yo_models.cpp)
+target_include_directories(${YO_MODELS} PUBLIC ${PROJECT_BINARY_DIR})
+target_link_libraries(${YO_MODELS} PRIVATE zmq yo_utils)

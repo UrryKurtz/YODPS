@@ -53,8 +53,6 @@ class YOPolylinePlugin : public IPlugin {
 	YOVariant *inputs_cfg_ {nullptr};
 	YOVariant *params_cfg_ {nullptr};
 
-	//Model *box_ {nullptr};
-
 public:
 	YOPolylinePlugin(Context* context);
 	virtual ~YOPolylinePlugin();
@@ -69,15 +67,17 @@ public:
 	void AddFrame(std::shared_ptr<YOVariant> frame, int input_id);
     void OnGuiChanged(const std::string &path, std::vector<int> &addr,  YOVariant *cfg);
 
-    void ConvertFrame(std::shared_ptr<YOInputData> &fdata, std::shared_ptr<YOVariant> frame, int input_id);
-
     void SetLineEnabled(const std::string &path, YOVariant *cfg, int input, int type);
-    void SetLineColor(const std::string &path, YOVariant *cfg, int input, int type);
-    void SetLineWidth(const std::string &path, YOVariant *cfg, int input, int type);
     void SetFillEnabled(const std::string &path, YOVariant *cfg, int input, int type);
-    void SetFillColor(const std::string &path, YOVariant *cfg, int input, int type);
     void SetTextEnabled(const std::string &path, YOVariant *cfg, int input, int type);
     void SetTextColor(const std::string &path, YOVariant *cfg, int input, int type);
+    void SetTextSize(const std::string &path, YOVariant *cfg, int input, int type);
+    void SetTextPosition(const std::string &path, YOVariant *cfg, int input, int type);
+
+    void SetLineColor(const std::string &path, YOVariant *cfg, int input, int type);
+    void SetLineWidth(const std::string &path, YOVariant *cfg, int input, int type);
+
+    void SetFillColor(const std::string &path, YOVariant *cfg, int input, int type);
 
 };
 

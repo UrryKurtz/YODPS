@@ -45,6 +45,12 @@ void YONodeLogic::SetMaterials(SharedPtr<Material> fill, SharedPtr<Material> lin
 		fill_geom_ = fill_node_->CreateComponent<CustomGeometry>();
 		fill_geom_->SetMaterial(0, material_fill_);
 	}
+	if(!text_node_)
+		text_node_ = node_->CreateChild("text");
+
+	if(!text_)
+		text_ = text_node_ ->CreateComponent<Text3D>();
+
 }
 
 void YONodeLogic::SetFont(Font *font)
@@ -54,8 +60,10 @@ void YONodeLogic::SetFont(Font *font)
 
 void YONodeLogic::Convert(YOVariant &object, YOVariant &type_cfg, int input_id)
 {
+	//std::cout << __FUNCTION__ << " " << __LINE__ << std::endl;
 	object_ = &object;
 	type_cfg_ = &type_cfg;
+	style_id_ = type_cfg[yo::k::id];
 
 	if(object.hasChild(yo::k::text))
 	{
@@ -72,33 +80,32 @@ void YONodeLogic::Convert(YOVariant &object, YOVariant &type_cfg, int input_id)
 	}
 }
 
-void YONodeLogic::CheckEnable()
+void YONodeLogic::SetInput(YOStatus *input)
 {
-	node_->SetEnabled(en_type && ((type_ == YOLine && en_line) || (type_ == YOFill && en_fill)));
+	input_ = input ;
 }
 
-void YONodeLogic::EnableInput(bool enable)
+void YONodeLogic::SetType(YOStatus *type)
 {
-	en_input = enable;
-	CheckEnable();
+	type_ = type;
 }
 
-void YONodeLogic::EnableLine(bool enable)
+void YONodeLogic::Update(float timeStep)
 {
-	en_line = enable;
-	CheckEnable();
+	//TODO update on changes only
+	CheckEnabled();
 }
 
-void YONodeLogic::EnableFill(bool enable)
+void YONodeLogic::CheckEnabled()
 {
-	en_fill = enable;
-	CheckEnable();
+	line_node_->SetEnabled(input_->enable && input_->line && type_->enable && type_->line);
+	fill_node_->SetEnabled(input_->enable && input_->fill && type_->enable && type_->fill);
+	text_->SetEnabled(input_->enable && input_->text && type_->enable && type_->text);
 }
 
-void YONodeLogic::EnableText(bool enable)
+void YONodeLogic::SetInputConfig(YOVariant &input_cfg)
 {
-	en_text = enable;
-	CheckEnable();
+	input_cfg_ = &input_cfg;
 }
 
 void YONodeLogic::ConvertGeometry(YOVariant &object, int input_id)
@@ -120,7 +127,6 @@ void YONodeLogic::ConvertGeometry(YOVariant &object, int input_id)
 		cg = fill_geom_;
 		cg->BeginGeometry(0, geomType);
 		en_geom = (*type_cfg_)[yo::k::fill][yo::k::enabled].get<bool>();
-		type_ = YOFill;
 		break;
 	case LINE_LIST:
 	case POINT_LIST:
@@ -128,7 +134,6 @@ void YONodeLogic::ConvertGeometry(YOVariant &object, int input_id)
 		cg = line_geom_;
 		cg->BeginGeometry(0, geomType);
 		en_geom = (*type_cfg_)[yo::k::line][yo::k::enabled].get<bool>();
-		type_ = YOLine;
 		break;
 	}
 
@@ -146,14 +151,7 @@ void YONodeLogic::ConvertText(YOVariant &object, int input_id)
 	YOVariant &text_cfg = (*type_cfg_)[yo::k::text];
 	YOColor4F &color = text_cfg[yo::k::color];
 
-	if(!text_node_)
-		text_node_ = node_->CreateChild("text");
-
-	if(!text_)
-		text_ = text_node_ ->CreateComponent<Text3D>();
-
 	text_node_->SetPosition((Vector3 &)text_cfg[yo::k::position].get<YOVector3>());
-
     //!!!txt->SetLightMask(YO_LMASK_OVERLAY);
     //auto* cache = GetSubsystem<ResourceCache>();
     text_->SetColor((Color&) color);
@@ -177,11 +175,17 @@ void YONodeLogic::ConvertModel(YOVariant &object, int input_id)
     smodel_->SetModel(cache_->GetResource<Model>(model.c_str()));
 
     YOVariant &transform = object[yo::k::transform];
+
+    node_->Rotate(Quaternion::IDENTITY);
+    node_->SetScale(Vector3::ONE);
+
     node_->SetPosition((Vector3&) transform[yo::k::position].get<YOVector3>());
     node_->Rotate(Quaternion((Vector3&) transform[yo::k::rotation].get<YOVector3>()));
     node_->Scale((Vector3&) transform[yo::k::scale].get<YOVector3>());
+
     //SharedPtr<Material>mat(new Material(context_));
     auto mat = cache_->GetResource<Material>(texture.c_str());
+
 //    mat->SetTechnique(0, technique_overlay_);
 //    mat->SetRenderOrder(250);
 //    mat->SetShaderParameter("MatDiffColor", Color(1, 1, 1, 0.95));

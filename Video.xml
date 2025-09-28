@@ -4,7 +4,7 @@
         <array name="vid" type="YOArray">
             <map name="vid" type="YOMap">
                 <element value="" name="com" type="std::string"/>
-                <element value="true" name="enb" type="bool"/>
+                <element value="false" name="enb" type="bool"/>
                 <element value="0" name="id" type="uint32_t"/>
                 <element value="video 0" name="nam" type="std::string"/>
                 <element value="true" name="oly" type="bool"/>
@@ -18,14 +18,14 @@
                     <element value="0" name="wdt" type="uint16_t"/>
                 </map>
                 <map name="tfm" type="YOMap">
-                    <element x="170" y="150" z="0" name="pos" type="YOVector3"/>
+                    <element x="170" y="170" z="0" name="pos" type="YOVector3"/>
                     <element x="0" y="0" z="0" name="rot" type="YOVector3"/>
                     <element x="0.5" y="0.5" z="1" name="scl" type="YOVector3"/>
                 </map>
             </map>
             <map name="vid" type="YOMap">
                 <element value="" name="com" type="std::string"/>
-                <element value="true" name="enb" type="bool"/>
+                <element value="false" name="enb" type="bool"/>
                 <element value="1" name="id" type="uint32_t"/>
                 <element value="video 1" name="nam" type="std::string"/>
                 <element value="true" name="oly" type="bool"/>
@@ -39,8 +39,8 @@
                     <element value="0" name="wdt" type="uint16_t"/>
                 </map>
                 <map name="tfm" type="YOMap">
-                    <element x="170" y="404" z="0" name="pos" type="YOVector3"/>
-                    <element x="0" y="0" z="0" name="rot" type="YOVector3"/>
+                    <element x="164" y="426" z="0" name="pos" type="YOVector3"/>
+                    <element x="0" y="0" z="-20" name="rot" type="YOVector3"/>
                     <element x="0.5" y="0.5" z="1" name="scl" type="YOVector3"/>
                 </map>
             </map>

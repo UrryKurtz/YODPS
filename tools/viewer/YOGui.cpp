@@ -89,6 +89,8 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
             	bool check = false;
             	for (int i = 0; i < cfg.getArraySize(); i++)
                 {
+            		ui::PushID( (new_path  + std::to_string(i)).c_str() );
+
     				if(cfg[i].hasChild(yo::k::select))
     				{
     					if( i != select)
@@ -99,7 +101,8 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
 						ui::SameLine();
     				}
     				index_.push_back(i);
-    				ui::PushID(i);
+
+
     				drawCfg(cfg[i], new_path + "/#" + std::to_string(index_.size()-1), false, false, &select, i);
     				ui::PopID();
     				if(changed_ && !check)

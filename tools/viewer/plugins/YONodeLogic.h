@@ -26,6 +26,14 @@ enum YODrawType {
 	YOFill
 };
 
+struct YOStatus
+{
+	bool enable;
+	bool fill;
+	bool line;
+	bool text;
+};
+
 class YONodeLogic: public LogicComponent {
 	URHO3D_OBJECT(YONodeLogic, LogicComponent);
 	Text3D *text_ {nullptr};
@@ -37,32 +45,35 @@ class YONodeLogic: public LogicComponent {
 	CustomGeometry *fill_geom_ {nullptr};
 	StaticModel *smodel_ {nullptr};
 
+	YOVariant *input_cfg_ {nullptr};
 	YOVariant *type_cfg_ {nullptr};
 	YOVariant *object_ {nullptr};
+
+	uint32_t style_id_ {0};
 
 	SharedPtr<Material> material_fill_;
 	SharedPtr<Material> material_line_;
 	SharedPtr<Material> material_text_;
-	YODrawType type_ {YODrawType::YOLine};
 
 	ResourceCache *cache_ {nullptr};
 
-	bool en_input {true};
-	bool en_type {true};
-	bool en_line {true};
-	bool en_fill {true};
-	bool en_text {true};
+	YOStatus *input_ {nullptr};
+	YOStatus *type_ {nullptr};
+
 	Font *font_ {nullptr};
+
 public:
 	YONodeLogic(Context* context);
 	virtual ~YONodeLogic();
 	void SetMaterials(SharedPtr<Material> fill, SharedPtr<Material> line, SharedPtr<Material> text);
 	void SetFont(Font *font);
+	void SetInputConfig(YOVariant &input_cfg);
+
 	void Convert(YOVariant &object, YOVariant &type_cfg, int input_id);
 	void ConvertGeometry(YOVariant &object, int input_id);
 	void ConvertModel(YOVariant &object, int input_id);
 	void ConvertText(YOVariant &object, int input_id);
-
+	void Update(float timeStep) override;
 
 	//void OnNodeSet(Node* previousNode, Node* currentNode) override;
 	static void RegisterObject(Context* context)
@@ -70,13 +81,15 @@ public:
 	    context->RegisterFactory<YONodeLogic>();
 	}
 
-	void CheckEnable();
-	void EnableInput(bool enable);
-	void EnableType(bool enable);
-	void EnableLine(bool enable);
-	void EnableFill(bool enable);
-	void EnableText(bool enable);
+	void CheckEnabled();
+	void SetInput(YOStatus *input);
+	void SetType(YOStatus *type);
 
+	void SetInputEnabled(bool enable);
+	void SetTypeEnabled(bool enable);
+	void SetLineEnabled(bool enable);
+	void SetFillEnabled(bool enable);
+	void SetTextEnable(bool enable);
 };
 
 #endif /* TOOLS_VIEWER_PLUGINS_YONODELOGIC_H_ */
