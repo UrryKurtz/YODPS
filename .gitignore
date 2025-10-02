@@ -1,5 +1,6 @@
 /build/
 /output/
 /third_party/
+/Data/OSM
 /.cproject
 /.project
