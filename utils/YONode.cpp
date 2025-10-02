@@ -42,6 +42,7 @@ bool YONode::isRunning()
 YONode::YONode(const char *node_name)
 {
     g_node_ = this;
+	m_name = node_name;
     signal(SIGINT, signal_handler);
     m_poll = malloc(sizeof(zmq_pollitem_t) * 2);
     m_context = zmq_ctx_new();
@@ -61,7 +62,6 @@ YONode::YONode(const char *node_name)
 
     zmq_setsockopt(m_socket_pub, ZMQ_RCVHWM, &hwm, sizeof(hwm));
     zmq_setsockopt(m_socket_pub, ZMQ_SNDHWM, &hwm, sizeof(hwm));
-
 
     /*
     sysctl net.core.rmem_max
@@ -120,6 +120,12 @@ YOSigData *YONode::getSignalFunction(int signal)
     return nullptr;
 }
 
+
+void YONode::sendMessage(const char *topic, std::shared_ptr<YOMessage> message)
+{
+	sendMessage(topic, *message);
+}
+
 void YONode::sendMessage(const char *topic, YOMessage &message)
 {
     //TODO check first message size, initSize(0);
@@ -129,7 +135,6 @@ void YONode::sendMessage(const char *topic, YOMessage &message)
         std::cout << " SendMessage: " << topic << " is not advertised " << std::endl;
         return;
     }
-    //std::cout << " SendMessage: " << topic << std::endl;
 
     message.setTopic(topic);
     message.setTimestamp(YONode::getTimestamp());
@@ -138,6 +143,7 @@ void YONode::sendMessage(const char *topic, YOMessage &message)
 
     int flag = message.getExtDataSize() ? ZMQ_SNDMORE : 0;
     int new_size = message.m_data.size - message.m_topic_start;
+
     zmq_msg_init_data((zmq_msg_t*) &message.m_data.message, message.m_data.buffer + message.m_topic_start, new_size, free_data_fn, message.m_data.buffer);
     zmq_msg_send((zmq_msg_t*) &message.m_data.message, m_socket_pub, flag);
 
@@ -178,14 +184,14 @@ int YONode::connect()
     for (auto topics : m_sub_map)
     {
         zmq_setsockopt(m_socket_sub, ZMQ_SUBSCRIBE, topics.first.c_str(), topics.first.size());
-        std::cout << " Subscribed to " << topics.first.c_str() << std::endl;
+        std::cout << " Subscribed to [" << topics.first.c_str() << "]"<< std::endl;
     }
 
     zmq_connect(m_socket_sub, YO_PUB_SRV);
     zmq_connect(m_socket_pub, YO_SUB_SRV);
 
     usleep(2000);
-    std::cout << " Connected " << std::endl;
+    std::cout << " Connected: " << m_name << std::endl;
     return 0;
 }
 

@@ -26,6 +26,7 @@
 #include "YOPolylinePlugin.h"
 #include "YOVideoPlugin.h"
 #include "YOCameraPlugin.h"
+#include "YOGPSPlugin.h"
 
 void sig_fn(int signal, void *data)
 {
@@ -60,6 +61,7 @@ void YOViewer::Start()
     CreateLight();
 
     plugin_bus_->SetConfig(&config_->get(yo::k::plugins));
+    plugin_bus_->AddPlugin("GPS", new YOGPSPlugin(context_));
     plugin_bus_->AddPlugin("ExternalData", new YOPolylinePlugin(context_));
     plugin_bus_->AddPlugin("InternalData", new YOPolylinePlugin(context_));
     plugin_bus_->AddPlugin("Video", new YOVideoPlugin(context_));
@@ -81,7 +83,7 @@ void YOViewer::Start()
     SubscribeToEvent(E_KEYDOWN, URHO3D_HANDLER(YOViewer, HandleKeyDown));
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(YOViewer, HandleUpdate));
     //SubscribeToEvent(E_BEGINFRAME, URHO3D_HANDLER(YOViewer, HandleFrame));
-    SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(YOViewer, HandleFrame));
+    //SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(YOViewer, HandleFrame));
 
 
 }
@@ -231,6 +233,7 @@ void YOViewer::HandleUpdate(StringHash eventType, VariantMap& eventData)
     float dt = eventData[P_TIMESTEP].GetFloat();
     plugin_bus_->OnUpdate(dt);
     RenderUI();
+    plugin_bus_->OnGui();
 }
 
 void YOViewer::HandleKeyDown(StringHash eventType, VariantMap &eventData)
@@ -305,5 +308,4 @@ void YOViewer::RenderUI()
         }
         ui::EndMainMenuBar();
     }
-    plugin_bus_->OnGui();
 }

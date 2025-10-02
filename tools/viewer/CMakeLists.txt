@@ -23,6 +23,8 @@ plugins/YORootLogic.cpp
 plugins/YONodeLogic.cpp
 plugins/YOVideoPlugin.cpp
 plugins/YOCameraPlugin.cpp
+plugins/YOGPSPlugin.cpp
+plugins/YOGPSUtils.cpp
 ${CONVERT_SOURCES}
 )
 
@@ -35,5 +37,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR} plugins
  ${YODPS_PATH}/third_party/rbfx/include/Urho3D/ThirdParty/tracy
 )
   
-target_link_libraries(${PROJECT_NAME}  yo_utils Urho3D ImGui ImGuizmo turbojpeg) 
+target_link_libraries(${PROJECT_NAME}  yo_utils Urho3D ImGui ImGuizmo turbojpeg crypto ssl ) 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})

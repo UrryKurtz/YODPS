@@ -247,7 +247,24 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
             ui::SameLine(); ui::Text(" [%s]" ,  name.c_str());
         }
             break;
-
+        case 19: //YOVector2
+            if(ui::DragScalarN(name.c_str(), ImGuiDataType_Float, (float *)&cfg.get<YOVector2>(), 2, 0.1, 0, 0, "%.04f"))
+            {
+                changed = true;
+            }
+            break;
+        case 20: //YOVector2I, //20
+        	if(ui::DragScalarN(name.c_str(), ImGuiDataType_S32, (int32_t *)&cfg.get<YOVector2I>(), 2))
+            {
+                changed = true;
+            }
+            break;
+        case 21: //YOVector2U, //21
+        	if(ui::DragScalarN(name.c_str(), ImGuiDataType_U32, (int32_t *)&cfg.get<YOVector2U>(), 2))
+            {
+                changed = true;
+            }
+            break;
         case 22: //YOVector3
             if(ui::DragFloat3(name.c_str(), (float *)&cfg.get<YOVector3>()))
             {
@@ -322,7 +339,30 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
 			YOLimitF &lim = cfg;
 			if(ui::DragScalar(name.c_str(), ImGuiDataType_Float, &lim.value, lim.speed, &lim.min, &lim.max, "%0.02f", 0))
 			{
+					changed = true;
+			}
+		}
+			break;
+        case 36: //YOLimitI32
+		{
+			YOLimitI32 &lim = cfg;
+			if(ui::DragScalar(name.c_str(), ImGuiDataType_S32, &lim.value, lim.speed, &lim.min, &lim.max, "%d", 0))
+			{
 				changed = true;
+			}
+		}
+			break;
+        case 37: //YOLimitU32
+		{
+			YOLimitU32 &lim = cfg;
+			uint32_t tmp = lim.value ;
+			if(ui::DragScalar(name.c_str(), ImGuiDataType_U32, &tmp, lim.speed, &lim.min, &lim.max, "%d", 0))
+			{
+				if(ui::IsItemDeactivatedAfterEdit())
+				{
+					changed = true;
+					lim.value = tmp;
+				}
 			}
 		}
 			break;

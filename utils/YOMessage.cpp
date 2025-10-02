@@ -48,16 +48,16 @@ YOTimestamp YOMessage::getTimestamp()
 
 uint8_t *YOMessage::initSize(uint32_t data_size)
 {
-    //std::cout << " INIT " << __FUNCTION__ << std::endl;
+    //std::cout << __FUNCTION__ << " " << __LINE__ << std::endl;
     m_data.size = YO_MAX_TOPIC_LENGTH + offsetof(YOHeaderBase, data) + data_size;
     //std::cout << " m_data.size " << m_data.size << std::endl;
-    m_data.buffer = (uint8_t*) malloc(m_data.size);
-    m_header_ptr  = &((YOHeader*) m_data.buffer)->base;
+    m_data.buffer = (uint8_t*) calloc(1, m_data.size);
+    m_header_ptr  = (YOHeaderBase*) &m_data.buffer[YO_MAX_TOPIC_LENGTH];
     m_header_ptr->size = data_size;
     return m_header_ptr->data;
 }
 
-void YOMessage::initData(uint8_t *data, uint32_t size)
+void YOMessage::initData(const uint8_t *data, uint32_t size)
 {
     //can not just set ptr and size. Need to alloc for a Topic, TS & Info and copy data
    initSize(size);

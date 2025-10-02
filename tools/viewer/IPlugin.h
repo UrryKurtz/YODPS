@@ -8,6 +8,9 @@
 #ifndef TOOLS_VIEWER_IPLUGIN_H_
 #define TOOLS_VIEWER_IPLUGIN_H_
 
+class IPlugin;
+class YOPluginBus;
+
 #include "YOKeys.h"
 #include "YOGui.h"
 #include <YOMessage.h>
@@ -16,11 +19,11 @@
 
 using namespace Urho3D;
 
-class IPlugin;
-namespace PluginBase
-{
-    void Send(IPlugin* self, std::string_view topic, const uint8_t* data, size_t size);
-}
+//namespace PluginBase
+//{
+  //  void Send(IPlugin* self, std::string_view topic, const uint8_t* data, size_t size);
+  //  void Send(IPlugin* self, std::string_view topic, std::shared_ptr<YOVariant> data);
+//}
 
 class IPlugin : public Object {
 	 URHO3D_OBJECT(IPlugin, Object);
@@ -30,9 +33,17 @@ class IPlugin : public Object {
 	 std::vector<std::string> subs_;
 	 std::vector<std::string> ads_;
 
+protected:
+	 YOPluginBus *bus_;
+	 std::string name_;
+
 public:
 	using Object::Object;
 	virtual ~IPlugin() = default;
+	void SetBus(YOPluginBus* bus) { bus_ = bus; }
+	void SetName(const std::string &name) { name_ = name; }
+	const std::string &GetName() { return name_; }
+
 	virtual void OnStart(){}
 	void SetConfig(YOVariant *config) { config_ = config; OnSetConfig(config_); }
 	void SetNode(Node *node) { node_ = node; OnSetNode(node_); }
@@ -47,11 +58,9 @@ public:
 	std::vector<std::string> GetAdvertisements() const { return ads_; }
 	void RegisterTopic(const std::string &name, int num) {topics_[name] = num; subs_.push_back(name); }
     int GetTopicId(const std::string &name) {return topics_[name];}
-
-	inline void Transmit(std::string_view topic, const uint8_t* data, size_t size, IPlugin* self)
-	{
-	    PluginBase::Send(self, topic, data, size);
-	}
+	void Transmit(const std::string &topic, const uint8_t* data, size_t size);
+	void Transmit(const std::string &topic, const YOVariant &data);
+	void Transmit(const std::string &topic, YOMessage &message);
 
 };
 

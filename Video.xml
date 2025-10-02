@@ -81,7 +81,7 @@
                     <element value="0" name="wdt" type="uint16_t"/>
                 </map>
                 <map name="tfm" type="YOMap">
-                    <element x="0" y="0" z="0" name="pos" type="YOVector3"/>
+                    <element x="132" y="684" z="0" name="pos" type="YOVector3"/>
                     <element x="0" y="0" z="0" name="rot" type="YOVector3"/>
                     <element x="1" y="1" z="1" name="scl" type="YOVector3"/>
                 </map>

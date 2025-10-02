@@ -6,6 +6,7 @@
  */
 
 #include <Urho3D/UI/UI.h>
+#include <Urho3D/IO/MemoryBuffer.h>
 #include "YOVideoPlugin.h"
 
 #include <turbojpeg.h>
@@ -36,14 +37,22 @@ inline bool DecodeJpegToRGBA(const uint8_t* data, size_t size, SharedPtr<Image> 
 void YOVideoPlugin::OnData(const std::string &topic, std::shared_ptr<YOMessage> message)
 {
 	YOImageData *img_info = (YOImageData *)message->getData();
+	auto rgba = MakeShared<Image>(context_);
+
 	if(img_info->format == YOFrameFormat::YO_JPEG)
 	{
 		int width, height;
-		auto rgba = MakeShared<Image>(context_);
 		if(DecodeJpegToRGBA(message->getExtData(), message->getExtDataSize(), rgba, width, height))
 		{
 			AddVideo(rgba, GetTopicId(topic));
 		}
+	}
+	else if(img_info->format == YOFrameFormat::YO_PNG)
+	{
+		MemoryBuffer buf(message->getExtData(), message->getExtDataSize());
+		rgba->Load(buf);
+		std::cout << topic << " : " << rgba->GetWidth() <<"x" << rgba->GetHeight() << std::endl;
+		AddVideo(rgba, GetTopicId(topic));
 	}
 }
 

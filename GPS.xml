@@ -1,0 +1,12 @@
+<xml>
+    <map name="GPS" type="YOMap">
+        <element x="50.035999" y="14.429" name="crd" type="YOVector2"/>
+        <element value="false" name="dir" type="bool"/>
+        <element x="10" y="31" name="img" type="YOVector2I"/>
+        <element value="0" name="rot" type="float"/>
+        <element value="10" min="1" max="20" speed="1" name="scl" type="YOLimitI32"/>
+        <element value="true" name="sub" type="bool"/>
+        <element x="553" y="347" name="til" type="YOVector2I"/>
+        <element value="GPS" name="tpc" type="std::string"/>
+    </map>
+</xml>

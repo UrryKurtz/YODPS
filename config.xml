@@ -145,6 +145,9 @@
             <map name="ExternalData" type="YOMap">
                 <element value="ExternalData.xml" name="fle" type="std::string"/>
             </map>
+            <map name="GPS" type="YOMap">
+                <element value="GPS.xml" name="fle" type="std::string"/>
+            </map>
             <map name="InternalData" type="YOMap">
                 <element value="InternalData.xml" name="fle" type="std::string"/>
             </map>

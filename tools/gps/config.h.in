@@ -1,0 +1,2 @@
+#define YO_GPS_VERSION_MAJOR @yo_gps_version_VERSION_MAJOR@ 
+#define YO_GPS_VERSION_MINOR @yo_gps_version_VERSION_MINOR@

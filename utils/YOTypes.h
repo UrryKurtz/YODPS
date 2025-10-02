@@ -42,6 +42,12 @@ struct YOVector3 {
     MSGPACK_DEFINE(x, y, z);
 };
 
+struct YOVector3U {
+    uint32_t x, y, z;
+    MSGPACK_DEFINE(x, y, z);
+};
+
+
 struct YOVector4 {
     float x, y, z, w;
     MSGPACK_DEFINE(x, y, z, w);

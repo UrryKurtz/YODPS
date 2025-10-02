@@ -85,6 +85,8 @@ public:
 	bool isRunning();
 
 	void sendMessage(const char *topic, YOMessage &message);
+	void sendMessage(const char *topic, std::shared_ptr<YOMessage> message);
+
 	void subscribe(const char *topic, YOSubFn fn, void *data);
 	void subscribe(const char *topic, YOSubSharedFn fn, void *data);
 	void unsubscribe(const char *topic);

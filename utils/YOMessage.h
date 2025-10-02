@@ -25,7 +25,6 @@ class YOMessage
     uint8_t m_topic_start;
     YOMessageData m_data;
     YOMessageData m_ext;
-
     YOHeaderBase *m_header_ptr;
 
     bool m_multi;
@@ -83,7 +82,7 @@ public:
 
     uint8_t *getData();
     uint32_t getDataSize();
-    void initData(uint8_t *data, uint32_t size); //COPYING TO A MESSAGE BUFFER
+    void initData(const uint8_t *data, uint32_t size); //COPYING TO A MESSAGE BUFFER
     uint8_t *initSize(uint32_t data_size);
 
 

@@ -45,6 +45,16 @@ void YONodeLogic::SetMaterials(SharedPtr<Material> fill, SharedPtr<Material> lin
 		fill_geom_ = fill_node_->CreateComponent<CustomGeometry>();
 		fill_geom_->SetMaterial(0, material_fill_);
 	}
+
+	if(!model_node_)
+	{
+		model_node_ = node_->CreateChild("line");
+		model_node_->SetTemporary(true);
+		smodel_ = model_node_->CreateComponent<StaticModel>();
+		smodel_->SetMaterial(0, material_fill_);
+	}
+
+
 	if(!text_node_)
 		text_node_ = node_->CreateChild("text");
 
@@ -100,6 +110,7 @@ void YONodeLogic::CheckEnabled()
 {
 	line_node_->SetEnabled(input_->enable && input_->line && type_->enable && type_->line);
 	fill_node_->SetEnabled(input_->enable && input_->fill && type_->enable && type_->fill);
+	model_node_->SetEnabled(input_->enable && input_->fill && type_->enable && type_->fill);
 	text_->SetEnabled(input_->enable && input_->text && type_->enable && type_->text);
 }
 
@@ -166,9 +177,6 @@ void YONodeLogic::ConvertText(YOVariant &object, int input_id)
 
 void YONodeLogic::ConvertModel(YOVariant &object, int input_id)
 {
-    if(!smodel_)
-    	smodel_= node_->CreateComponent<StaticModel>();
-
     std::string &model = object[yo::k::model];
     std::string &texture = object[yo::k::texture];
 
@@ -176,7 +184,7 @@ void YONodeLogic::ConvertModel(YOVariant &object, int input_id)
 
     YOVariant &transform = object[yo::k::transform];
 
-    node_->Rotate(Quaternion::IDENTITY);
+    node_->SetRotation(Quaternion::IDENTITY);
     node_->SetScale(Vector3::ONE);
 
     node_->SetPosition((Vector3&) transform[yo::k::position].get<YOVector3>());
@@ -191,6 +199,8 @@ void YONodeLogic::ConvertModel(YOVariant &object, int input_id)
 //    mat->SetShaderParameter("MatDiffColor", Color(1, 1, 1, 0.95));
     //mat->SetCullMode(CULL_NONE);
     smodel_->SetMaterial(mat);
+    //smodel_->SetMaterial(material_fill_);
+
 }
 
 //void YONodeLogic::OnNodeSet(Node* previousNode, Node* currentNode)

@@ -1553,7 +1553,7 @@
                         <element value="" name="com" type="std::string"/>
                         <element value="true" name="enb" type="bool"/>
                         <map name="fll" type="YOMap">
-                            <element r="1" g="1" b="1" a="1" name="clr" type="YOColor4F"/>
+                            <element r="1" g="0" b="0" a="1" name="clr" type="YOColor4F"/>
                             <element value="true" name="enb" type="bool"/>
                         </map>
                         <element value="0" name="id" type="uint32_t"/>
@@ -1582,7 +1582,7 @@
                         <element value="" name="com" type="std::string"/>
                         <element value="true" name="enb" type="bool"/>
                         <map name="fll" type="YOMap">
-                            <element r="1" g="1" b="1" a="1" name="clr" type="YOColor4F"/>
+                            <element r="0.17214526" g="0.97549021" b="0" a="1" name="clr" type="YOColor4F"/>
                             <element value="true" name="enb" type="bool"/>
                         </map>
                         <element value="1" name="id" type="uint32_t"/>
@@ -1611,7 +1611,7 @@
                         <element value="" name="com" type="std::string"/>
                         <element value="true" name="enb" type="bool"/>
                         <map name="fll" type="YOMap">
-                            <element r="1" g="1" b="1" a="1" name="clr" type="YOColor4F"/>
+                            <element r="0" g="0.50000024" b="1" a="1" name="clr" type="YOColor4F"/>
                             <element value="true" name="enb" type="bool"/>
                         </map>
                         <element value="2" name="id" type="uint32_t"/>
@@ -1640,7 +1640,7 @@
                         <element value="" name="com" type="std::string"/>
                         <element value="true" name="enb" type="bool"/>
                         <map name="fll" type="YOMap">
-                            <element r="1" g="1" b="1" a="1" name="clr" type="YOColor4F"/>
+                            <element r="1" g="0" b="0" a="1" name="clr" type="YOColor4F"/>
                             <element value="true" name="enb" type="bool"/>
                         </map>
                         <element value="3" name="id" type="uint32_t"/>
@@ -1669,7 +1669,7 @@
                         <element value="" name="com" type="std::string"/>
                         <element value="true" name="enb" type="bool"/>
                         <map name="fll" type="YOMap">
-                            <element r="1" g="1" b="1" a="1" name="clr" type="YOColor4F"/>
+                            <element r="0" g="1" b="0.08823514" a="1" name="clr" type="YOColor4F"/>
                             <element value="true" name="enb" type="bool"/>
                         </map>
                         <element value="4" name="id" type="uint32_t"/>
@@ -1727,7 +1727,7 @@
                         <element value="" name="com" type="std::string"/>
                         <element value="true" name="enb" type="bool"/>
                         <map name="fll" type="YOMap">
-                            <element r="1" g="1" b="1" a="1" name="clr" type="YOColor4F"/>
+                            <element r="0.877451" g="0.40001443" b="0.69490182" a="1" name="clr" type="YOColor4F"/>
                             <element value="true" name="enb" type="bool"/>
                         </map>
                         <element value="6" name="id" type="uint32_t"/>
@@ -1756,7 +1756,7 @@
                         <element value="" name="com" type="std::string"/>
                         <element value="true" name="enb" type="bool"/>
                         <map name="fll" type="YOMap">
-                            <element r="1" g="1" b="1" a="1" name="clr" type="YOColor4F"/>
+                            <element r="0.31502306" g="0.33717942" b="0.46568626" a="1" name="clr" type="YOColor4F"/>
                             <element value="true" name="enb" type="bool"/>
                         </map>
                         <element value="7" name="id" type="uint32_t"/>
@@ -1785,7 +1785,7 @@
                         <element value="" name="com" type="std::string"/>
                         <element value="true" name="enb" type="bool"/>
                         <map name="fll" type="YOMap">
-                            <element r="1" g="1" b="1" a="1" name="clr" type="YOColor4F"/>
+                            <element r="1" g="0" b="0" a="1" name="clr" type="YOColor4F"/>
                             <element value="true" name="enb" type="bool"/>
                         </map>
                         <element value="8" name="id" type="uint32_t"/>
@@ -1814,7 +1814,7 @@
                         <element value="" name="com" type="std::string"/>
                         <element value="true" name="enb" type="bool"/>
                         <map name="fll" type="YOMap">
-                            <element r="1" g="1" b="1" a="1" name="clr" type="YOColor4F"/>
+                            <element r="1" g="0.85294122" b="0" a="1" name="clr" type="YOColor4F"/>
                             <element value="true" name="enb" type="bool"/>
                         </map>
                         <element value="9" name="id" type="uint32_t"/>
@@ -1843,7 +1843,7 @@
                         <element value="" name="com" type="std::string"/>
                         <element value="true" name="enb" type="bool"/>
                         <map name="fll" type="YOMap">
-                            <element r="1" g="1" b="1" a="1" name="clr" type="YOColor4F"/>
+                            <element r="0.80882353" g="0" b="0" a="1" name="clr" type="YOColor4F"/>
                             <element value="true" name="enb" type="bool"/>
                         </map>
                         <element value="10" name="id" type="uint32_t"/>
@@ -1872,7 +1872,7 @@
                         <element value="" name="com" type="std::string"/>
                         <element value="true" name="enb" type="bool"/>
                         <map name="fll" type="YOMap">
-                            <element r="1" g="1" b="1" a="1" name="clr" type="YOColor4F"/>
+                            <element r="1" g="0" b="0.73529434" a="1" name="clr" type="YOColor4F"/>
                             <element value="true" name="enb" type="bool"/>
                         </map>
                         <element value="11" name="id" type="uint32_t"/>
@@ -1901,7 +1901,7 @@
                         <element value="" name="com" type="std::string"/>
                         <element value="true" name="enb" type="bool"/>
                         <map name="fll" type="YOMap">
-                            <element r="1" g="1" b="1" a="1" name="clr" type="YOColor4F"/>
+                            <element r="0.092752777" g="0.74529594" b="0.94607842" a="1" name="clr" type="YOColor4F"/>
                             <element value="true" name="enb" type="bool"/>
                         </map>
                         <element value="12" name="id" type="uint32_t"/>
@@ -1930,7 +1930,7 @@
                         <element value="" name="com" type="std::string"/>
                         <element value="true" name="enb" type="bool"/>
                         <map name="fll" type="YOMap">
-                            <element r="1" g="1" b="1" a="1" name="clr" type="YOColor4F"/>
+                            <element r="0.11418676" g="1" b="0.058823526" a="1" name="clr" type="YOColor4F"/>
                             <element value="true" name="enb" type="bool"/>
                         </map>
                         <element value="13" name="id" type="uint32_t"/>
@@ -1959,7 +1959,7 @@
                         <element value="" name="com" type="std::string"/>
                         <element value="true" name="enb" type="bool"/>
                         <map name="fll" type="YOMap">
-                            <element r="1" g="1" b="1" a="1" name="clr" type="YOColor4F"/>
+                            <element r="0.70588231" g="0.66039079" b="0.19031145" a="1" name="clr" type="YOColor4F"/>
                             <element value="true" name="enb" type="bool"/>
                         </map>
                         <element value="14" name="id" type="uint32_t"/>
@@ -1988,7 +1988,7 @@
                         <element value="" name="com" type="std::string"/>
                         <element value="true" name="enb" type="bool"/>
                         <map name="fll" type="YOMap">
-                            <element r="1" g="1" b="1" a="1" name="clr" type="YOColor4F"/>
+                            <element r="0.98039216" g="0.18262209" b="0.18262209" a="1" name="clr" type="YOColor4F"/>
                             <element value="true" name="enb" type="bool"/>
                         </map>
                         <element value="15" name="id" type="uint32_t"/>

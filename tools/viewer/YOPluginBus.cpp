@@ -9,8 +9,24 @@
 #include <Urho3D/SystemUI/SystemUIEvents.h> // E_SYSTEMUI
 #include <Urho3D/SystemUI/ImGui.h>
 #include "YOXML.h"
-
 #include "YOPluginBus.h"
+#include "IPlugin.h"
+
+void IPlugin::Transmit(const std::string &topic, const uint8_t* data, size_t size)
+{
+	bus_->Transmit(this, topic, data, size);
+}
+
+void IPlugin::Transmit(const std::string &topic, YOMessage &message)
+{
+	bus_->Transmit(this, topic, message);
+}
+
+void IPlugin::Transmit(const std::string &topic, const YOVariant &data)
+{
+	bus_->Transmit(this, topic, data);
+}
+
 int fn(const std::string &topic, std::shared_ptr<YOMessage> message, void *param)
 {
 	YOPluginInfo *pi = (YOPluginInfo *) param;
@@ -21,30 +37,32 @@ int fn(const std::string &topic, std::shared_ptr<YOMessage> message, void *param
 void *fn_thread(void *param)
 {
 	YOPluginInfo *pi = (YOPluginInfo *) param;
+
+	pi->yonode = new YONode(pi->name.c_str());
+
 	for(auto &topic : pi->adverts)
 	{
 		pi->yonode->advertise(topic.c_str());
 	}
 
-	int i = 0;
 	for(auto &topic : pi->subs)
 	{
 		pi->yonode->subscribe(topic.c_str(), fn, param);
-		i++;
 	}
 
 	if(pi->subs.size())
 	{
-		pi->yonode->start();
+		pi->yonode->start(); //blocking
+		pi->yonode->disconnect();
+		pi->yonode->shutdown();
 	}
 	else
 	{
 		pi->yonode->connect();
 	}
-	pi->yonode->disconnect();
-	pi->yonode->shutdown();
-	//pi->yonode->addSignalFunction(SIGINT, sig_fn, &node);
 
+	//pi->yonode->addSignalFunction(SIGINT, sig_fn, &node);
+	std::cout << " THREAD FINISHED !!!!!!!!!!!!" << pi->name << std::endl;
     return  param;
 }
 
@@ -61,6 +79,29 @@ YOPluginBus::~YOPluginBus()
 	}
 }
 
+void YOPluginBus::Transmit(IPlugin* self, const std::string &topic, const uint8_t* data, size_t size)
+{
+
+	YOPluginInfo &p_info = plugins_[self->GetName()];
+	YOMessage msg;
+	msg.initData(data, size);
+	p_info.yonode->sendMessage(topic.c_str(), msg);
+
+}
+
+void YOPluginBus::Transmit(IPlugin* self, const std::string &topic, YOMessage &message)
+{
+	YOPluginInfo &p_info = plugins_[self->GetName()];
+	p_info.yonode->sendMessage(topic.c_str(), message);
+}
+
+void YOPluginBus::Transmit(IPlugin* self, const std::string &topic, const YOVariant &data)
+{
+	YOPluginInfo &p_info = plugins_[self->GetName()];
+	YOMessage msg(data);
+	p_info.yonode->sendMessage(topic.c_str(), msg);
+}
+
 void YOPluginBus::SetConfig(YOVariant *config)
 {
 	config_ = config;
@@ -71,6 +112,8 @@ void YOPluginBus::AddPlugin(const std::string &name, IPlugin* plugin)
 {
 	std::cout << "YOPluginBus::AddPlugin " << name << std::endl;
 	plugins_[name].name = name;
+	plugin->SetBus(this);
+	plugin->SetName(name);
 	plugins_[name].plugin = plugin;
 	plugins_[name].config = new YOVariant(name);
 	YOVariant &cur_cfg = config_->get(name);
@@ -116,7 +159,6 @@ void YOPluginBus::OnStart(Scene *scene)
 	{
 		std::cout << "OnStart plugin " << pi.first << " " << scene << " " << pi.first << std::endl;
 		pi.second.node = scene->CreateChild(pi.first.c_str());
-		pi.second.yonode = new YONode(pi.first.c_str());
 		pi.second.plugin->SetNode(pi.second.node);
 		pi.second.plugin->SetConfig(pi.second.config);
 		pi.second.plugin->OnStart();

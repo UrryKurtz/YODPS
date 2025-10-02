@@ -17,7 +17,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/output/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/output/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/output/lib)
 
-include_directories(third_party)
+include_directories(
+third_party
+third_party/cpp-httplib-0.26.0 
+)
 
 add_subdirectory(tools)
 add_subdirectory(utils)

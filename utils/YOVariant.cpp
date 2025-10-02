@@ -166,3 +166,25 @@ std::ostream& operator<<(std::ostream &os, const YOValue &v)
     return os;
 }
 
+
+inline std::ostream& operator<<(std::ostream& os, const YOMap& v)
+{
+	os << "YOMap size: " << v.size() << std::endl;
+	for(const auto &m : v)
+	{
+		os << m.first << " : " << m.second;
+	}
+	return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const YOArray& v)
+{
+	os << "YOArray size: " << v.size() << std::endl;
+	int i = 0;
+	for(const auto &m : v)
+	{
+		os << "[" << i++ << "] : " << m << std::endl;
+	}
+	return os;
+}
+

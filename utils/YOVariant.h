@@ -84,7 +84,9 @@ YO_DECLARE_VARIANT(YOValue,
         YOColor4CList, //34
         YOLimitF, //35
         YOLimitI32, //36
-        YOLimitU32 //37
+        YOLimitU32, //37
+		YOVector3U //38
+
 )
 
 inline std::ostream& operator<<(std::ostream& os, const YOStringList& v)    {
@@ -92,6 +94,9 @@ inline std::ostream& operator<<(std::ostream& os, const YOStringList& v)    {
 	for (auto &str : v.items) os << str << " ";  os << "} select:" << v.select ;
 	return os;
 }
+
+inline std::ostream& operator<<(std::ostream& os, const YOMap & v);
+inline std::ostream& operator<<(std::ostream& os, const YOArray &v);
 
 inline std::ostream& operator<<(std::ostream& os, const YOData& v)    {  return os << "size: " << v.size() ; }
 inline std::ostream& operator<<(std::ostream& os, const YOFloatList& v)    {  return os << "size: " << v.size() ; }
@@ -101,6 +106,7 @@ inline std::ostream& operator<<(std::ostream& os, const YOVector2I& v) { return 
 inline std::ostream& operator<<(std::ostream& os, const YOVector2U& v) { return os << "(" << v.x << ", " << v.y << ")"; }
 
 inline std::ostream& operator<<(std::ostream& os, const YOVector3& v) {  return os << "(" << v.x << ", " << v.y << ", " << v.z << ")"; }
+inline std::ostream& operator<<(std::ostream& os, const YOVector3U& v) {  return os << "(" << v.x << ", " << v.y << ", " << v.z << ")"; }
 inline std::ostream& operator<<(std::ostream& os, const YOVector4& v) {  return os << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")"; }
 
 inline std::ostream& operator<<(std::ostream& os, const YOColor3F& v) {  return os << "(" << v.r << ", " << v.g << ", " << v.b << ")"; }
@@ -182,6 +188,12 @@ public:
     YOVariant& operator[](size_t idx) { return get(idx); }
     YOVariant& operator[](const std::string &key) { return get(key); }
     YOVariant& operator=(const YOValue &val) { m_value = val; return *this; }
+    friend std::ostream& operator<<(std::ostream& os, const YOVariant& v)
+    {
+
+    	return os << v.m_name  << " " << v.m_value.index() << " " << v.m_value;
+
+    }
 
     template<typename T>
     inline T& get() { return std::get < T > (m_value); }
