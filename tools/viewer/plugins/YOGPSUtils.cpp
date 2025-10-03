@@ -108,7 +108,7 @@ bool YOGPSUtils::FetchOsmTile(int scale, int x, int y, std::vector<uint8_t>& dat
 	httplib::SSLClient cli("a.tile.openstreetmap.org", 443);
 	cli.set_follow_location(true);
 	cli.set_connection_timeout(2, 0);  // 2s connect
-	cli.set_read_timeout(10, 0);       // 10s read
+	cli.set_read_timeout(5, 0);       // 10s read
 	cli.set_default_headers({
 	{ "User-Agent", "YODPS/1.0 (+tiles)" },
 	{ "Accept", "image/png" },

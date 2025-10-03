@@ -10,6 +10,7 @@
 
 #include "YOVariant.h"
 #include <filesystem>
+
 namespace fs = std::filesystem;
 class YOGPSUtils
 {
@@ -20,8 +21,7 @@ class YOGPSUtils
 
 	YOVector2I tile_id_{0, 0};
 	YOVector2I img_pos_{0, 0};
-
-	std::vector<uint8_t> tiles_[3][3];
+	std::map<std::string, int> received_;
 
 public:
 	YOGPSUtils();

@@ -19,7 +19,14 @@
 #include "IPlugin.h"
 #include "YOGPSUtils.h"
 
-using YOCacheY = std::map <uint32_t, SharedPtr<Image>> ;
+struct YOTileInfo
+{
+	SharedPtr<Image> image;
+	bool request {false};
+	int counter {0};
+};
+
+using YOCacheY = std::map <uint32_t, YOTileInfo> ;
 using YOCacheX = std::map <uint32_t, YOCacheY> ;
 using YOCache = std::map <uint32_t, YOCacheX> ;
 
@@ -33,6 +40,7 @@ class YOGPSPlugin: public IPlugin
 	std::string topic_;
 	YOCache cache_;
 	SharedPtr<Image> full_img_;
+	SharedPtr<Image> empty_;
 
 	bool update_ {true};
 	std::mutex locks_;

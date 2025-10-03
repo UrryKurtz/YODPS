@@ -346,7 +346,8 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
         case 36: //YOLimitI32
 		{
 			YOLimitI32 &lim = cfg;
-			if(ui::DragScalar(name.c_str(), ImGuiDataType_S32, &lim.value, lim.speed, &lim.min, &lim.max, "%d", 0))
+			//if(ui::DragScalar(name.c_str(), ImGuiDataType_S32, &lim.value, lim.speed, &lim.min, &lim.max, "%d", 0))
+			if(ui::SliderScalar(name.c_str(), ImGuiDataType_S32, &lim.value, &lim.min, &lim.max, "%d", 0))
 			{
 				changed = true;
 			}
