@@ -4,12 +4,10 @@
  *  Created on: Sep 29, 2025
  *      Author: kurtz
  */
-
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 #include "YOGPSPlugin.h"
 #include "YOPluginBus.h"
 #include <Urho3D/SystemUI/Widgets.h>
-
 
 Color SEA(170.0f/256.0f, 211.0f/256.0f, 223.0f/256.0f, 1.0f);
 
@@ -17,18 +15,15 @@ YOGPSPlugin::YOGPSPlugin(Context *context) : IPlugin(context)
 {
 	map_ = MakeShared<Texture2D>(context_);
 	map_->SetNumLevels(1);
-	map_->SetSize(256 * 5, 256 * 5, TextureFormat::TEX_FORMAT_RGBA8_UNORM);
+	map_->SetSize(256 * 6, 256 * 6, TextureFormat::TEX_FORMAT_RGBA8_UINT);
 
 	full_img_ = MakeShared<Image>(context_);
-	full_img_->SetSize(256 * 6, 256 * 6, 3);
-	full_img_ = full_img_->ConvertToRGBA();
+	full_img_->SetSize(256 * 6, 256 * 6, 4);
 	full_img_->Clear(SEA);
 
 	empty_ = MakeShared<Image>(context_);
-	empty_->SetSize(256, 256, 3);
+	empty_->SetSize(256, 256, 4);
 	empty_->Clear(SEA);
-	empty_= empty_->ConvertToRGBA();
-
 }
 
 YOGPSPlugin::~YOGPSPlugin()
@@ -76,7 +71,7 @@ void YOGPSPlugin::RequestTile(int scale, int x, int y)
 {
 	if( !TileIsValid(scale, x) || !TileIsValid(scale, y) || scale < 0 || scale > 19) //wrong request
 	{
-		//printf("Invalid tile request. Scale: %d  X: %d  Y: %d\n", scale, x, y);
+		printf("Invalid tile request. Scale: %d  X: %d  Y: %d\n", scale, x, y);
 		return;
 	}
 
@@ -142,7 +137,6 @@ static void DrawViewport(Texture2D* tex, ImVec2 avail, const float& cx, const fl
 
     ImVec2 uv0(x0 / tw,       y0 / th);
     ImVec2 uv1((x0+avail.x)/tw, (y0+avail.y)/th);
-
     ui::Image(ToImTextureID(tex), avail, uv0, uv1);
 }
 
@@ -160,7 +154,6 @@ inline YOVector2 TilePointToLatLon(int z, int x, int y, int px, int py) {
 void YOGPSPlugin::OnGui()
 {
 	int32_t scale = (*config_)[yo::k::scale].get<YOLimitI32>().value;
-
 	bool gui_update = gui_.draw(*config_);
 
 	if (gui_update)
@@ -195,7 +188,6 @@ void YOGPSPlugin::OnGui()
 	(*config_)[yo::k::coord] = coord;
 
 	bool change_tile = gps_.SetCoord(coord.x, coord.y, scale);
-
 	YOVector2I tile = gps_.GetTileId();
 	(*config_)[yo::k::tile] = tile;
 
@@ -207,9 +199,11 @@ void YOGPSPlugin::OnGui()
 	ui::SetNextWindowSizeConstraints(ImVec2(64, 32), ImVec2(1024.f, 1024.f));
 	ui::Begin("MAP");
 	static const ImVec2 size{ 1024, 1024};
+	bool zero = false;
 
-	if(gui_update || update_ || change_tile)
+	if((gui_update || update_ || change_tile))
 	{
+		std::cout << "UPDATE "  << std::endl;
 		for(int x = 0 ; x < 5 ; x++)
 		{
 			for(int y = 0 ; y < 5 ; y++)
@@ -217,7 +211,8 @@ void YOGPSPlugin::OnGui()
 				int tile_x = tile.x - 2 + x;
 				int tile_y = tile.y - 2 + y;
 				IntRect posRect (256 * x + 256 - img.x, 256 * y + 256 - img.y,  256 * x - img.x + 512 , 256 * y - img.y + 512 );
-				if(cache_[scale][tile_x][tile_y].image)
+
+				if(cache_[scale][tile_x][tile_y].image.GetPointer())
 				{
 					full_img_->SetSubimage(cache_[scale][tile_x][tile_y].image, posRect);
 				}
@@ -225,30 +220,41 @@ void YOGPSPlugin::OnGui()
 				{
 					full_img_->SetSubimage(empty_, posRect);
 					RequestTile(scale, tile_x, tile_y);
+					zero = true;
 				}
 			}
 		}
 		map_->SetData(full_img_);
-		update_ = false;
 	}
+	update_ = zero;
 
 	auto systemUI = GetSubsystem<SystemUI>();
 	systemUI->ReferenceTexture(map_);
 	ImVec2 avail = ui::GetContentRegionAvail();
 	if (ui::BeginChild("Canvas", avail, false, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoScrollWithMouse))
 	{
-		DrawViewport(map_, avail, 256.0f * 3, 256.0f * 3);
 		const bool hovered = ImGui::IsWindowHovered( ImGuiHoveredFlags_AllowWhenBlockedByActiveItem );
-		if(hovered  && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+		if(hovered)
 		{
-		    ImVec2 d = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
-		    if(d.x || d.y)
-		    {
-		    	(*config_)[yo::k::coord] = TilePointToLatLon(scale, tile.x, tile.y, img.x - d.x, img.y - d.y);
-		    	update_ = true;
-		    }
-		    ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
+	        if(float d = ImGui::GetMouseWheel())
+	        {
+	        	YOLimitI32 &scale = (*config_)[yo::k::scale].get<YOLimitI32>();
+	        	scale.value += d;
+	        	if(scale.value > scale.max ) scale.value  = scale.max;
+	        	if(scale.value < scale.min ) scale.value  = scale.min;
+	        }
+			if(ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+			{
+				ImVec2 d = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
+				if(!(*config_)[yo::k::receiver].get<bool>() && ( d.x || d.y))
+				{
+					(*config_)[yo::k::coord] = TilePointToLatLon(scale, tile.x, tile.y, img.x - d.x, img.y - d.y);
+					update_ = true;
+				}
+				ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
+			}
 		}
+		DrawViewport(map_, avail, 256.0f * 3, 256.0f * 3);
 	}
 	ui::EndChild();
 	ui::End();
