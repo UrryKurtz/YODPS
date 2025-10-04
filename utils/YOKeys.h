@@ -43,6 +43,7 @@ namespace yo::k {
     YO_KEY(address,    "adr")
     YO_KEY(apply,      "apl")
     YO_KEY(broker,     "bkr")
+	YO_KEY(bearing,    "brg")
 	YO_KEY(camera,     "cam")
 	YO_KEY(cameras,    "cms")
     YO_KEY(color,      "clr")

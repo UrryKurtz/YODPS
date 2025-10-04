@@ -24,7 +24,10 @@ YOGPSUtils::~YOGPSUtils()
 bool YOGPSUtils::SetCoord(float lat, float lon, int32_t scale)
 {
 	bool ret = false;
-	bearing_ = Bearing(lat_, lon_, lat, lon);
+
+	if(lat_!=lat || lon_!=lon)
+		bearing_ = Bearing(lat_, lon_, lat, lon);
+
 	lat_ = lat;
 	lon_ = lon;
 	map_scale_ = scale;

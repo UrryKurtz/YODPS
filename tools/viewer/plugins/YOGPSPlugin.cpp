@@ -182,12 +182,21 @@ void YOGPSPlugin::OnGui()
 		}
 	}
 
+	static YOVector2 coord_old = (*config_)[yo::k::coord];
+
 	YOVector2 coord = (*config_)[yo::k::coord];
 	coord.x = Clamp(coord.x, -82.0f, 82.0f);
 	coord.y = Clamp(coord.y, -179.999f, 179.999f);
 	(*config_)[yo::k::coord] = coord;
 
-	bool change_tile = gps_.SetCoord(coord.x, coord.y, scale);
+	if(coord.x != coord_old.x || coord.y != coord_old.y || update_ )
+	{
+		update_ = true;
+		coord_old = coord;
+		gps_.SetCoord(coord.x, coord.y, scale);
+		(*config_)[yo::k::bearing] = gps_.GetBearing();
+	}
+
 	YOVector2I tile = gps_.GetTileId();
 	(*config_)[yo::k::tile] = tile;
 
@@ -196,14 +205,11 @@ void YOGPSPlugin::OnGui()
 	img.y = Clamp(img.y, 0, 255);
 	(*config_)[yo::k::image] = img;
 
-	ui::SetNextWindowSizeConstraints(ImVec2(64, 32), ImVec2(1024.f, 1024.f));
-	ui::Begin("MAP");
-	static const ImVec2 size{ 1024, 1024};
 	bool zero = false;
 
-	if((gui_update || update_ || change_tile))
+	if((gui_update || update_ ))
 	{
-		std::cout << "UPDATE "  << std::endl;
+		//std::cout << "UPDATE "  << std::endl;
 		for(int x = 0 ; x < 5 ; x++)
 		{
 			for(int y = 0 ; y < 5 ; y++)
@@ -230,6 +236,11 @@ void YOGPSPlugin::OnGui()
 
 	auto systemUI = GetSubsystem<SystemUI>();
 	systemUI->ReferenceTexture(map_);
+
+	ui::SetNextWindowSizeConstraints(ImVec2(64, 32), ImVec2(1024.f, 1024.f));
+	ui::Begin("MAP");
+	static const ImVec2 size{ 1024, 1024};
+
 	ImVec2 avail = ui::GetContentRegionAvail();
 	if (ui::BeginChild("Canvas", avail, false, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoScrollWithMouse))
 	{
@@ -242,6 +253,7 @@ void YOGPSPlugin::OnGui()
 	        	scale.value += d;
 	        	if(scale.value > scale.max ) scale.value  = scale.max;
 	        	if(scale.value < scale.min ) scale.value  = scale.min;
+	        	update_ = true;
 	        }
 			if(ImGui::IsMouseDragging(ImGuiMouseButton_Left))
 			{
@@ -254,7 +266,14 @@ void YOGPSPlugin::OnGui()
 				ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			}
 		}
+		ImDrawList* dl = ImGui::GetWindowDrawList();
+		ImVec2 p0 = ImGui::GetCursorScreenPos();
+		ImVec2 center = (p0 + avail)/2;
 		DrawViewport(map_, avail, 256.0f * 3, 256.0f * 3);
+		dl->AddLine( p0 + avail/2 + ImVec2( -10, -10), p0 + avail/2 + ImVec2(10, 10), IM_COL32(256,64,64,128), 3);
+		dl->AddLine( p0 + avail/2 + ImVec2( -10, 10), p0 + avail/2 + ImVec2(10, -10), IM_COL32(256,64,64,128), 3);
+		//float a =  gps_.GetBearing();
+		//dl->AddLine( p0 + avail/2 , p0 + avail/2 + ImVec2(Sin(a)*50, -Cos(a)*50), IM_COL32(256,64,64,128), 3);
 	}
 	ui::EndChild();
 	ui::End();
