@@ -1,9 +1,9 @@
 <xml>
     <map name="GPS" type="YOMap">
         <element value="322.55881" name="brg" type="float"/>
-        <element x="48.966888" y="9.1441612" name="crd" type="YOVector2"/>
+        <element x="48.966908" y="9.1441469" name="crd" type="YOVector2"/>
         <element value="false" name="dir" type="bool"/>
-        <element x="40" y="144" name="img" type="YOVector2I"/>
+        <element x="40" y="136" name="img" type="YOVector2I"/>
         <element value="true" name="rcv" type="bool"/>
         <element value="0" name="rot" type="float"/>
         <element value="19" min="1" max="19" speed="1" name="scl" type="YOLimitI32"/>

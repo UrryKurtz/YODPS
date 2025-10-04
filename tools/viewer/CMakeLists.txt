@@ -25,6 +25,7 @@ plugins/YOVideoPlugin.cpp
 plugins/YOCameraPlugin.cpp
 plugins/YOGPSPlugin.cpp
 plugins/YOGPSUtils.cpp
+plugins/YOPlotterPlugin.cpp
 ${CONVERT_SOURCES}
 )
 

@@ -23,6 +23,7 @@
 #include <Urho3D/SystemUI/SystemUIEvents.h> // E_SYSTEMUI
 #include <Urho3D/SystemUI/ImGui.h>
 
+#include "YOPlotterPlugin.h"
 #include "YOPolylinePlugin.h"
 #include "YOVideoPlugin.h"
 #include "YOCameraPlugin.h"
@@ -61,6 +62,7 @@ void YOViewer::Start()
     CreateLight();
 
     plugin_bus_->SetConfig(&config_->get(yo::k::plugins));
+    plugin_bus_->AddPlugin("Plotter", new YOPlotterPlugin(context_));
     plugin_bus_->AddPlugin("GPS", new YOGPSPlugin(context_));
     plugin_bus_->AddPlugin("ExternalData", new YOPolylinePlugin(context_));
     plugin_bus_->AddPlugin("InternalData", new YOPolylinePlugin(context_));
