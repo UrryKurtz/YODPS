@@ -27,11 +27,13 @@ void YOPlotterPlugin::OnStart()
 
 void YOPlotterPlugin::AddValue(const std::string &name, YOTimestamp ts, const float &value)
 {
+	lock_[name].lock();
 	data_[name].stream.push_front({ts, value});
 	if(data_[name].stream.size() > buf_size_)
 	{
 		data_[name].stream.pop_back();
 	}
+	lock_[name].unlock();
 }
 
 
@@ -120,6 +122,10 @@ void YOPlotterPlugin::OnUpdate(float timeStep)
 void YOPlotterPlugin::OnGui()
 {
 	YOTimestamp ts = YONode::getTimestamp();
+	if(pause_)
+		ts = last_ts_;
+	else
+		ts = YONode::getTimestamp();
 
 	ui::Begin("Plotter");
 	ImVec2 size = ui::GetContentRegionAvail();
@@ -141,34 +147,35 @@ void YOPlotterPlugin::OnGui()
 		if (!stream.second.stream.size())
 			continue;
 
+		lock_[stream.first].lock();
+
 		float startV = stream.second.stream.front().value;
 		float startT = stream.second.stream.front().timestamp;
-		ImVec2 A = startI + ImVec2((startT - ts) * time_scale_, -startV);
-
+		ImVec2 A = startI + ImVec2((startT - ts) / time_period_, -startV);
 		for( auto &data : stream.second.stream)
 		{
-			ImVec2 B = startI + ImVec2((data.timestamp - ts) * time_scale_, - data.value);
+			ImVec2 B = startI + ImVec2((data.timestamp - ts) / time_period_, - data.value);
 			if(hovered)
 			{
 				if( pos.x <= A.x && pos.x >=B.x ) //box.Contains(A)
 				{
 					char text[256];
 					std::sprintf(text, "%s : %f", stream.first.c_str(), data.value);
-
-					dl->AddLine(ImVec2(pos.x , p0.y), ImVec2(pos.x, p0.y + avail.y), 0xFF00FFFF);
-
-					dl->AddText(A,  stream.second.color, text);
+					dl->AddText(A + ImVec2(0,10),  stream.second.color, text);
 				}
 			}
-
 			dl->AddLine(A, B, stream.second.color, stream.second.width);
-   		    A = B;		}
+   		    A = B;
+		}
+		lock_[stream.first].unlock();
 	}
 
-	dl->AddLine(endI, startI, IM_COL32(64,64,64,128), 1);
-	float sec_x = ts % 1000000000 * time_scale_;
+	dl->AddLine(ImVec2(pos.x , p0.y), ImVec2(pos.x, p0.y + avail.y), 0xFF00FFFF); //mouse line
+	dl->AddLine(endI, startI, IM_COL32(64,64,64,128), 1); //X axis
 
-	for (int x = startI.x - sec_x ; x > p0.x; x -= 1000000000 * time_scale_ )
+	float sec_x = ts % 1000000000 / time_period_;
+
+	for (int x = startI.x - sec_x ; x > p0.x; x -= 1000000000 / time_period_ )
 	{
 		ImVec2 s0 (x, p0.y);
 		ImVec2 s1 (x, p0.y + avail.y);
@@ -178,20 +185,28 @@ void YOPlotterPlugin::OnGui()
 	ui::EndChild();
 	ui::SameLine();
 	ui::BeginChild("Settings", ImVec2(240, 0), true, ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar);
+
+	ui::Checkbox("Pause", &pause_ );
+	ui::DragInt("Buffer size", &buf_size_, 32, 1, 1024);
+	ui::SliderInt("Time scale", &time_period_, 1000000, 100000000);
+
 	for(auto &stream : data_)
-		{
-			if (!stream.second.stream.size())
-				continue;
+	{
+		if (!stream.second.stream.size())
+			continue;
 
-			float startV = stream.second.stream.front().value;
-			float startT = stream.second.stream.front().timestamp;
-			ui::PushID(&stream);
-			ui::ColorEdit4("##color", (float *)&stream.second.color, ImGuiColorEditFlags_NoInputs); ui::SameLine(); ui::Text("%s :: %f",stream.first.c_str(), startV );
-			ui::SliderFloat("width", &stream.second.width, 1.0f, 12.0);
-			ui::PopID();
+		lock_[stream.first].lock();
+		float startV = stream.second.stream.front().value;
+		float startT = stream.second.stream.front().timestamp;
+		ui::PushID(&stream);
+		ui::ColorEdit4("##color", (float *)&stream.second.color, ImGuiColorEditFlags_NoInputs); ui::SameLine(); ui::Text("%s :: %f",stream.first.c_str(), startV );
+		ui::SliderFloat("width", &stream.second.width, 1.0f, 12.0);
+		ui::PopID();
+		lock_[stream.first].unlock();
 
-		}
+	}
 	ui::EndChild();
 	ui::End();
+	last_ts_ = ts;
 }
 

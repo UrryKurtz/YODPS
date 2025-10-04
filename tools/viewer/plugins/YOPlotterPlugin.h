@@ -28,8 +28,14 @@ class YOPlotterPlugin: public IPlugin
 {
 	std::string topic_ {"PLOTTER"};
 	int buf_size_ {512};
+	bool mouse_pause_ {false};
+	bool pause_ {false};
 	std::map <std::string, YOStreamInfo> data_;
+	std::map <std::string, std::mutex> lock_;
 	float time_scale_ {0.0000001f};
+	int time_period_ {10000000};
+	YOTimestamp last_ts_ {0};
+
 
 public:
 	YOPlotterPlugin(Context *context);
