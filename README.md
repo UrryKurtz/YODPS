@@ -38,8 +38,13 @@ YODPS target platforms include on-road and off-road vehicles, drones, marine ves
 ![](https://github.com/UrryKurtz/YODPS/blob/main/Doc/Screenshot_003.png?raw=true)
 
 ## Videos
+Camera control, Video and Polyline Plugins demo
 [![Watch the video](https://img.youtube.com/vi/yHRvpe6Kq-4/hqdefault.jpg)](https://youtu.be/yHRvpe6Kq-4 "Watch on YouTube")
+Open Street Map GPS Plugin
 [![Watch the video](https://img.youtube.com/vi/4tj1m2y9mRg/hqdefault.jpg)](https://youtu.be/4tj1m2y9mRg "Watch on YouTube")
+Plotter Plugin
+[![Watch the video](https://img.youtube.com/vi/LsX0EGzu1fc/hqdefault.jpg)](https://youtu.be/LsX0EGzu1fc "Watch on YouTube")
+
 
 ## 📦 Third-party dependencies
 
