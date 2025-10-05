@@ -1,14 +1,14 @@
 <xml>
     <map name="GPS" type="YOMap">
-        <element value="322.55881" name="brg" type="float"/>
-        <element x="48.966908" y="9.1441469" name="crd" type="YOVector2"/>
+        <element value="328.54391" name="brg" type="float"/>
+        <element x="48.966911" y="9.1441832" name="crd" type="YOVector2"/>
         <element value="false" name="dir" type="bool"/>
-        <element x="40" y="136" name="img" type="YOVector2I"/>
+        <element x="64" y="249" name="img" type="YOVector2I"/>
         <element value="true" name="rcv" type="bool"/>
         <element value="0" name="rot" type="float"/>
-        <element value="19" min="1" max="19" speed="1" name="scl" type="YOLimitI32"/>
+        <element value="7" min="1" max="19" speed="1" name="scl" type="YOLimitI32"/>
         <element value="true" name="sub" type="bool"/>
-        <element x="275461" y="180125" name="til" type="YOVector2I"/>
+        <element x="67" y="43" name="til" type="YOVector2I"/>
         <element value="GPS" name="tpc" type="std::string"/>
     </map>
 </xml>

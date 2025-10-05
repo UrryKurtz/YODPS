@@ -484,7 +484,7 @@ void YOXML::writeNode(YOVariant &node, tinyxml2::XMLElement* parent, const std::
                     sub->SetAttribute("r", v.r);
                     sub->SetAttribute("g", v.g);
                     sub->SetAttribute("b", v.b);
-                    sub->SetAttribute("b", v.a);
+                    sub->SetAttribute("a", v.a);
                 }
                     break;
 

@@ -8,8 +8,8 @@
 #ifndef TOOLS_VIEWER_PLUGINS_YOPLOTTERPLUGIN_H_
 #define TOOLS_VIEWER_PLUGINS_YOPLOTTERPLUGIN_H_
 #include "IPlugin.h"
+#include "YOGui.h"
 #include <deque>
-
 
 struct YOSampleInfo
 {
@@ -19,13 +19,15 @@ struct YOSampleInfo
 
 struct YOStreamInfo
 {
+	float last;
 	std::deque<YOSampleInfo> stream;
-	ImColor color {256,64,64,128};
-	float width {2.0f};
+	YOVariant *strean_cfg;
 };
 
 class YOPlotterPlugin: public IPlugin
 {
+	YOVariant *streams_ {nullptr};
+	YOVariant *settings_ {nullptr};
 	std::string topic_ {"PLOTTER"};
 	int buf_size_ {512};
 	bool mouse_pause_ {false};
@@ -33,9 +35,9 @@ class YOPlotterPlugin: public IPlugin
 	std::map <std::string, YOStreamInfo> data_;
 	std::map <std::string, std::mutex> lock_;
 	float time_scale_ {0.0000001f};
-	int time_period_ {10000000};
+	//int time_period_ {10000000};
 	YOTimestamp last_ts_ {0};
-
+	YOGui gui_;
 
 public:
 	YOPlotterPlugin(Context *context);
@@ -45,6 +47,8 @@ public:
 	void OnUpdate(float timeStep) override;
 	void OnGui() override;
 	void AddValue(const std::string &name, YOTimestamp ts, const float &value);
+	void DrawStream(YOVariant &config, const std::string &name, float last);
+	void DrawSettings(YOVariant &config);
 };
 
 #endif /* TOOLS_VIEWER_PLUGINS_YOPLOTTERPLUGIN_H_ */
