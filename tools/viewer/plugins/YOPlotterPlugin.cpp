@@ -10,8 +10,7 @@
 #include "YONode.h"
 #include "YOKeys.h"
 
-YOPlotterPlugin::YOPlotterPlugin(Context *context) :
-		IPlugin(context)
+YOPlotterPlugin::YOPlotterPlugin(Context *context) : IPlugin(context)
 {
 
 }
@@ -201,127 +200,134 @@ void YOPlotterPlugin::OnGui()
 		ts = YONode::getTimestamp();
 
 	ui::Begin("Plotter");
-	ImVec2 size = ui::GetContentRegionAvail();
 
-	ui::BeginChild("plotter", size - ImVec2(300,0), true, ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar);
-	ImDrawList *dl = ui::GetWindowDrawList();
-	ImVec2 p0 = ui::GetCursorScreenPos();
-	ImVec2 avail = ui::GetContentRegionAvail();
-
-	ImVec2 startI = p0 + ImVec2(avail.x, avail.y / 2);
-	ImVec2 endI = ImVec2(p0.x, p0.y + avail.y / 2);
-
-	const bool hovered = ui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
-
-	ImVec2 pos = ui::GetMousePos();
-	ImRect box =
-	{ pos - ImVec2(20, 20), pos + ImVec2(20, 20) };
-	uint32_t &time_period = settings_->get("Time scale");
-	for (auto &stream : data_)
+	if(ui::BeginTable("TEST", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_BordersInnerV))
 	{
-		if (!stream.second.stream.size())
-			continue;
+		ui::TableNextRow();
+		ui::TableNextColumn();
+		ui::BeginChild("plotter", ImVec2(0,0), true, ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar);
+		ImDrawList *dl = ui::GetWindowDrawList();
+		ImVec2 p0 = ui::GetCursorScreenPos();
+		ImVec2 avail = ui::GetContentRegionAvail();
 
-		lock_[stream.first].lock();
+		ImVec2 startI = p0 + ImVec2(avail.x, avail.y / 2);
+		ImVec2 endI = ImVec2(p0.x, p0.y + avail.y / 2);
 
-		bool show = stream.second.strean_cfg->get("Show");
-		if (!show)
+		const bool hovered = ui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
+
+		ImVec2 pos = ui::GetMousePos();
+		ImRect box = { pos - ImVec2(20, 20), pos + ImVec2(20, 20) };
+		uint32_t &time_period = settings_->get("Time scale");
+		for (auto &stream : data_)
 		{
+			if (!stream.second.stream.size())
+				continue;
+
+			lock_[stream.first].lock();
+
+			bool show = stream.second.strean_cfg->get("Show");
+			if (!show)
+			{
+				lock_[stream.first].unlock();
+				continue;
+			}
+
+			float startV = stream.second.stream.front().value;
+			float startT = stream.second.stream.front().timestamp;
+
+			YOColor4C clr = stream.second.strean_cfg->get("Color");
+			ImU32 clrc = IM_COL32(clr.r, clr.g, clr.b, clr.a);
+
+			float width = stream.second.strean_cfg->get("Width");
+			float &scale = stream.second.strean_cfg->get("Scale");
+			bool smooth = stream.second.strean_cfg->get("Smooth");
+			bool auto_scale = stream.second.strean_cfg->get("Auto Scale");
+			bool dec_scale = false;
+			ImVec2 A = startI + ImVec2((startT - ts) / time_period, -startV * scale);
+			float min = startV;
+			float max = startV;
+			for (auto &data : stream.second.stream)
+			{
+				if (data.value < min)
+					min = data.value;
+				if (data.value > max)
+					max = data.value;
+
+				ImVec2 B = startI + ImVec2((data.timestamp - ts) / time_period, -data.value * scale);
+				if (auto_scale && (B.y < p0.y || B.y > p0.y + avail.y))
+				{
+					dec_scale = true;
+				}
+				if (hovered && pos.x < A.x && pos.x >= B.x)
+				{
+					char text[256];
+					std::sprintf(text, "%s : %f", stream.first.c_str(), data.value);
+					dl->AddText(ImVec2(pos.x, A.y) + ImVec2(5, 10),  clrc  , text);
+				}
+				if (smooth)
+				{
+					dl->AddLine(A, B, clrc, width);
+				}
+				else
+				{
+					ImVec2 C(A.x, B.y);
+					dl->AddLine(A, C, clrc, width);
+					dl->AddLine(C, B, clrc, width);
+				}
+				A = B;
+			}
+
+			float mmax = Nice125Unit(max * 1.1);
+			float mmin = Nice125Unit(min * 1.1);
+
+			dl->AddLine(ImVec2(p0.x, startI.y - mmin * scale), ImVec2(p0.x + avail.x, startI.y - mmin * scale), clrc, 1);
+			char text_min[256];
+			std::sprintf(text_min, "%.0f", stream.first.c_str(), mmin);
+			dl->AddText(ImVec2(p0.x + avail.x, startI.y - mmin * scale) + ImVec2(-30, 5), clrc, text_min);
+
+			dl->AddLine(ImVec2(p0.x, startI.y - mmax * scale), ImVec2(p0.x + avail.x, startI.y - mmax * scale), clrc, 1);
+			char text_max[256];
+			std::sprintf(text_max, "%.0f", stream.first.c_str(), mmax);
+			dl->AddText(ImVec2(p0.x + avail.x, startI.y - mmax * scale) + ImVec2(-30, 5), clrc, text_max);
+
+			if (dec_scale)
+			{
+				scale *= 0.95f;
+			}
+
 			lock_[stream.first].unlock();
-			continue;
 		}
 
-		float startV = stream.second.stream.front().value;
-		float startT = stream.second.stream.front().timestamp;
+		dl->AddLine(ImVec2(pos.x, p0.y), ImVec2(pos.x, p0.y + avail.y), 0xFF00FFFF); //mouse line
+		dl->AddLine(endI, startI, IM_COL32(64, 64, 64, 128), 1); //X axis
+		dl->AddText(startI + ImVec2(-30, 5), IM_COL32(64, 64, 64, 128), "  0");
 
-		YOColor4C clr = stream.second.strean_cfg->get("Color");
-		ImU32 clrc = IM_COL32(clr.r, clr.g, clr.b, clr.a);
-
-		float width = stream.second.strean_cfg->get("Width");
-		float &scale = stream.second.strean_cfg->get("Scale");
-		bool smooth = stream.second.strean_cfg->get("Smooth");
-		bool auto_scale = stream.second.strean_cfg->get("Auto Scale");
-		bool dec_scale = false;
-		ImVec2 A = startI + ImVec2((startT - ts) / time_period, -startV * scale);
-		float min = startV;
-		float max = startV;
-		for (auto &data : stream.second.stream)
+		float sec_x = ts % 1000000000 / time_period;
+		for (int x = startI.x - sec_x; x > p0.x; x -= 1000000000 / time_period)
 		{
-			if (data.value < min)
-				min = data.value;
-			if (data.value > max)
-				max = data.value;
-
-			ImVec2 B = startI + ImVec2((data.timestamp - ts) / time_period, -data.value * scale);
-			if (auto_scale && (B.y < p0.y || B.y > p0.y + avail.y))
-			{
-				dec_scale = true;
-			}
-
-			if (hovered && pos.x < A.x && pos.x >= B.x)
-			{
-				char text[256];
-				std::sprintf(text, "%s : %f", stream.first.c_str(), data.value);
-				dl->AddText(ImVec2(pos.x, A.y) + ImVec2(5, 10),  clrc  , text);
-			}
-			if (smooth)
-			{
-				dl->AddLine(A, B, clrc, width);
-			}
-			else
-			{
-				ImVec2 C(A.x, B.y);
-				dl->AddLine(A, C, clrc, width);
-				dl->AddLine(C, B, clrc, width);
-			}
-			A = B;
+			ImVec2 s0(x, p0.y);
+			ImVec2 s1(x, p0.y + avail.y);
+			dl->AddLine(s0, s1, IM_COL32(64, 64, 64, 128), 1);
 		}
+		ui::EndChild();
 
-		float mmax = Nice125Unit(max * 1.1);
-		float mmin = Nice125Unit(min * 1.1);
+		ui::TableNextColumn();
+		ui::BeginChild("Settings", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar);
+		ui::SeparatorText("Settings");
+		DrawSettings((*settings_));
 
-		dl->AddLine(ImVec2(p0.x, startI.y - mmin * scale), ImVec2(p0.x + avail.x, startI.y - mmin * scale), clrc, 1);
-		char text_min[256];
-		std::sprintf(text_min, "%.0f", stream.first.c_str(), mmin);
-		dl->AddText(ImVec2(p0.x + avail.x, startI.y - mmin * scale) + ImVec2(-25, 5), clrc, text_min);
-
-		dl->AddLine(ImVec2(p0.x, startI.y - mmax * scale), ImVec2(p0.x + avail.x, startI.y - mmax * scale), clrc, 1);
-		char text_max[256];
-		std::sprintf(text_max, "%.0f", stream.first.c_str(), mmax);
-		dl->AddText(ImVec2(p0.x + avail.x, startI.y - mmax * scale) + ImVec2(-25, 5), clrc, text_max);
-
-		if (dec_scale)
+		ui::SeparatorText("Streams");
+		for (auto &stream : streams_->get<YOMap>())
 		{
-			scale *= 0.95f;
+			DrawStream(stream.second, stream.first, data_[stream.first].last);
 		}
+		ui::EndChild();
 
-		lock_[stream.first].unlock();
+		ui::EndTable();
 	}
-
-	dl->AddLine(ImVec2(pos.x, p0.y), ImVec2(pos.x, p0.y + avail.y), 0xFF00FFFF); //mouse line
-	dl->AddLine(endI, startI, IM_COL32(64, 64, 64, 128), 1); //X axis
-
-	float sec_x = ts % 1000000000 / time_period;
-	for (int x = startI.x - sec_x; x > p0.x; x -= 1000000000 / time_period)
-	{
-		ImVec2 s0(x, p0.y);
-		ImVec2 s1(x, p0.y + avail.y);
-		dl->AddLine(s0, s1, IM_COL32(64, 64, 64, 128), 1);
-	}
-	ui::EndChild();
-	ui::SameLine();
-	ui::BeginChild("Settings", ImVec2(290, 0), true, ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar);
-	ui::SeparatorText("Settings");
-	DrawSettings((*settings_));
-
-	ui::SeparatorText("Streams");
-	for (auto &stream : streams_->get<YOMap>())
-	{
-		DrawStream(stream.second, stream.first, data_[stream.first].last);
-	}
-	ui::EndChild();
 	ui::End();
 	last_ts_ = ts;
+
 }
 
 void YOPlotterPlugin::DrawSettings(YOVariant &config)

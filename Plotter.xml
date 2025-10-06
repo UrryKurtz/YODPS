@@ -4,28 +4,28 @@
             <element value="2048" name="Buffer Size" type="uint32_t"/>
             <element value="false" name="Pause" type="bool"/>
             <element value="true" name="Receive" type="bool"/>
-            <element value="8261686" name="Time scale" type="uint32_t"/>
+            <element value="10560278" name="Time scale" type="uint32_t"/>
             <element value="PLOTTER" name="Topic" type="std::string"/>
         </map>
         <map name="Streams" type="YOMap">
             <map name="COS" type="YOMap">
                 <element value="true" name="Auto Scale" type="bool"/>
-                <element r="255" g="228" b="0" a="255" name="Color" type="YOColor4C"/>
+                <element r="240" g="255" b="0" a="255" name="Color" type="YOColor4C"/>
                 <element value="COS" name="Name" type="std::string"/>
                 <element value="true" name="Receive" type="bool"/>
-                <element value="2.8586736" name="Scale" type="float"/>
+                <element value="2.7765653" name="Scale" type="float"/>
                 <element value="true" name="Show" type="bool"/>
                 <element value="true" name="Smooth" type="bool"/>
                 <element value="1" name="Width" type="float"/>
             </map>
             <map name="SIN" type="YOMap">
                 <element value="true" name="Auto Scale" type="bool"/>
-                <element r="172" g="255" b="0" a="255" name="Color" type="YOColor4C"/>
+                <element r="0" g="142" b="255" a="255" name="Color" type="YOColor4C"/>
                 <element value="SIN" name="Name" type="std::string"/>
                 <element value="true" name="Receive" type="bool"/>
-                <element value="1.6674979" name="Scale" type="float"/>
+                <element value="1.0509393" name="Scale" type="float"/>
                 <element value="true" name="Show" type="bool"/>
-                <element value="false" name="Smooth" type="bool"/>
+                <element value="true" name="Smooth" type="bool"/>
                 <element value="1" name="Width" type="float"/>
             </map>
         </map>
