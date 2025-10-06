@@ -151,6 +151,9 @@
             <map name="InternalData" type="YOMap">
                 <element value="InternalData.xml" name="fle" type="std::string"/>
             </map>
+            <map name="OBDII" type="YOMap">
+                <element value="OBDII.xml" name="fle" type="std::string"/>
+            </map>
             <map name="Plotter" type="YOMap">
                 <element value="Plotter.xml" name="fle" type="std::string"/>
             </map>

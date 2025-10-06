@@ -1,0 +1,38 @@
+<xml>
+    <map name="OBDII" type="YOMap">
+        <array name="rqs" type="YOArray">
+            <map name="msg" type="YOMap">
+                <element value="0" name="id" type="uint32_t"/>
+                <element value="ATD" name="req" type="std::string"/>
+            </map>
+            <map name="msg" type="YOMap">
+                <element value="1" name="id" type="uint32_t"/>
+                <element value="ATZ" name="req" type="std::string"/>
+            </map>
+            <map name="msg" type="YOMap">
+                <element value="2" name="id" type="uint32_t"/>
+                <element value="ATE1" name="req" type="std::string"/>
+            </map>
+            <map name="msg" type="YOMap">
+                <element value="3" name="id" type="uint32_t"/>
+                <element value="ATL0" name="req" type="std::string"/>
+            </map>
+            <map name="msg" type="YOMap">
+                <element value="4" name="id" type="uint32_t"/>
+                <element value="ATS0" name="req" type="std::string"/>
+            </map>
+            <map name="msg" type="YOMap">
+                <element value="5" name="id" type="uint32_t"/>
+                <element value="ATH0" name="req" type="std::string"/>
+            </map>
+            <map name="msg" type="YOMap">
+                <element value="6" name="id" type="uint32_t"/>
+                <element value="ATRV" name="req" type="std::string"/>
+            </map>
+        </array>
+        <map name="sts" type="YOMap">
+            <element value="SERIAL_REQUEST" name="adv" type="std::string"/>
+            <element value="SERIAL_RESPONSE" name="sub" type="std::string"/>
+        </map>
+    </map>
+</xml>

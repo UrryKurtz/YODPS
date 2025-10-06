@@ -1,0 +1,2 @@
+#define YO_SERIAL_UTILS_VERSION_MAJOR @yo_serial_utils_version_VERSION_MAJOR@ 
+#define YO_SERIAL_UTILS_VERSION_MINOR @yo_serial_utils_version_VERSION_MINOR@

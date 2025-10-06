@@ -7,6 +7,7 @@
 
 #ifndef UTILS_YOGUI_H_
 #define UTILS_YOGUI_H_
+#include <Urho3D/UI/UI.h>
 #include <Urho3D/SystemUI/SystemUI.h>
 #include <Urho3D/SystemUI/SystemUIEvents.h> // E_SYSTEMUI
 #include "YOVariant.h"

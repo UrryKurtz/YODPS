@@ -28,6 +28,7 @@
 #include "YOVideoPlugin.h"
 #include "YOCameraPlugin.h"
 #include "YOGPSPlugin.h"
+#include "YOOBD2Plugin.h"
 
 void sig_fn(int signal, void *data)
 {
@@ -67,6 +68,7 @@ void YOViewer::Start()
     plugin_bus_->AddPlugin("ExternalData", new YOPolylinePlugin(context_));
     plugin_bus_->AddPlugin("InternalData", new YOPolylinePlugin(context_));
     plugin_bus_->AddPlugin("Video", new YOVideoPlugin(context_));
+    plugin_bus_->AddPlugin("OBDII", new YOOBD2Plugin(context_));
     plugin_bus_->AddPlugin("Camera", new YOCameraPlugin(context_, camera_, controller_));
 
     plugin_bus_->OnStart(scene_);
@@ -86,8 +88,6 @@ void YOViewer::Start()
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(YOViewer, HandleUpdate));
     //SubscribeToEvent(E_BEGINFRAME, URHO3D_HANDLER(YOViewer, HandleFrame));
     //SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(YOViewer, HandleFrame));
-
-
 }
 
 void YOViewer::CreateLight()
