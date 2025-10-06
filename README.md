@@ -36,6 +36,7 @@ YODPS target platforms include on-road and off-road vehicles, drones, marine ves
 ## Screenshots 
 ![](https://github.com/UrryKurtz/YODPS/blob/main/Doc/Screenshot_002.png?raw=true)
 ![](https://github.com/UrryKurtz/YODPS/blob/main/Doc/Screenshot_003.png?raw=true)
+![](https://github.com/UrryKurtz/YODPS/blob/main/Doc/Screenshot_004.png?raw=true)
 
 ## Videos
 **Camera control, Video and Polyline Plugins demo**
