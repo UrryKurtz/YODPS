@@ -11,7 +11,7 @@
             </map>
             <map name="msg" type="YOMap">
                 <element value="2" name="id" type="uint32_t"/>
-                <element value="ATE1" name="req" type="std::string"/>
+                <element value="ATE0" name="req" type="std::string"/>
             </map>
             <map name="msg" type="YOMap">
                 <element value="3" name="id" type="uint32_t"/>
@@ -28,6 +28,10 @@
             <map name="msg" type="YOMap">
                 <element value="6" name="id" type="uint32_t"/>
                 <element value="ATRV" name="req" type="std::string"/>
+            </map>
+            <map name="msg" type="YOMap">
+                <element value="7" name="id" type="uint32_t"/>
+                <element value="ATAL" name="req" type="std::string"/>
             </map>
         </array>
         <map name="sts" type="YOMap">

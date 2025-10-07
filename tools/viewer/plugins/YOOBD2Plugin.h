@@ -13,6 +13,7 @@ using namespace Urho3D;
 
 class YOOBD2Plugin: public IPlugin
 {
+	YOVariant *OBD2_ {nullptr};
 	YOVariant *requests_ {nullptr};
 	YOVariant *settings_ {nullptr};
 	std::shared_ptr<YOVariant> response_ {nullptr};
@@ -26,6 +27,9 @@ public:
 	void OnStart() override;
 	void OnData(const std::string &topic, std::shared_ptr<YOMessage> message) override;
 	void OnGui() override;
+
+	void Poll(int mode = 0x01);
+	void ProcessResponse(const std::string &request, const std::string &response);
 };
 
 #endif /* TOOLS_VIEWER_PLUGINS_YOOBD2PLUGIN_H_ */
