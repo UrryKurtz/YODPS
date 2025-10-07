@@ -209,7 +209,7 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
 		}
 		   break;
         case 13: //int32_t
-		if(ui::DragScalar(name.c_str(), ImGuiDataType_S32, &cfg.m_value, 1, 0, 0, "%u", (name == "id") ? ImGuiSliderFlags_ReadOnly : 0))
+		if(ui::DragScalar(name.c_str(), ImGuiDataType_S32, &cfg.m_value, 1, 0, 0, "%i", (name == "id") ? ImGuiSliderFlags_ReadOnly : 0))
 		{
 			changed = true;
 		}
