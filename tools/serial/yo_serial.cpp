@@ -110,7 +110,7 @@ int fn_request(const std::string &topic, std::shared_ptr<YOMessage> message, voi
 	std::shared_ptr<YOVariant> request = std::make_shared<YOVariant>(message->getDataSize(), (const char*) message->getData());
 	for (auto &req : request->get<YOArray>())
 	{
-		std::cout << topic << " " << req << std::endl;
+		//std::cout << topic << " " << req << std::endl;
 		std::string cmd = req[yo::k::request].get<std::string>().c_str();
 		req[yo::k::response] = query(cmd, fd_).c_str();
 	}

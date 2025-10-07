@@ -17,6 +17,8 @@ class YOOBD2Plugin: public IPlugin
 	YOVariant *requests_ {nullptr};
 	YOVariant *settings_ {nullptr};
 	std::shared_ptr<YOVariant> response_ {nullptr};
+	std::map<int, std::vector<uint8_t>> data_;
+
 	std::mutex mutex_;
 	YOGui gui_;
 	YOTimestamp ts_{0};

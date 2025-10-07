@@ -29,6 +29,7 @@
 #include "YOCameraPlugin.h"
 #include "YOGPSPlugin.h"
 #include "YOOBD2Plugin.h"
+#include "YOCANPlugin.h"
 
 void sig_fn(int signal, void *data)
 {
@@ -69,6 +70,7 @@ void YOViewer::Start()
     plugin_bus_->AddPlugin("InternalData", new YOPolylinePlugin(context_));
     plugin_bus_->AddPlugin("Video", new YOVideoPlugin(context_));
     plugin_bus_->AddPlugin("OBDII", new YOOBD2Plugin(context_));
+    plugin_bus_->AddPlugin("CAN Viewer", new YOCANPlugin(context_));
     plugin_bus_->AddPlugin("Camera", new YOCameraPlugin(context_, camera_, controller_));
 
     plugin_bus_->OnStart(scene_);

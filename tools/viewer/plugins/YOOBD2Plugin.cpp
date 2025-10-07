@@ -131,23 +131,21 @@ void YOOBD2Plugin::OnData(const std::string &topic, std::shared_ptr<YOMessage> m
 	response_ = std::make_shared<YOVariant>(message->getDataSize(), (const char*)message->getData());
 	for(auto &msg : response_->get<YOArray>())
 	{
-		std::cout << msg[yo::k::request].m_value << std::endl;
-		std::cout << "!!![" << msg[yo::k::response].m_value << "]!!!" << std::endl;
+		//std::cout << msg[yo::k::request].m_value << std::endl;
+		//std::cout << "!!![" << msg[yo::k::response].m_value << "]!!!" << std::endl;
 		ProcessResponse(msg[yo::k::request].get<std::string>(), msg[yo::k::response].get<std::string>());
 	}
-
-	std::cout << *response_ << std::endl;
 	mutex_.unlock();
 }
 
 void YOOBD2Plugin::Poll(int mode)
 {
-	YOVariant req(yo::k::requests);
+	YOVariant req(yo::k::requests, YOArray());
 	YOVariant msg(yo::k::message);
 	char buf[64];
 	sprintf(buf, "%02X00", mode);
 	msg[yo::k::request] = buf;
-	msg[yo::k::id] = (uint32_t) requests_->getArraySize();
+	msg[yo::k::id] = (uint32_t) req.getArraySize();
 	req.push_back(msg);
 	Transmit((*settings_)[yo::k::advertise].get<std::string>().c_str(), req);
 }
