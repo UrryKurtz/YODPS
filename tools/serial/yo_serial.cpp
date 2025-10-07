@@ -80,11 +80,17 @@ std::string read_resp(int fd)
     char c;
     while (true) {
         int n = read(fd, &c, 1);
-        if (n <= 0) break;
-        if (c == '>') break;
-        if (c == '\n' && buf[buf.size() - 1] == '\n' )
+        static char last = c;
+        if (n <= 0 || c == '>')
+        {
+        	if(buf.size() && buf[buf.size() - 1] == '\n')
+        		buf[buf.size() - 1] = '\0';
+        	break;
+        }
+        if (c == '\n' && last == '\n')
         	continue;
         buf.push_back(c);
+        last = c;
     }
     return buf;
 }
@@ -94,8 +100,8 @@ std::string query(const std::string& cmd, int fd)
        send_cmd(fd, cmd);
        usleep(20000); // 20 ms delay between commands
        std::string resp = read_resp(fd);
-//       std::cout << "REQUEST [" << cmd << "]" << std::endl;
-//	   std::cout << "RESPONSE[" << resp << "]" << std::endl;
+       //std::cout << "REQUEST [" << cmd << "]" << std::endl;
+	   //std::cout << "RESPONSE[" << resp << "]" << std::endl;
        return resp;
 };
 
@@ -104,7 +110,7 @@ int fn_request(const std::string &topic, std::shared_ptr<YOMessage> message, voi
 	std::shared_ptr<YOVariant> request = std::make_shared<YOVariant>(message->getDataSize(), (const char*) message->getData());
 	for (auto &req : request->get<YOArray>())
 	{
-		//std::cout << req << std::endl;
+		std::cout << topic << " " << req << std::endl;
 		std::string cmd = req[yo::k::request].get<std::string>().c_str();
 		req[yo::k::response] = query(cmd, fd_).c_str();
 	}
