@@ -62,7 +62,9 @@ YODPS target platforms include on-road and off-road vehicles, drones, marine ves
 - [Urho3D](https://github.com/urho3d/Urho3D) — MIT License
 - [rbfx](https://github.com/rbfx/rbfx) — MIT License
 - [Dear ImGui](https://github.com/ocornut/imgui) — MIT License
-- [httplib](https://github.com/yhirose/cpp-httplib) — MIT License 
+- [httplib](https://github.com/yhirose/cpp-httplib) — MIT License
+- [dbc_parser_cpp](https://github.com/LinuxDevon/dbc_parser_cpp) — MIT License
+- [opendbc](https://github.com/commaai/opendbc) — MIT License
 
 ## 📜 License
 
