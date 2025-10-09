@@ -1,31 +1,51 @@
 <xml>
     <map name="Plotter" type="YOMap">
         <map name="Settings" type="YOMap">
-            <element value="2048" name="Buffer Size" type="uint32_t"/>
+            <element value="1024" name="Buffer Size" type="uint32_t"/>
             <element value="false" name="Pause" type="bool"/>
             <element value="true" name="Receive" type="bool"/>
-            <element value="10560278" name="Time scale" type="uint32_t"/>
+            <element value="11955244" name="Time scale" type="uint32_t"/>
             <element value="PLOTTER" name="Topic" type="std::string"/>
         </map>
         <map name="Streams" type="YOMap">
             <map name="COS" type="YOMap">
                 <element value="true" name="Auto Scale" type="bool"/>
-                <element r="240" g="255" b="0" a="255" name="Color" type="YOColor4C"/>
+                <element r="255" g="0" b="0" a="255" name="Color" type="YOColor4C"/>
                 <element value="COS" name="Name" type="std::string"/>
                 <element value="true" name="Receive" type="bool"/>
-                <element value="2.7765653" name="Scale" type="float"/>
+                <element value="1.5099937" name="Scale" type="float"/>
+                <element value="false" name="Show" type="bool"/>
+                <element value="false" name="Smooth" type="bool"/>
+                <element value="1" name="Width" type="float"/>
+            </map>
+            <map name="ID 4 (0x04) Calculated_Engine_Load" type="YOMap">
+                <element value="false" name="Auto Scale" type="bool"/>
+                <element r="255" g="81" b="0" a="255" name="Color" type="YOColor4C"/>
+                <element value="ID 4 (0x04) Calculated_Engine_Load" name="Name" type="std::string"/>
+                <element value="true" name="Receive" type="bool"/>
+                <element value="2" name="Scale" type="float"/>
                 <element value="true" name="Show" type="bool"/>
-                <element value="true" name="Smooth" type="bool"/>
+                <element value="false" name="Smooth" type="bool"/>
+                <element value="1" name="Width" type="float"/>
+            </map>
+            <map name="ID 5 (0x05) Coolant_Temp" type="YOMap">
+                <element value="false" name="Auto Scale" type="bool"/>
+                <element r="0" g="199" b="255" a="255" name="Color" type="YOColor4C"/>
+                <element value="ID 5 (0x05) Coolant_Temp" name="Name" type="std::string"/>
+                <element value="true" name="Receive" type="bool"/>
+                <element value="1" name="Scale" type="float"/>
+                <element value="true" name="Show" type="bool"/>
+                <element value="false" name="Smooth" type="bool"/>
                 <element value="1" name="Width" type="float"/>
             </map>
             <map name="SIN" type="YOMap">
                 <element value="true" name="Auto Scale" type="bool"/>
-                <element r="0" g="142" b="255" a="255" name="Color" type="YOColor4C"/>
+                <element r="0" g="255" b="21" a="255" name="Color" type="YOColor4C"/>
                 <element value="SIN" name="Name" type="std::string"/>
                 <element value="true" name="Receive" type="bool"/>
-                <element value="1.0509393" name="Scale" type="float"/>
-                <element value="true" name="Show" type="bool"/>
-                <element value="true" name="Smooth" type="bool"/>
+                <element value="1.5761988" name="Scale" type="float"/>
+                <element value="false" name="Show" type="bool"/>
+                <element value="false" name="Smooth" type="bool"/>
                 <element value="1" name="Width" type="float"/>
             </map>
         </map>

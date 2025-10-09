@@ -1,0 +1,76 @@
+<xml>
+    <map name="CANViewer" type="YOMap">
+        <array name="chs" type="YOArray">
+            <map name="chn" type="YOMap">
+                <element value="true" name="enb" type="bool"/>
+                <array name="fls" type="YOArray"/>
+                <element value="0" name="id" type="uint32_t"/>
+                <element value="CAN0" name="nam" type="std::string"/>
+            </map>
+            <map name="chn" type="YOMap">
+                <element value="true" name="enb" type="bool"/>
+                <array name="fls" type="YOArray"/>
+                <element value="1" name="id" type="uint32_t"/>
+                <element value="CAN1" name="nam" type="std::string"/>
+            </map>
+            <map name="chn" type="YOMap">
+                <element value="true" name="enb" type="bool"/>
+                <array name="fls" type="YOArray"/>
+                <element value="2" name="id" type="uint32_t"/>
+                <element value="CAN2" name="nam" type="std::string"/>
+            </map>
+            <map name="chn" type="YOMap">
+                <element value="true" name="enb" type="bool"/>
+                <array name="fls" type="YOArray"/>
+                <element value="3" name="id" type="uint32_t"/>
+                <element value="CAN3" name="nam" type="std::string"/>
+            </map>
+            <map name="chn" type="YOMap">
+                <element value="true" name="enb" type="bool"/>
+                <array name="fls" type="YOArray"/>
+                <element value="4" name="id" type="uint32_t"/>
+                <element value="CAN4" name="nam" type="std::string"/>
+            </map>
+            <map name="chn" type="YOMap">
+                <element value="true" name="enb" type="bool"/>
+                <array name="fls" type="YOArray"/>
+                <element value="5" name="id" type="uint32_t"/>
+                <element value="CAN5" name="nam" type="std::string"/>
+            </map>
+            <map name="chn" type="YOMap">
+                <element value="true" name="enb" type="bool"/>
+                <array name="fls" type="YOArray"/>
+                <element value="6" name="id" type="uint32_t"/>
+                <element value="CAN6" name="nam" type="std::string"/>
+            </map>
+            <map name="chn" type="YOMap">
+                <element value="true" name="enb" type="bool"/>
+                <array name="fls" type="YOArray">
+                    <element value="Data/DBC/OBD2_Wiki.dbc" name="fle" type="std::string"/>
+                </array>
+                <element value="7" name="id" type="uint32_t"/>
+                <element value="OBD2" name="nam" type="std::string"/>
+            </map>
+        </array>
+        <array name="snd" type="YOArray">
+            <map name="" type="YOMap"/>
+            <map name="" type="YOMap"/>
+            <map name="" type="YOMap"/>
+            <map name="" type="YOMap"/>
+            <map name="" type="YOMap"/>
+            <map name="" type="YOMap"/>
+            <map name="" type="YOMap"/>
+            <map name="" type="YOMap">
+                <map name="ID 4 (0x04) " type="YOMap">
+                    <element value="1" name="Calculated_Engine_Load" type="uint8_t"/>
+                </map>
+                <map name="ID 5 (0x05) " type="YOMap">
+                    <element value="1" name="Coolant_Temp" type="uint8_t"/>
+                </map>
+            </map>
+        </array>
+        <map name="sts" type="YOMap">
+            <element value="PLOTTER" name="tpc" type="std::string"/>
+        </map>
+    </map>
+</xml>

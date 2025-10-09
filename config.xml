@@ -142,6 +142,9 @@
             <map name="CAN Viewer" type="YOMap">
                 <element value="CAN Viewer.xml" name="fle" type="std::string"/>
             </map>
+            <map name="CANViewer" type="YOMap">
+                <element value="CANViewer.xml" name="fle" type="std::string"/>
+            </map>
             <map name="Camera" type="YOMap">
                 <element value="Camera.xml" name="fle" type="std::string"/>
             </map>

@@ -31,7 +31,7 @@
             </map>
             <map name="msg" type="YOMap">
                 <element value="7" name="id" type="uint32_t"/>
-                <element value="ATAL" name="req" type="std::string"/>
+                <element value="ATRV" name="req" type="std::string"/>
             </map>
         </array>
         <map name="sts" type="YOMap">
