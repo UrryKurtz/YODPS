@@ -80,17 +80,15 @@ std::string read_resp(int fd)
     char c;
     while (true) {
         int n = read(fd, &c, 1);
-        static char last = c;
-        if (n <= 0 || c == '>')
+        if (n <= 0)
         {
-        	if(buf.size() && buf[buf.size() - 1] == '\n')
-        		buf[buf.size() - 1] = '\0';
         	break;
         }
-        if (c == '\n' && last == '\n')
-        	continue;
         buf.push_back(c);
-        last = c;
+        if (c == '>')
+		{
+			break;
+		}
     }
     return buf;
 }
