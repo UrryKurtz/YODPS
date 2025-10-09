@@ -192,6 +192,7 @@ public:
     {
 
     	return os << v.m_name  << " " << v.m_value.index() << " " << v.m_value;
+    }
 
     }
 

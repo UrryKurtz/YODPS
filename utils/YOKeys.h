@@ -135,7 +135,7 @@ namespace yo::k {
 	YO_KEY(video,      "vid")
     YO_KEY(width,      "wdt")
     YO_KEY(world,      "wld")
-#undef YO_KEY
+//#undef YO_KEY
 }
 
 enum YOProjectionType
