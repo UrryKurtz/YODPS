@@ -23,6 +23,7 @@ class YOGui
     bool changed_;
     std::vector<int> index_;
     std::vector<int> index_out_;
+    void drawCfg(YOVariant &cfg, const std::string &name = "", bool add = true, bool show_name = true, int *select = 0, int val = 0);
 
 public:
     YOGui();
@@ -33,7 +34,7 @@ public:
     std::vector<int> getIndex(){return index_out_;}
 
     bool draw(YOVariant &cfg);
-    void drawCfg(YOVariant &cfg, const std::string &name = "", bool add = true, bool show_name = true, int *select = 0, int val = 0);
+
 
 };
 
