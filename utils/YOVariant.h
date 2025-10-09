@@ -194,6 +194,18 @@ public:
     	return os << v.m_name  << " " << v.m_value.index() << " " << v.m_value;
     }
 
+    YOMap &getMap() {return get<YOMap>();}
+    YOArray &getArray() {return get<YOArray>();}
+    bool &getBool() {return get<bool>();}
+    uint32_t &getU32() {return get<uint32_t>();}
+    int32_t &getI32() {return get<int32_t>();}
+    float &getF32() {return get<float>();}
+    std::string &getStr() {return get<std::string>();}
+    const char *c_str() {return get<std::string>().c_str();}
+
+    template<class T>
+    operator T() const {
+        return get<T>();
     }
 
     template<typename T>
