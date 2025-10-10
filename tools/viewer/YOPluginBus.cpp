@@ -116,7 +116,12 @@ void YOPluginBus::AddPlugin(const std::string &name, IPlugin* plugin)
 	plugin->SetName(name);
 	plugins_[name].plugin = plugin;
 	plugins_[name].config = new YOVariant(name);
+
 	YOVariant &cur_cfg = config_->get(name);
+	if(!cur_cfg.hasChild(yo::k::enabled))
+	{
+		cur_cfg[yo::k::enabled] = false;
+	}
 
 	if(cur_cfg.hasChild(yo::k::file))
 	{
@@ -182,13 +187,16 @@ void YOPluginBus::OnGui()
 	int i = 0;
 	for( auto &pi : plugins_)
 	{
-		if(pi.second.show_gui)
+		bool &show_gui = (*config_)[pi.second.name][yo::k::enabled].getBool();
+		if(show_gui)
 		{
 			ui::SetNextWindowSize(ImVec2(550, 500), ImGuiCond_FirstUseEver);
 		    ui::SetNextWindowPos(ImVec2(250 + ++i * 50, 50 + i * 50), ImGuiCond_FirstUseEver);
-			ui::Begin(pi.first.c_str(), &pi.second.show_gui, ImGuiWindowFlags_NoCollapse);
-			pi.second.plugin->OnGui();
-			ui::End();
+			if(ui::Begin(pi.first.c_str(), &show_gui, ImGuiWindowFlags_NoCollapse))
+			{
+				pi.second.plugin->OnGui();
+				ui::End();
+			}
 		}
 	}
 }
@@ -197,9 +205,10 @@ void YOPluginBus::OnMenu()
 {
 	for( auto &pi : plugins_)
 	{
-		if (ui::MenuItem(pi.first.c_str(), nullptr, pi.second.show_gui))
+		bool &show_gui = (*config_)[pi.second.name][yo::k::enabled].getBool();
+		if (ui::MenuItem(pi.first.c_str(), nullptr, show_gui))
 		{
-			pi.second.show_gui = !pi.second.show_gui;
+			show_gui = !show_gui;
 		}
 	}
 }

@@ -28,7 +28,7 @@ using namespace Urho3D;
 struct YOPluginInfo
 {
 	std::string name;
-	bool show_gui {false};
+	//bool show_gui {false};
 	IPlugin *plugin {};
 	Urho3D::Node* node {};
 	YOVariant *config {nullptr};
