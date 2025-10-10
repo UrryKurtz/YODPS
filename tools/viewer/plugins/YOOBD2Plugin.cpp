@@ -88,7 +88,7 @@ void YOOBD2Plugin::OnData(const std::string &topic, std::shared_ptr<YOMessage> m
 	ts_ = YONode::getTimestamp();
 	response_ = std::make_shared<YOVariant>(message->getDataSize(), (const char*)message->getData());
 
-	for(auto &msg : response_->get<YOArray>())
+	for(auto &msg : response_->getArray())
 	{
 		//std::cout << msg[yo::k::request].m_value << std::endl;
 		//std::cout << "!!![" << msg[yo::k::response].m_value << "]!!!" << std::endl;
@@ -121,7 +121,7 @@ void YOOBD2Plugin::OnGui()
 		requests_->push_back(msg);
 	}
 
-	if(ui::Button("Send"))
+	if(ui::Button("Init"))
 	{
 		Transmit((*settings_)[yo::k::advertise].getStr(), *requests_);
 	}
@@ -131,12 +131,12 @@ void YOOBD2Plugin::OnGui()
 		Poll(0x01, 0x00);
 	}
 
-	ui::Begin("Data");
+	//ui::Begin("Data");
 	mutex_.lock();
 	if(response_)
 	{
 		ui::Text("Timestamp: %llu", ts_);
-		for( auto &msg : response_->get<YOArray>())
+		for( auto &msg : response_->getArray())
 		{
 			uint32_t id = msg[yo::k::id];
 			std::string &req = msg[yo::k::request];
@@ -147,6 +147,6 @@ void YOOBD2Plugin::OnGui()
 
 	}
 	mutex_.unlock();
-	ui::End();
+	//ui::End();
 
 }
