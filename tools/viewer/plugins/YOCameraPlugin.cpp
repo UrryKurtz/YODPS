@@ -34,7 +34,6 @@ YOCameraPlugin::~YOCameraPlugin() {
 
 void YOCameraPlugin::OnStart()
 {
-	std::cout << __FILE__<< " " << __LINE__ << std::endl;
     cameras_cfg_ = &(*config_)[yo::k::cameras];
     params_cfg_ = &(*config_)[yo::k::config];
 
