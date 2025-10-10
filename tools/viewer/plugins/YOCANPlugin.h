@@ -58,6 +58,7 @@ public:
 	void OnData(const std::string &topic, std::shared_ptr<YOMessage> message) override ;
 	void OnGui() override ;
 
+	void DrawChannelData(YOVariant &channel, int ch);
 	void SendToPlotter(const std::string &pid, const std::string &signal, float value);
 };
 

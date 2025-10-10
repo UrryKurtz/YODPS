@@ -13,10 +13,10 @@
 
 namespace yo::k
 {
-YO_KEY(channels,	"chs")
-YO_KEY(channel, 	"chn")
-YO_KEY(files, 		"fls")
-YO_KEY(send, 		"snd")
+YO_KEY(channels, "chs")
+YO_KEY(channel, "chn")
+YO_KEY(files, "fls")
+YO_KEY(send, "snd")
 }
 
 void CreateHex(const uint8_t *data, int size, std::string &hex)
@@ -55,13 +55,13 @@ void YOCANPlugin::OnStart()
 	channels_ = &(*config_)[yo::k::channels];
 	send_ = &(*config_)[yo::k::send];
 
-	if(send_->getTypeId()!=1)
+	if (send_->getTypeId() != 1)
 	{
 		send_->m_value = YOArray();
 		send_->setArraySize(8);
 	}
 
-	if(!settings_->hasChild(yo::k::topic))
+	if (!settings_->hasChild(yo::k::topic))
 		(*settings_)[yo::k::topic] = "PLOTTER";
 
 	ads_.push_back((*settings_)[yo::k::topic].getStr());
@@ -110,9 +110,9 @@ void YOCANPlugin::OnStart()
 					data_[ch][id].signals = msg.get_signals();
 					data_[ch][id].send.resize(msg.get_signals().size());
 					int sid = 0;
-					for( auto & signal : data_[ch][id].signals)
+					for (auto &signal : data_[ch][id].signals)
 					{
-						if((*send_)[ch].hasChild(header) && (*send_)[ch][header].hasChild(signal.name))
+						if ((*send_)[ch].hasChild(header) && (*send_)[ch][header].hasChild(signal.name))
 						{
 							data_[ch][id].send[sid] = (*send_)[ch][header][signal.name];
 						}
@@ -121,8 +121,7 @@ void YOCANPlugin::OnStart()
 					std::cout << "   message " << id << " " << msg.name() << std::endl;
 				}
 				std::cout << file.getStr() << " messages: " << data_[ch].size() << std::endl;
-			}
-			catch (const Libdbc::ValidityError e)
+			} catch (const Libdbc::ValidityError e)
 			{
 				std::cout << "ERROR: " << file.getStr() << " " << e.what() << std::endl;
 			}
@@ -160,21 +159,21 @@ void YOCANPlugin::OnData(const std::string &topic, std::shared_ptr<YOMessage> me
 	info.values.clear();
 	info.canfd = *canfd;
 
-	if(info.header.empty())
+	if (info.header.empty())
 	{
 		char header[256];
 		sprintf(header, "ID %u (0x%02X) ", id, id);
 		info.header = header;
 	}
 
-	if(info.message)
+	if (info.message)
 		info.message->parse_signals(data, info.values);
-	if(info.values.size() != info.send.size())
+	if (info.values.size() != info.send.size())
 		info.send.resize(info.values.size());
 
-	for(int i = 0; i < info.signals.size(); i++)
+	for (int i = 0; i < info.signals.size(); i++)
 	{
-		if(info.send[i])
+		if (info.send[i])
 		{
 			SendToPlotter(info.header, info.signals[i].name, info.values[i]);
 		}
@@ -185,114 +184,132 @@ void YOCANPlugin::OnData(const std::string &topic, std::shared_ptr<YOMessage> me
 	//parse_message(canfd->sData.ui32Id, data, data_[ch][canfd->sData.ui32Id].values);
 }
 
+void YOCANPlugin::DrawChannelData(YOVariant &channel, int ch)
+{
+	ui::SeparatorText(channel[yo::k::name].c_str());
+	if (ImGui::BeginTable("tbl2x2", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+	{
+		for (auto &can : data_[ch])
+		{
+			if (can.second.hex.size())
+			{
+				can.second.mutex.lock();
+				ui::PushID(&can);
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ui::Text("%llu", can.second.ts);
+				ImGui::TableSetColumnIndex(1);
+				bool collapse = false;
+				if (can.second.message) //got DBC
+				{
+					collapse = ui::CollapsingHeader(can.second.header.c_str());
+					ui::SameLine();
+					ui::Text(" Size: %d  Data:[%s]", can.second.canfd.sData.ui8Length, can.second.hex.c_str());
+				}
+				else
+				{
+					ui::Text("   %s Size: %d  Data:[%s]", can.second.header.c_str(), can.second.canfd.sData.ui8Length, can.second.hex.c_str());
+				}
+				if (collapse)
+				{
+					int i = 0;
+					for (auto &sig : can.second.message->get_signals())
+					{
+						ui::Text("  %s [%f] %s ", sig.name.c_str(), can.second.values[i], sig.unit.c_str());
+						ui::SameLine();
+						if (ui::Checkbox("Plot", (bool*) &can.second.send[i]))
+						{
+							(*send_)[ch][can.second.header][sig.name] = can.second.send[i];
+						}
+						i++;
+					}
+				}
+				ui::PopID();
+				can.second.mutex.unlock();
+			}
+		}
+		ImGui::EndTable();
+	}
+}
+
 void YOCANPlugin::OnGui()
 {
-	gui_.draw(*settings_);
-	ui::SeparatorText("Channels");
-
-	for (auto &channel : channels_->getArray())
+	if (ImGui::BeginTabBar(name_.c_str()))
 	{
-		uint32_t id = channel[yo::k::id];
-		char name[256];
-		sprintf(name, "Channel %u [%s]", id, channel[yo::k::name].c_str());
-		ui::PushID(&channel);
-		ui::Checkbox("", &channel[yo::k::enabled].getBool()); ui::SameLine();
-		if (ui::CollapsingHeader(name))
+		for (int ch = 0; ch < 8; ch++)
 		{
-			ui::Indent();
-			gui_.draw(channel[yo::k::name]);
-
-			if (ui::CollapsingHeader("DBC files"))
+			YOVariant &channel = (*channels_)[ch];
+			if (!channel[yo::k::enabled].getBool())
+				continue;
+			if (ImGui::BeginTabItem(channel[yo::k::name].c_str()))
 			{
-				int idx = 0;
-				int del = -1;
-				for (auto &file : channel[yo::k::files].getArray())
+				DrawChannelData(channel, ch);
+				ImGui::EndTabItem();
+			}
+		}
+		if (ImGui::BeginTabItem("Config"))
+		{
+			ui::SeparatorText("Config");
+			gui_.draw(*settings_);
+			ui::SeparatorText("Channels");
+			for (auto &channel : channels_->getArray())
+			{
+				uint32_t id = channel[yo::k::id];
+				char name[256];
+				sprintf(name, "Channel %u [%s]", id, channel[yo::k::name].c_str());
+				ui::PushID(&channel);
+				ui::Checkbox("", &channel[yo::k::enabled].getBool());
+				ui::SameLine();
+				if (ui::CollapsingHeader(name))
 				{
 					ui::Indent();
-					gui_.draw(file);
-					ui::SameLine();
-					ui::PushID(&file);
-					if (ui::Button("Delete"))
+					gui_.draw(channel[yo::k::name]);
+
+					if (ui::CollapsingHeader("DBC files"))
 					{
-						del = idx;
-						std::cout << "delete BTN " << del << " " << idx << std::endl;
-					}
-					ui::PopID();
-					idx++;
-					ui::Unindent();
-				}
-				if (del >= 0)
-				{
-					std::cout << "delete " << del << std::endl;
-					channel[yo::k::files].erase(del);
-				}
-			}
-			ui::SetNextItemWidth(250);
-			ui::InputText("Add file", files_tmp_[id], 256);
-			ui::SameLine();
-			if (ui::Button("Add"))
-			{
-				std::cout << files_tmp_[id] << std::endl;
-				channel[yo::k::files].push_back(YOVariant(yo::k::file, files_tmp_[id]));
-				files_tmp_[id][0] = 0;
-			}
-			ui::Unindent();
-		}
-		ui::PopID();
-	}
-
-	ui::Begin("CAN Data Viewer");
-
-	for (int ch = 0; ch < 8; ch++)
-	{
-		YOVariant &channel = (*channels_)[ch];
-		ui::SeparatorText(channel[yo::k::name].c_str());
-
-		if (ImGui::BeginTable("tbl2x2", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
-		{
-			for (auto &can : data_[ch])
-			{
-				if (can.second.hex.size())
-				{
-					can.second.mutex.lock();
-					ui::PushID(&can);
-					ImGui::TableNextRow();
-					ImGui::TableSetColumnIndex(0);
-					ui::Text("%llu", can.second.ts);
-
-					ImGui::TableSetColumnIndex(1);
-					bool collapse = false;
-					if(can.second.message) //got DBC
-					{
-						collapse = ui::CollapsingHeader(can.second.header.c_str());
-						ui::SameLine();
-						ui::Text(" Size: %d  Data:[%s]", can.second.canfd.sData.ui8Length, can.second.hex.c_str());
-					}
-					else
-					{
-						ui::Text("   %s Size: %d  Data:[%s]", can.second.header.c_str(), can.second.canfd.sData.ui8Length, can.second.hex.c_str());
-					}
-
-					if (collapse)
-					{
-						int i = 0;
-						for (auto &sig : can.second.message->get_signals())
+						int idx = 0;
+						int del = -1;
+						for (auto &file : channel[yo::k::files].getArray())
 						{
-							ui::Text("  %s [%f] %s ", sig.name.c_str(), can.second.values[i], sig.unit.c_str());
+							ui::Indent();
+							gui_.draw(file);
 							ui::SameLine();
-							if(ui::Checkbox("Plot", (bool *) &can.second.send[i]))
+							ui::PushID(&file);
+							if (ui::Button("Delete"))
 							{
-								(*send_)[ch][can.second.header][sig.name] = can.second.send[i];
+								del = idx;
+								std::cout << "delete BTN " << del << " " << idx << std::endl;
 							}
-							i++;
+							ui::PopID();
+							idx++;
+							ui::Unindent();
+						}
+						if (del >= 0)
+						{
+							std::cout << "delete " << del << std::endl;
+							channel[yo::k::files].erase(del);
 						}
 					}
-					ui::PopID();
-					can.second.mutex.unlock();
+					ui::SetNextItemWidth(250);
+					ui::InputText("Add file", files_tmp_[id], 256);
+					ui::SameLine();
+					if (ui::Button("Add"))
+					{
+						std::cout << files_tmp_[id] << std::endl;
+						channel[yo::k::files].push_back(YOVariant(yo::k::file, files_tmp_[id]));
+						files_tmp_[id][0] = 0;
+					}
+					ui::Unindent();
 				}
+				ui::PopID();
 			}
-			ImGui::EndTable();
+			ImGui::EndTabItem();
 		}
+		if (ImGui::BeginTabItem("About"))
+		{
+			ImGui::Text("CAN Plugin");
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
 	}
-	ui::End();
 }
