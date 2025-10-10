@@ -10,7 +10,8 @@
 #include "YONode.h"
 #include "YOKeys.h"
 
-YOPlotterPlugin::YOPlotterPlugin(Context *context) : IPlugin(context)
+YOPlotterPlugin::YOPlotterPlugin(Context *context) :
+		IPlugin(context)
 {
 
 }
@@ -18,6 +19,16 @@ YOPlotterPlugin::YOPlotterPlugin(Context *context) : IPlugin(context)
 YOPlotterPlugin::~YOPlotterPlugin()
 {
 
+}
+
+void YOPlotterPlugin::OnStop()
+{
+	map_key_.lock();
+	for(auto stream : data_)
+	{
+		(*streams_)[stream.first] = stream.second.stream_cfg;
+	}
+	map_key_.unlock();
 }
 
 void YOPlotterPlugin::OnStart()
@@ -33,50 +44,51 @@ void YOPlotterPlugin::OnStart()
 	}
 	settings_ = &(*config_)["Settings"];
 	streams_ = &(*config_)["Streams"];
-	for (auto &stream : streams_->get<YOMap>())
+
+	for (auto &stream : streams_->get<YOMap>()) //load form xml
 	{
-		data_[stream.first].strean_cfg = &stream.second;
-		std::cout << " STREAM: " << stream.first << std::endl;
+		data_[stream.first].stream_cfg = stream.second;
+		data_[stream.first].name = stream.first;
+		std::cout << "Loading stream: " << stream.first << std::endl;
 	}
-	subs_.push_back(topic_);
+	subs_.push_back((*settings_)["Topic"].c_str());
 }
 
 YOVariant StreamConfig(const std::string &name)
 {
 	YOVariant config(name);
 	config["Name"] = name.c_str();
-	config["Color"] = YOColor4C { 0xFF, 0xFF, 0xFF, 0xFF };
+	config["Color"] = YOColor4C
+	{ 0xFF, 0xFF, 0xFF, 0xFF };
 	config["Width"] = 1.0f;
 	config["Receive"] = true;
 	config["Scale"] = 1.0f;
 	config["Auto Scale"] = false;
 	config["Smooth"] = false;
 	config["Show"] = true;
+	config["Config"] = false;
 	return config;
 }
 
 void YOPlotterPlugin::AddValue(const std::string &name, YOTimestamp ts, const float &value)
 {
-	if (!streams_->hasChild(name))
+	map_key_.lock(); //for add & delete. Happens not too often.
+	if (!data_.count(name))
 	{
-		(*streams_)[name] = StreamConfig(name);
-		data_[name].strean_cfg = &(*streams_)[name];
+		data_[name].stream_cfg = StreamConfig(name); //default config
+		data_[name].name = name;
 	}
-
 	YOStreamInfo &stream = data_[name];
-	if (!stream.strean_cfg->get("Receive"))
+	if (stream.stream_cfg["Receive"])
 	{
-		return;
+		stream.stream.push_front({ ts, .value = value });
+		stream.last = value;
+		if (stream.stream.size() > (*settings_)["Buffer Size"].getU32())
+		{
+			stream.stream.pop_back();
+		}
 	}
-
-	lock_[name].lock();
-	stream.stream.push_front({ ts, value });
-	stream.last = value;
-	if (stream.stream.size() > buf_size_)
-	{
-		stream.stream.pop_back();
-	}
-	lock_[name].unlock();
+	map_key_.unlock();
 }
 
 void YOPlotterPlugin::OnData(const std::string &topic, std::shared_ptr<YOMessage> message)
@@ -151,7 +163,6 @@ void YOPlotterPlugin::OnData(const std::string &topic, std::shared_ptr<YOMessage
 			AddValue(stream_name + ".w", ts, std::get<YOVector4>(value).w);
 			break;
 		};
-
 		//std::cout << "Got " << stream.first << " value: " << stream.second.m_value << std::endl;
 	}
 }
@@ -201,11 +212,11 @@ void YOPlotterPlugin::OnGui()
 
 	ui::Begin("Plotter");
 
-	if(ui::BeginTable("TEST", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_BordersInnerV))
+	if (ui::BeginTable("TEST", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_BordersInnerV))
 	{
 		ui::TableNextRow();
 		ui::TableNextColumn();
-		ui::BeginChild("plotter", ImVec2(0,0), true, ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar);
+		ui::BeginChild("plotter", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar);
 		ImDrawList *dl = ui::GetWindowDrawList();
 		ImVec2 p0 = ui::GetCursorScreenPos();
 		ImVec2 avail = ui::GetContentRegionAvail();
@@ -216,87 +227,78 @@ void YOPlotterPlugin::OnGui()
 		const bool hovered = ui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
 
 		ImVec2 pos = ui::GetMousePos();
-		ImRect box = { pos - ImVec2(20, 20), pos + ImVec2(20, 20) };
+		ImRect box =
+		{ pos - ImVec2(20, 20), pos + ImVec2(20, 20) };
 		uint32_t &time_period = settings_->get("Time scale");
+
+		map_key_.lock();
 		for (auto &stream : data_)
 		{
-			if (!stream.second.stream.size())
-				continue;
-
-			lock_[stream.first].lock();
-
-			bool show = stream.second.strean_cfg->get("Show");
-			if (!show)
+			if (stream.second.stream.size())
 			{
-				lock_[stream.first].unlock();
-				continue;
+				bool show = stream.second.stream_cfg["Show"];
+				if (show)
+				{
+					float startV = stream.second.stream.front().value;
+					float startT = stream.second.stream.front().timestamp;
+					YOColor4C clr = stream.second.stream_cfg["Color"];
+					ImU32 clrc = IM_COL32(clr.r, clr.g, clr.b, clr.a);
+					float width = stream.second.stream_cfg["Width"];
+					float &scale = stream.second.stream_cfg["Scale"];
+					bool smooth = stream.second.stream_cfg["Smooth"];
+					bool auto_scale = stream.second.stream_cfg["Auto Scale"];
+					bool dec_scale = false;
+					ImVec2 A = startI + ImVec2((startT - ts) / time_period, -startV * scale);
+					float min = startV;
+					float max = startV;
+
+					for (auto &data : stream.second.stream)
+					{
+						if (data.value < min) min = data.value;
+						if (data.value > max) max = data.value;
+						ImVec2 B = startI + ImVec2((data.timestamp - ts) / time_period, -data.value * scale);
+						if (auto_scale && (B.y < p0.y || B.y > p0.y + avail.y))
+						{
+							dec_scale = true;
+						}
+						if (hovered && pos.x < A.x && pos.x >= B.x)
+						{
+							char text[256];
+							std::sprintf(text, "%s : %f", stream.first.c_str(), data.value);
+							dl->AddText(ImVec2(pos.x, A.y) + ImVec2(5, 10), clrc, text);
+						}
+						if (smooth)
+						{
+							dl->AddLine(A, B, clrc, width);
+						}
+						else
+						{
+							ImVec2 C(A.x, B.y);
+							dl->AddLine(A, C, clrc, width);
+							dl->AddLine(C, B, clrc, width);
+						}
+						A = B;
+					}
+					float mmax = Nice125Unit(max * 1.1);
+					float mmin = Nice125Unit(min * 1.1);
+
+					dl->AddLine(ImVec2(p0.x, startI.y - mmin * scale), ImVec2(p0.x + avail.x, startI.y - mmin * scale), clrc, 1);
+					char text_min[256];
+					std::sprintf(text_min, "%.0f", stream.first.c_str(), mmin);
+					dl->AddText(ImVec2(p0.x + avail.x, startI.y - mmin * scale) + ImVec2(-30, 5), clrc, text_min);
+
+					dl->AddLine(ImVec2(p0.x, startI.y - mmax * scale), ImVec2(p0.x + avail.x, startI.y - mmax * scale), clrc, 1);
+					char text_max[256];
+					std::sprintf(text_max, "%.0f", stream.first.c_str(), mmax);
+					dl->AddText(ImVec2(p0.x + avail.x, startI.y - mmax * scale) + ImVec2(-30, 5), clrc, text_max);
+					if (dec_scale)
+					{
+						scale *= 0.95f;
+					}
+				}
 			}
-
-			float startV = stream.second.stream.front().value;
-			float startT = stream.second.stream.front().timestamp;
-
-			YOColor4C clr = stream.second.strean_cfg->get("Color");
-			ImU32 clrc = IM_COL32(clr.r, clr.g, clr.b, clr.a);
-
-			float width = stream.second.strean_cfg->get("Width");
-			float &scale = stream.second.strean_cfg->get("Scale");
-			bool smooth = stream.second.strean_cfg->get("Smooth");
-			bool auto_scale = stream.second.strean_cfg->get("Auto Scale");
-			bool dec_scale = false;
-			ImVec2 A = startI + ImVec2((startT - ts) / time_period, -startV * scale);
-			float min = startV;
-			float max = startV;
-			for (auto &data : stream.second.stream)
-			{
-				if (data.value < min)
-					min = data.value;
-				if (data.value > max)
-					max = data.value;
-
-				ImVec2 B = startI + ImVec2((data.timestamp - ts) / time_period, -data.value * scale);
-				if (auto_scale && (B.y < p0.y || B.y > p0.y + avail.y))
-				{
-					dec_scale = true;
-				}
-				if (hovered && pos.x < A.x && pos.x >= B.x)
-				{
-					char text[256];
-					std::sprintf(text, "%s : %f", stream.first.c_str(), data.value);
-					dl->AddText(ImVec2(pos.x, A.y) + ImVec2(5, 10),  clrc  , text);
-				}
-				if (smooth)
-				{
-					dl->AddLine(A, B, clrc, width);
-				}
-				else
-				{
-					ImVec2 C(A.x, B.y);
-					dl->AddLine(A, C, clrc, width);
-					dl->AddLine(C, B, clrc, width);
-				}
-				A = B;
-			}
-
-			float mmax = Nice125Unit(max * 1.1);
-			float mmin = Nice125Unit(min * 1.1);
-
-			dl->AddLine(ImVec2(p0.x, startI.y - mmin * scale), ImVec2(p0.x + avail.x, startI.y - mmin * scale), clrc, 1);
-			char text_min[256];
-			std::sprintf(text_min, "%.0f", stream.first.c_str(), mmin);
-			dl->AddText(ImVec2(p0.x + avail.x, startI.y - mmin * scale) + ImVec2(-30, 5), clrc, text_min);
-
-			dl->AddLine(ImVec2(p0.x, startI.y - mmax * scale), ImVec2(p0.x + avail.x, startI.y - mmax * scale), clrc, 1);
-			char text_max[256];
-			std::sprintf(text_max, "%.0f", stream.first.c_str(), mmax);
-			dl->AddText(ImVec2(p0.x + avail.x, startI.y - mmax * scale) + ImVec2(-30, 5), clrc, text_max);
-
-			if (dec_scale)
-			{
-				scale *= 0.95f;
-			}
-
-			lock_[stream.first].unlock();
 		}
+		map_key_.unlock();
 
 		dl->AddLine(ImVec2(pos.x, p0.y), ImVec2(pos.x, p0.y + avail.y), 0xFF00FFFF); //mouse line
 		dl->AddLine(endI, startI, IM_COL32(64, 64, 64, 128), 1); //X axis
@@ -317,12 +319,24 @@ void YOPlotterPlugin::OnGui()
 		DrawSettings((*settings_));
 
 		ui::SeparatorText("Streams");
-		for (auto &stream : streams_->get<YOMap>())
-		{
-			DrawStream(stream.second, stream.first, data_[stream.first].last);
-		}
-		ui::EndChild();
+		std::string del = "";
 
+		map_key_.lock();
+		for (auto &stream : data_)
+		{
+			DrawStream(stream.second.stream_cfg, stream.first, data_[stream.first].last);
+			if (stream.second.stream_cfg.hasChild("Delete"))
+			{
+				std::cout << __LINE__ << " Delete selected " << stream.second.name << std::endl;
+				del = stream.first;
+			}
+		}
+		if (!del.empty())
+		{
+			data_.erase(del);
+		}
+		map_key_.unlock();
+		ui::EndChild();
 		ui::EndTable();
 	}
 	ui::End();
@@ -338,14 +352,14 @@ void YOPlotterPlugin::DrawSettings(YOVariant &config)
 	ui::DragScalar("Buffer Size", ImGuiDataType_U32, &bufsize);
 	uint32_t &timescale = (*settings_)["Time scale"];
 	uint32_t min = 10000;
-	uint32_t max = 20000000;
+	uint32_t max = 50000000;
 	ui::SliderScalar("Time scale", ImGuiDataType_U32, &timescale, &min, &max);
 
 	std::string &topic = (*settings_)["Topic"];
 
 	char tmp[256];
-	strcpy(tmp,topic.c_str());
-	if(ui::InputText("Topic", tmp, 256, ImGuiInputTextFlags_EnterReturnsTrue))
+	strcpy(tmp, topic.c_str());
+	if (ui::InputText("Topic", tmp, 256, ImGuiInputTextFlags_EnterReturnsTrue))
 	{
 		topic = tmp;
 	}
@@ -353,32 +367,43 @@ void YOPlotterPlugin::DrawSettings(YOVariant &config)
 	//(*settings_)["Receive"] = true;
 }
 
-
 void YOPlotterPlugin::DrawStream(YOVariant &config, const std::string &name, float last)
 {
 	ui::PushID(&config);
 	YOColor4C &clr = config["Color"];
-	ImVec4 clrvec((float)clr.r / 255.0f, (float)clr.g / 255.0f, (float)clr.b / 255.0f, (float)clr.a / 255.0f);
+	bool &show_cfg = config["Config"];
+	ImVec4 clrvec((float) clr.r / 255.0f, (float) clr.g / 255.0f, (float) clr.b / 255.0f, (float) clr.a / 255.0f);
 	bool &en = config["Show"];
 	ui::Checkbox("##check", &en);
 	if (ui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
 	{
-    	ui::SetTooltip("Show");
+		ui::SetTooltip("Show signal");
 	}
 	ui::SameLine();
-	if(ui::ColorEdit4("##color", (float*)&clrvec, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel))
+	if (ui::Button(" "))
+		show_cfg = !show_cfg;
+
+	if (ui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
 	{
-			clr.r = clrvec.x * 255;
-			clr.g = clrvec.y * 255;
-			clr.b = clrvec.z * 255;
-			clr.a = clrvec.w * 255;
+		ui::SetTooltip("Show config");
+	}
+	ui::SameLine();
+	if (ui::ColorEdit4("##color", (float*) &clrvec, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel))
+	{
+		clr.r = clrvec.x * 255;
+		clr.g = clrvec.y * 255;
+		clr.b = clrvec.z * 255;
+		clr.a = clrvec.w * 255;
 	}
 	ui::SameLine();
 	ui::PushStyleColor(ImGuiCol_Text, clrvec);
- 	ui::Text("%s : %f", name.c_str(), last);
+	ui::Text("%s : %f", name.c_str(), last);
 	ui::PopStyleColor();
-  if (ui::CollapsingHeader(name.c_str()))
-  {
+
+	if (show_cfg)
+	{
+		ui::BeginGroup();
+		ui::SeparatorText(config["Name"].c_str());
 		ui::Indent();
 		bool &rcv = config["Receive"];
 		ui::Checkbox("Receive", &rcv);
@@ -390,7 +415,14 @@ void YOPlotterPlugin::DrawStream(YOVariant &config, const std::string &name, flo
 		ui::SliderFloat("Width", &width, 1, 10, "%0.01f");
 		float &scale = config["Scale"];
 		ui::DragFloat("Scale", &scale);
+		if (ui::Button("Delete"))
+		{
+			config["Delete"] = name.c_str();
+			std::cout << "Delete button" << name << std::endl;
+		}
 		ui::Unindent();
-  }
+		ui::Separator();
+		ui::EndGroup();
+	}
 	ui::PopID();
 }
