@@ -42,6 +42,8 @@ class YOGPSPlugin: public IPlugin
 	SharedPtr<Image> full_img_;
 	SharedPtr<Image> empty_;
 
+	bool setup_ {false};
+
 	bool update_ {true};
 	std::mutex locks_;
 	SharedPtr<Texture2D> map_;

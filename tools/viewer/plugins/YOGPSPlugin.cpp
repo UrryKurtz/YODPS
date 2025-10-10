@@ -16,6 +16,8 @@ YOGPSPlugin::YOGPSPlugin(Context *context) : IPlugin(context)
 	map_ = MakeShared<Texture2D>(context_);
 	map_->SetNumLevels(1);
 	map_->SetSize(256 * 6, 256 * 6, TextureFormat::TEX_FORMAT_RGBA8_UINT);
+	auto systemUI = GetSubsystem<SystemUI>();
+	systemUI->ReferenceTexture(map_);
 
 	full_img_ = MakeShared<Image>(context_);
 	full_img_->SetSize(256 * 6, 256 * 6, 4);
@@ -153,8 +155,19 @@ inline YOVector2 TilePointToLatLon(int z, int x, int y, int px, int py) {
 
 void YOGPSPlugin::OnGui()
 {
+	ImVec2 s = ImGui::GetWindowSize();
+	float w = s.x > 1024.0f ? 1024.0f : s.x;
+	float h = s.y > 1024.0f ? 1024.0f : s.y;
+	ImGui::SetWindowSize(ImVec2(w, h));
+
 	int32_t scale = (*config_)[yo::k::scale].get<YOLimitI32>().value;
-	bool gui_update = gui_.draw(*config_);
+	bool gui_update = false;
+	if(setup_)
+	{
+		ui::Begin("Settings", &setup_);
+			gui_update = gui_.draw(*config_);
+		ui::End();
+	}
 
 	if (gui_update)
 	{
@@ -184,10 +197,10 @@ void YOGPSPlugin::OnGui()
 
 	static YOVector2 coord_old = (*config_)[yo::k::coord];
 
-	YOVector2 coord = (*config_)[yo::k::coord];
+	YOVector2 &coord = (*config_)[yo::k::coord];
 	coord.x = Clamp(coord.x, -82.0f, 82.0f);
 	coord.y = Clamp(coord.y, -179.999f, 179.999f);
-	(*config_)[yo::k::coord] = coord;
+	//(*config_)[yo::k::coord] = coord;
 
 	if(coord.x != coord_old.x || coord.y != coord_old.y || update_ )
 	{
@@ -234,12 +247,10 @@ void YOGPSPlugin::OnGui()
 	}
 	update_ = zero;
 
-	auto systemUI = GetSubsystem<SystemUI>();
-	systemUI->ReferenceTexture(map_);
-
 	ui::SetNextWindowSizeConstraints(ImVec2(64, 32), ImVec2(1024.f, 1024.f));
-	ui::Begin("MAP");
-	static const ImVec2 size{ 1024, 1024};
+
+	//ui::Begin("MAP");
+	static const ImVec2 size{1024, 1024};
 
 	ImVec2 avail = ui::GetContentRegionAvail();
 	if (ui::BeginChild("Canvas", avail, false, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoScrollWithMouse))
@@ -272,9 +283,21 @@ void YOGPSPlugin::OnGui()
 		DrawViewport(map_, avail, 256.0f * 3, 256.0f * 3);
 		dl->AddLine( p0 + avail/2 + ImVec2( -10, -10), p0 + avail/2 + ImVec2(10, 10), IM_COL32(256,64,64,128), 3);
 		dl->AddLine( p0 + avail/2 + ImVec2( -10, 10), p0 + avail/2 + ImVec2(10, -10), IM_COL32(256,64,64,128), 3);
+		dl->AddRectFilled(p0 + ImVec2(5, 5) , p0 + ImVec2(280, 30), IM_COL32(255,255,255,128));
+		static char coord_buf[256];
+		sprintf(coord_buf, "Coordinates: %f, %f", coord.x, coord.y);
+		dl->AddText( p0 + ImVec2(10,10), IM_COL32(0,0,0,255), coord_buf);
+
+		ui::SetCursorScreenPos(p0 + ImVec2(avail.x - 75, 5));
+		if (ImGui::Button("Settings", ImVec2(70,20)))
+		{	setup_ = !setup_; }
 		//float a =  gps_.GetBearing();
 		//dl->AddLine( p0 + avail/2 , p0 + avail/2 + ImVec2(Sin(a)*50, -Cos(a)*50), IM_COL32(256,64,64,128), 3);
+		ui::EndChild();
 	}
-	ui::EndChild();
-	ui::End();
+
+
+	//ui::End();
+
+
 }
