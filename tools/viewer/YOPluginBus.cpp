@@ -150,6 +150,7 @@ void YOPluginBus::OnStop()
 {
 	for( auto &pi : plugins_)
 	{
+		pi.second.plugin->OnStop();
 		YOXML xml;
 		xml.writeXML(pi.second.file, *pi.second.config);
 		std::cout << "SAVED CONFIG [" << pi.second.file << "] PLUGIN "<<  pi.first  << std::endl;
