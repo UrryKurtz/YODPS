@@ -1,0 +1,12 @@
+<xml>
+    <map name="Test" type="YOMap">
+        <map name="inp" type="YOMap">
+            <element value="TEST" name="tpc" type="std::string"/>
+            <element value="TEST" name="val" type="std::string"/>
+        </map>
+        <map name="out" type="YOMap">
+            <element value="TEST" name="tpc" type="std::string"/>
+            <element value="TEST" name="val" type="std::string"/>
+        </map>
+    </map>
+</xml>

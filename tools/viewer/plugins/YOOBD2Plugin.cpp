@@ -8,10 +8,16 @@
 #include "YONode.h"
 #include "YOXML.h"
 
+namespace yo::k
+{
+	YO_KEY(can,   "can")
+	YO_KEY(init,  "ini")
+}
+
+
 YOOBD2Plugin::YOOBD2Plugin(Context *context) : IPlugin(context)
 {
 	// TODO Auto-generated constructor stub
-
 }
 
 YOOBD2Plugin::~YOOBD2Plugin()
@@ -25,16 +31,28 @@ void YOOBD2Plugin::OnStart()
 	if(!config_->hasChild(yo::k::requests))
 		(*config_)[yo::k::requests] = YOArray();
 
+	if(!config_->hasChild(yo::k::init))
+		(*config_)[yo::k::init] = YOArray();
+
+	if(!config_->hasChild(yo::k::response))
+		(*config_)[yo::k::response] = YOArray();
+
 	if(!config_->hasChild(yo::k::settings))
 	{
 		(*config_)[yo::k::settings] = YOMap();
 		(*config_)[yo::k::settings][yo::k::subscribe] = "SERIAL_RESPONSE";
 		(*config_)[yo::k::settings][yo::k::advertise] = "SERIAL_REQUEST";
+		(*config_)[yo::k::settings][yo::k::can] = "OBD2";
 	}
+
+	(*config_)[yo::k::settings][yo::k::can] = "OBD2";
+
+	init_ = &(*config_)[yo::k::init];
 	requests_ = &(*config_)[yo::k::requests];
 	settings_ = &(*config_)[yo::k::settings];
 
 	ads_.push_back((*config_)[yo::k::settings][yo::k::advertise].getStr());
+	ads_.push_back((*config_)[yo::k::settings][yo::k::can].getStr());
 	subs_.push_back((*config_)[yo::k::settings][yo::k::subscribe].getStr());
 }
 
@@ -50,103 +68,174 @@ inline void split_lines(const std::string& s, std::vector<std::string>& out) {
     }
 }
 
-void YOOBD2Plugin::ProcessResponse(const std::string &request, const std::string &response)
+void YOOBD2Plugin::ProcessPIDEnable(uint8_t mode, uint8_t pid, const std::string &line)
 {
-	if(request.substr(0,2) == "01") //request mode 01
+	printf("ProcessPIDEnable MODE: %02X PID: %02X   %s", mode, pid, line.c_str());
+	for(int i = 0; i < 8; i++)
 	{
-		std::cout << "REQUEST :: 01 " << std::endl;
-		std::vector<std::string> lines;
-		split_lines(response, lines);
-		for(auto &line : lines)
+		uint8_t cur = std::stoi(line.substr(i, 2), nullptr, 16);
+		printf("%02X :", cur);
+		for(int b = 0; b < 8 ; b++)
 		{
-			std::cout << line << std::endl;
-			size_t start = line.find("41");
-			if(start != std::string::npos)
+			printf("   %02X : %d\n",  pid + i * b,  (cur >> b) & 0x1u );
+		}
+	}
+}
+
+void YOOBD2Plugin::RequestLine(int &id, YOVariant &list, bool loop)
+{
+	if(id < (int) list.getArraySize())
+	{	id++;
+		if(id == list.getArraySize())
+		{
+			std::cout << " RECEIVED LAST: " << id << std::endl;
+			id = -1;
+
+			if(loop)
+				RequestLine(id, list);
+
+			return;
+		}
+		std::string &send = list[id][yo::k::request].getStr();
+		std::cout << " Request : " << id << " " << send << std::endl;
+		Transmit((*settings_)[yo::k::advertise].getStr(), (const uint8_t*)send.data(), send.size());
+	}
+	else
+	{
+		id = -1;
+	}
+}
+
+void YOOBD2Plugin::ProcessResponse(const std::string &response)
+{
+	std::vector<std::string> lines;
+	split_lines(response, lines);
+
+	for(auto &line : lines)
+	{
+		std::cout << line << std::endl;
+		if(line[0] == '4')
+		{
+			uint8_t mode = std::stoi(line.substr(1, 1), nullptr, 16);
+			uint8_t pid = std::stoi(line.substr(2, 2), nullptr, 16);
+			tCANFDData can {0};
+			can.sData.ui32Id = pid;
+			can.sData.ui8Length = line.size()/2 - 2;
+
+			printf("GOT RESPONSE: MODE %02X PID %02X ", mode, pid);
+			int x = 0;
+			for( int i = 4; i < line.length(); i+=2)
 			{
-				uint8_t mode = std::stoi(line.substr(start, 2), nullptr, 16);
-				uint8_t pid = std::stoi(line.substr(start+2, 2), nullptr, 16);
-				printf("GOT RESPONSE: MODE %02X PID %02X ", mode, pid);
-				uint8_t data[64];
-				int x = 0;
-				for( int i = start + 4; i < line.length(); i+=2)
-				{
-					uint8_t cur = std::stoi(line.substr(i, 2), nullptr, 16);
-					data[x++] = cur;
-					printf(" %02X ", cur);
-				}
-				printf("\n ");
-				break;
+				uint8_t cur = std::stoi(line.substr(i, 2), nullptr, 16);
+				can.sData.aui8Data[x++] = cur;
+				printf(" %02X ", cur);
 			}
+
+			YOMessage msg(can);
+			Transmit("OBD2", msg);
+			printf("\n ");
+
+			if( !(pid % 32) && poll_ && pid < 0xC0)
+			{
+				ProcessPIDEnable(mode , pid, line);
+				printf("POLL AGAIN %02X%02X \n", mode, pid + 32);
+				Poll(mode, pid + 32);
+			}
+			break;
 		}
 	}
 }
 
 void YOOBD2Plugin::OnData(const std::string &topic, std::shared_ptr<YOMessage> message)
 {
-	//std::cout << topic << std::endl;
+	std::string data((const char*)message->getData(), message->getDataSize());
+	//std::cout << topic << " " << data << std::endl;
 	mutex_.lock();
-	ts_ = YONode::getTimestamp();
-	response_ = std::make_shared<YOVariant>(message->getDataSize(), (const char*)message->getData());
+	response_.push_front({message->getTimestamp(), data});
+	if(response_.size() > 50)
+		response_.pop_back();
 
-	for(auto &msg : response_->getArray())
+	if(go_init_ >= 0)
 	{
-		//std::cout << msg[yo::k::request].m_value << std::endl;
-		//std::cout << "!!![" << msg[yo::k::response].m_value << "]!!!" << std::endl;
-		ProcessResponse(msg[yo::k::request].getStr(), msg[yo::k::response].getStr());
+		std::cout << go_init_<< " RCV INIT " << init_->getArraySize() << std::endl;
+		RequestLine(go_init_, *init_);
 	}
+
+	if(go_request_>= 0)
+	{
+		std::cout << go_request_<< " RCV REQUEST " << requests_->getArraySize() << std::endl;
+		RequestLine(go_request_, *requests_, loop_);
+	}
+
+	ts_ = message->getTimestamp();
+	ProcessResponse(data);
 	mutex_.unlock();
 }
 
-void YOOBD2Plugin::Poll(uint8_t mode, uint8_t param)
+void YOOBD2Plugin::Poll(const uint8_t &mode, const uint8_t &param)
 {
-	YOVariant req(yo::k::requests, YOArray());
-	YOVariant msg(yo::k::message);
+	poll_ = true;
 	char buf[64];
 	sprintf(buf, "%02X%02X", mode, param);
-	msg[yo::k::request] = buf;
-	msg[yo::k::id] = (uint32_t) req.getArraySize();
-	req.push_back(msg);
-	Transmit((*settings_)[yo::k::advertise].getStr(), req);
+	Transmit((*settings_)[yo::k::advertise].getStr(), (const uint8_t*) buf, 4);
 }
 
 void YOOBD2Plugin::OnGui()
 {
-	gui_.draw(*requests_);
-
-	if(ui::Button("Add"))
+	ui::SeparatorText("Settings");
+	gui_.draw(*settings_);
+	ui::SeparatorText("Init");
+	gui_.draw(*init_);
+	ui::BeginDisabled(go_init_ > -1);
+	if(ui::Button("Init"))
+	{
+		RequestLine(go_init_, *init_);
+	}
+	ui::EndDisabled();
+	ui::SameLine();
+	if(ui::Button("Add init line"))
 	{
 		YOVariant msg(yo::k::message);
-		msg[yo::k::request] = " ";
+		msg[yo::k::request] = "";
+		msg[yo::k::id] = (uint32_t)init_->getArraySize();
+		init_->push_back(msg);
+	}
+
+	ui::SeparatorText("Request");
+	gui_.draw(*requests_);
+	ui::BeginDisabled(go_request_ > -1);
+	if(ui::Button("Request"))
+	{
+		RequestLine(go_request_, *requests_);
+	}
+	ui::EndDisabled();
+	ui::SameLine();
+	ui::Checkbox("Loop", &loop_);
+	ui::SameLine();
+	if(ui::Button("Add request line"))
+	{
+		YOVariant msg(yo::k::message);
+		msg[yo::k::request] = "";
 		msg[yo::k::id] = (uint32_t)requests_->getArraySize();
 		requests_->push_back(msg);
 	}
 
-	if(ui::Button("Init"))
-	{
-		Transmit((*settings_)[yo::k::advertise].getStr(), *requests_);
-	}
+	ui::SeparatorText("Poll");
 
 	if(ui::Button("Poll 01 00"))
 	{
 		Poll(0x01, 0x00);
 	}
 
-	//ui::Begin("Data");
 	mutex_.lock();
-	if(response_)
-	{
-		ui::Text("Timestamp: %llu", ts_);
-		for( auto &msg : response_->getArray())
-		{
-			uint32_t id = msg[yo::k::id];
-			std::string &req = msg[yo::k::request];
-			std::string &resp = msg[yo::k::response];
-			ui::Separator();
-			ui::Text("Message [%u]\nRequest [%s]\nResponse [%s]", id, req.c_str(), resp.c_str() );
-		}
 
+	ui::SeparatorText("Log");
+
+	for( auto &msg : response_)
+	{
+		ui::Separator();
+		ui::Text("%llu : [%s]", msg.ts, msg.msg.c_str() );
 	}
 	mutex_.unlock();
-	//ui::End();
 
 }

@@ -20,6 +20,7 @@ const char *name_ = "SERIAL";
 const char *topic_in_ = "SERIAL_REQUEST";
 const char *topic_out_ = "SERIAL_RESPONSE";
 const char *device_ = "/dev/ttyUSB0";
+bool print_ = false;
 int baud_ = B115200;
 int fd_;
 YONode *node_;
@@ -66,11 +67,14 @@ int open_serial(const char* device, int baud = B115200)
 }
 
 // Send string with \r at the end
-bool send_cmd(int fd, const std::string& cmd)
+bool send_cmd(int fd, const uint8_t *cmd, uint32_t size)
 {
-    std::string s = cmd + "\r";
-    ssize_t n = write(fd, s.c_str(), s.size());
-    return (n == (ssize_t)s.size());
+	if (write(fd, cmd , size) != (ssize_t) size)
+	  return false;
+	if (write(fd, "\r", 1) != 1)// ELM327 waits CR
+		return false;
+
+	return true;
 }
 
 // Read response until '>' prompt or timeout
@@ -93,26 +97,24 @@ std::string read_resp(int fd)
     return buf;
 }
 
-std::string query(const std::string& cmd, int fd)
+std::string query(uint8_t *cmd, uint32_t size)
 {
-       send_cmd(fd, cmd);
+       send_cmd(fd_, cmd, size);
        usleep(20000); // 20 ms delay between commands
-       std::string resp = read_resp(fd);
-       //std::cout << "REQUEST [" << cmd << "]" << std::endl;
-	   //std::cout << "RESPONSE[" << resp << "]" << std::endl;
+       std::string resp = read_resp(fd_);
+       if(print_)
+       {
+           std::cout << "REQUEST [" << cmd << "]" << std::endl;
+    	   std::cout << "RESPONSE[" << resp << "]" << std::endl;
+       }
        return resp;
 };
 
 int fn_request(const std::string &topic, std::shared_ptr<YOMessage> message, void *param)
 {
-	std::shared_ptr<YOVariant> request = std::make_shared<YOVariant>(message->getDataSize(), (const char*) message->getData());
-	for (auto &req : request->get<YOArray>())
-	{
-		//std::cout << topic << " " << req << std::endl;
-		std::string cmd = req[yo::k::request].get<std::string>().c_str();
-		req[yo::k::response] = query(cmd, fd_).c_str();
-	}
-	YOMessage msg(*request);
+	std::string response = query(message->getData(), message->getDataSize());
+	YOMessage msg;
+	msg.initData((const uint8_t*) response.data(), response.size());
 	node_->sendMessage(topic_out_, msg);
 	return 0;
 }
@@ -123,12 +125,13 @@ static struct option long_options[] = {
 		{"advertise", optional_argument, NULL, 'a'},
         {"device", optional_argument, NULL, 'd'},
         {"baud", optional_argument, NULL, 'b'},
+		{"print", optional_argument, NULL, 'p'},
         {NULL, 0, NULL, 0}};
 
 int main(int argc, char **argv)
 {
 	int opt = 0;
-	while ((opt = getopt_long(argc, argv, "n:s:a:d:b:", long_options, NULL)) != -1)
+	while ((opt = getopt_long(argc, argv, "n:s:a:d:b:p::", long_options, NULL)) != -1)
 	{
 		switch (opt)
 		{
@@ -137,6 +140,7 @@ int main(int argc, char **argv)
 			case 'a': topic_out_ = optarg; break;
 			case 'd': device_ = optarg; break;
 			case 'b': baud_ = std::atoi(optarg); break;
+			case 'p': print_ = true; break;
 		}
 	}
 
