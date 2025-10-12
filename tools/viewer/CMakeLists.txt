@@ -29,6 +29,7 @@ plugins/YOGPSUtils.cpp
 plugins/YOPlotterPlugin.cpp
 plugins/YOOBD2Plugin.cpp
 plugins/YOCANPlugin.cpp
+plugins/YOTestPlugin.cpp
 ${CONVERT_SOURCES}
 )
 
