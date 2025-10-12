@@ -154,6 +154,7 @@ void YONodeLogic::ConvertGeometry(YOVariant &object, int input_id)
 		cg->DefineVertex((Urho3D::Vector3&) vertex);
 		cg->DefineTexCoord(Vector2((float) input_id / YO_INPUT_NUM, (float) style_id / YO_TYPE_NUM));
 	}
+	cg->SetViewMask((*type_cfg_)[yo::k::mask].getU32());
 	cg->Commit();
 }
 
@@ -173,6 +174,7 @@ void YONodeLogic::ConvertText(YOVariant &object, int input_id)
     text_->SetDepthTest(false);
     text_->SetOccludee(false);
     text_->SetCastShadows(false);
+    text_->SetViewMask((*type_cfg_)[yo::k::mask].getU32());
 }
 
 void YONodeLogic::ConvertModel(YOVariant &object, int input_id)
@@ -199,6 +201,7 @@ void YONodeLogic::ConvertModel(YOVariant &object, int input_id)
 //    mat->SetShaderParameter("MatDiffColor", Color(1, 1, 1, 0.95));
     //mat->SetCullMode(CULL_NONE);
     smodel_->SetMaterial(mat);
+    smodel_->SetViewMask((*type_cfg_)[yo::k::mask].getU32());
     //smodel_->SetMaterial(material_fill_);
 
 }

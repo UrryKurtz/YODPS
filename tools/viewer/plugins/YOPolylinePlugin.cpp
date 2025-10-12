@@ -129,13 +129,18 @@ void YOPolylinePlugin::OnStart()
     material_text_->SetCullMode(CULL_NONE);
 
     YOVariant &wrld = config_->get(yo::k::inputs);
-
+    std::cout << __FUNCTION__ << " " << __LINE__ << std::endl;
     for(int input = 0; input < wrld.getArraySize(); input++)
 	{
 		YOVariant &inp_cfg = wrld[input][yo::k::types];
 		for(int type = 0; type < inp_cfg.getArraySize(); type++)
 		{
 			YOVariant &type_cfg = inp_cfg[type];
+			if(!type_cfg.hasChild(yo::k::mask))
+			{
+				type_cfg[yo::k::mask] = 0xFFFFFFFFu;
+			}
+
 			YOVariant &line_cfg = type_cfg[yo::k::line];
 			texture_line_->SetData(0, input, type, 1, 1, &line_cfg[yo::k::color].get<YOColor4F>());
 

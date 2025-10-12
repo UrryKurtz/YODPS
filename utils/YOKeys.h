@@ -79,6 +79,7 @@ namespace yo::k {
     YO_KEY(line,       "ln")
     YO_KEY(limits,     "lim")
     YO_KEY(material,   "mtl")
+	YO_KEY(mask, 	   "msk")
     YO_KEY(material_id,"mid")
     YO_KEY(materials,  "mts")
     YO_KEY(max,        "max")

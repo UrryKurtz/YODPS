@@ -24,6 +24,7 @@ inline void createCameraCfg(uint32_t i, YOVariant &config, const std::string &na
 	config[yo::k::select] = false;
 	config[yo::k::record] = false;
 	config[yo::k::frames] = 20u;
+	config[yo::k::mask] = 0xFFFFFFFFu;
 	config[yo::k::id] = i;
 	config[yo::k::name] = (yo_keys[name] + " " + std::to_string(i)).c_str();
 	config[yo::k::comment] = "";
@@ -91,13 +92,13 @@ void YOCameraPlugin::CreateCameraWindow(int i)
 	info->txt->GetRenderSurface()->SetUpdateMode(SURFACE_UPDATEALWAYS);
 	auto systemUI = GetSubsystem<SystemUI>();
 	systemUI->ReferenceTexture(info->txt);
-	auto camx = (*cameras_cfg_)[i];
-	{
-		YOVector3 &pos = camx[yo::k::position].get<YOVector3>();
-		YOVector3 &rot = camx[yo::k::rotation].get<YOVector3>();
-		YOLimitF &fov = camx[yo::k::fov];
-		info->fly->MoveTo(camx[yo::k::frames].get<uint32_t>() / 10, (Vector3&)pos, rot.z, rot.y, rot.x, fov.value);
-	}
+	auto &camx = (*cameras_cfg_)[i];
+	uint32_t &mask = camx[yo::k::mask].getU32();
+	info->cam->SetViewMask(mask);
+	YOVector3 &pos = camx[yo::k::position].get<YOVector3>();
+	YOVector3 &rot = camx[yo::k::rotation].get<YOVector3>();
+	YOLimitF &fov = camx[yo::k::fov];
+	info->fly->MoveTo(camx[yo::k::frames].get<uint32_t>() / 10, (Vector3&)pos, rot.z, rot.y, rot.x, fov.value);
 	info->fly->EnableUpdate(false);
 	views_[i] = info;
 }
@@ -173,9 +174,6 @@ void YOCameraPlugin::OnGui()
 		std::cout << "GUI changed: " <<  path << std::endl;
 		OnGuiChanged(path, addr, cfg);
 	}
-
-	//DrawCameraWindow(fly_, cam_txt_);
-
 }
 
 void YOCameraPlugin::OnUpdate(float timeStep)

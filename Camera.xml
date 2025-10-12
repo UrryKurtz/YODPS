@@ -7,13 +7,14 @@
                 <element value="55" min="0" max="180" speed="0.1" name="fov" type="YOLimitF"/>
                 <element value="30" name="frs" type="uint32_t"/>
                 <element value="0" name="id" type="uint32_t"/>
+                <element value="4294967295" name="msk" type="uint32_t"/>
                 <element value="camera 0" name="nam" type="std::string"/>
                 <element value="true" name="oly" type="bool"/>
                 <element value="true" name="ort" type="bool"/>
                 <element x="-64.394463" y="-0.77055454" z="41.21096" name="pos" type="YOVector3"/>
                 <element value="false" name="rec" type="bool"/>
                 <element x="0" y="-59.399937" z="-7.1972609e-06" name="rot" type="YOVector3"/>
-                <element value="false" name="sel" type="bool"/>
+                <element value="true" name="sel" type="bool"/>
                 <element value="true" name="win" type="bool"/>
             </map>
             <map name="cam" type="YOMap">
@@ -21,6 +22,7 @@
                 <element value="55" min="0" max="180" speed="0.1" name="fov" type="YOLimitF"/>
                 <element value="30" name="frs" type="uint32_t"/>
                 <element value="1" name="id" type="uint32_t"/>
+                <element value="4294967295" name="msk" type="uint32_t"/>
                 <element value="camera 1" name="nam" type="std::string"/>
                 <element value="true" name="oly" type="bool"/>
                 <element value="false" name="ort" type="bool"/>
@@ -28,7 +30,7 @@
                 <element value="false" name="rec" type="bool"/>
                 <element x="0" y="-37.599983" z="15.999996" name="rot" type="YOVector3"/>
                 <element value="false" name="sel" type="bool"/>
-                <element value="true" name="win" type="bool"/>
+                <element value="false" name="win" type="bool"/>
             </map>
             <map name="cam" type="YOMap">
                 <element value="" name="com" type="std::string"/>
@@ -139,8 +141,8 @@
                 <element x="-49.196522" y="-9.2599134" z="25.497414" name="pos" type="YOVector3"/>
                 <element value="false" name="rec" type="bool"/>
                 <element x="0" y="-55.399998" z="-334.60004" name="rot" type="YOVector3"/>
-                <element value="true" name="sel" type="bool"/>
-                <element value="true" name="win" type="bool"/>
+                <element value="false" name="sel" type="bool"/>
+                <element value="false" name="win" type="bool"/>
             </map>
         </array>
     </map>
