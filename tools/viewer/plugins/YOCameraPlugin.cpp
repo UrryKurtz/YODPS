@@ -6,6 +6,17 @@
  */
 
 #include "YOCameraPlugin.h"
+#include <Urho3D/Graphics/Graphics.h>
+#include <Urho3D/Graphics/StaticModel.h>
+#include <Urho3D/Graphics/Model.h>
+#include <Urho3D/Resource/ResourceCache.h>
+
+namespace yo::k
+{
+	 YO_KEY(window,    "win")
+}
+
+
 
 inline void createCameraCfg(uint32_t i, YOVariant &config, const std::string &name)
 {
@@ -25,7 +36,7 @@ inline void createCameraCfg(uint32_t i, YOVariant &config, const std::string &na
 
 YOCameraPlugin::YOCameraPlugin(Context *context, Camera *camera, YOFlyController *fc) : IPlugin(context), camera_(camera), fc_(fc){
 	// TODO Auto-generated constructor stub
-
+ cache_ = GetSubsystem<ResourceCache>();
 }
 
 YOCameraPlugin::~YOCameraPlugin() {
@@ -58,6 +69,95 @@ void YOCameraPlugin::OnStart()
     		break;
     	}
     }
+    scene_ = camera_->GetScene();
+}
+
+void YOCameraPlugin::CreateCameraWindow(int i)
+{
+	std::shared_ptr<YOViewStruct> info = std::make_shared<YOViewStruct>();
+	info->node = scene_->CreateChild("TEST NODE");
+	info->cam = MakeShared<Camera>(context_);
+	info->txt = MakeShared<Texture2D>(context_);
+
+	info->fly = info->node->CreateComponent<YOFlyController >();
+	info->fly->SetCamera(info->cam);
+
+	info->txt->SetNumLevels(1);
+	info->txt->SetSize(1920, 1080, TextureFormat::TEX_FORMAT_RGB32_FLOAT, TextureFlag::BindRenderTarget);
+	//auto vp = MakeShared<Viewport>(context_, scene_, camera_);
+	auto vp = MakeShared<Viewport>(context_, scene_, info->cam);
+	info->txt->SetFilterMode(TextureFilterMode::FILTER_ANISOTROPIC);
+	info->txt->GetRenderSurface()->SetViewport(0, vp);
+	info->txt->GetRenderSurface()->SetUpdateMode(SURFACE_UPDATEALWAYS);
+	auto systemUI = GetSubsystem<SystemUI>();
+	systemUI->ReferenceTexture(info->txt);
+	auto camx = (*cameras_cfg_)[i];
+	{
+		YOVector3 &pos = camx[yo::k::position].get<YOVector3>();
+		YOVector3 &rot = camx[yo::k::rotation].get<YOVector3>();
+		YOLimitF &fov = camx[yo::k::fov];
+		info->fly->MoveTo(camx[yo::k::frames].get<uint32_t>() / 10, (Vector3&)pos, rot.z, rot.y, rot.x, fov.value);
+	}
+	info->fly->EnableUpdate(false);
+	views_[i] = info;
+}
+
+void YOCameraPlugin::DrawCameraWindow(YOFlyController *fly, Texture2D *txt, int id)
+{
+	ImVec2 avail = ui::GetContentRegionAvail();
+	ImVec2 draw(txt->GetWidth(), txt->GetHeight());
+	ImVec2 uv0{0,0};
+	ImVec2 uv1{1,1};
+
+	if (draw.x > avail.x)
+	{
+		float vis = avail.x / draw.x;
+		float pad = (1.0f - vis) * 0.5f;
+		uv0.x = pad; uv1.x = 1.0f - pad;
+	}
+	if (draw.y > avail.y)
+	{
+		float vis = avail.y / draw.y;
+		float pad = (1.0f - vis) * 0.5f;
+		uv0.y = pad; uv1.y = 1.0f - pad;
+	}
+
+	ui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(1,1,1,1));
+	if (ui::BeginChild("Canvas", avail, false, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoScrollWithMouse))
+	{
+		ui::Image(ToImTextureID(txt), avail, uv0, uv1, ImVec4(1,1,1,1));
+		bool focused = ui::IsWindowFocused() && ui::IsItemHovered();
+		fly->EnableUpdate(focused);
+
+		if( focused )
+		{
+			ImVec2 drag_right = ui::GetMouseDragDelta(MouseButton::MOUSEB_RIGHT);
+			if(focused && drag_right != ImVec2(0,0))
+			{
+				fly->DragRight({drag_right.x, drag_right.y}, {avail.x, avail.y});
+			}
+			ui::ResetMouseDragDelta(MouseButton::MOUSEB_RIGHT);
+
+			ImVec2 drag_mid = ui::GetMouseDragDelta(MouseButton::MOUSEB_MIDDLE);
+			ui::ResetMouseDragDelta(MouseButton::MOUSEB_MIDDLE);
+
+			ImVec2 mp = ui::GetMousePos() - ui::GetItemRectMin();
+			ImVec2 drag_left = ui::GetMouseDragDelta(MouseButton::MOUSEB_LEFT);
+			if(focused && drag_left != ImVec2(0,0))
+			{
+				float scaleX = avail.x / 1920;
+				float scaleY = avail.y / 1080;
+
+				drag_left.x *= scaleX;
+				drag_left.y *= scaleY;
+
+				fly->DragLeft({drag_left.x, drag_left.y}, {avail.x, avail.y}, {mp.x, mp.y});
+			}
+			ui::ResetMouseDragDelta(MouseButton::MOUSEB_LEFT);
+		}
+		ui::EndChild();
+		ui::PopStyleColor();
+	}
 }
 
 void YOCameraPlugin::OnGui()
@@ -73,6 +173,9 @@ void YOCameraPlugin::OnGui()
 		std::cout << "GUI changed: " <<  path << std::endl;
 		OnGuiChanged(path, addr, cfg);
 	}
+
+	//DrawCameraWindow(fly_, cam_txt_);
+
 }
 
 void YOCameraPlugin::OnUpdate(float timeStep)
@@ -84,6 +187,28 @@ void YOCameraPlugin::OnUpdate(float timeStep)
     		(*cameras_cfg_)[camera_select_][yo::k::position] = (YOVector3&) fc_->GetPosition();
     		Vector3 ang = fc_->GetRotation();
     		(*cameras_cfg_)[camera_select_][yo::k::rotation] = YOVector3 {ang.x_, ang.y_, ang.z_};
+    	}
+    }
+
+    for ( auto &cam : cameras_cfg_->getArray())
+    {
+    	if(!cam.hasChild(yo::k::window)) //recreate param
+    		cam[yo::k::window] = false;
+
+    	uint32_t id = cam[yo::k::id];
+
+    	if(cam[yo::k::window])
+    	{
+			if(!views_[id])
+				CreateCameraWindow(id);
+
+			ui::Begin( cam[yo::k::name].c_str(), &cam[yo::k::window].getBool());
+			DrawCameraWindow(views_[id]->fly.GetPointer(), views_[id]->txt, id);
+    	    ui::End();
+    	}
+    	else if(views_[id])
+    	{
+    		views_[id].reset();
     	}
     }
 }

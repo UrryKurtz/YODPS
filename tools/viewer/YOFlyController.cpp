@@ -170,7 +170,7 @@ void YOFlyController::MoveTo(int frames, Vector3 pos, float yawDeg, float pitchD
 	camDelta_.yawDeg_ = (yawDeg - cam_.yawDeg_ )/ frames;
 	camDelta_.rollDeg_ = (rollDeg - cam_.rollDeg_)/ frames;
 
-	std::cout << " DELTA "<< camDelta_.yawDeg_ << " " << camDelta_.pitchDeg_  << " " << camDelta_.rollDeg_ << std::endl;
+	//std::cout << " DELTA "<< camDelta_.yawDeg_ << " " << camDelta_.pitchDeg_  << " " << camDelta_.rollDeg_ << std::endl;
 
 	posDelta_ = (pos - node_->GetPosition()) / frames;
 }
@@ -186,55 +186,83 @@ void YOFlyController::SetCamera(Urho3D::SharedPtr<Urho3D::Camera> camera)
 	camN_->AddComponent(camera_, 255);
 }
 
+void YOFlyController::EnableUpdate(bool enable)
+{
+	enable_update_ = enable;
+ }
+
 static Plane xyPlane( Vector3::FORWARD,  Vector3::ZERO);
+
+
+void YOFlyController::DragLeft(Vector2 md, Vector2 resolution, Vector2 mouse)
+{
+	if (!enable_update_)
+		return;
+
+	IntVector2 p0 = {(int)mouse.x_, (int) mouse.y_};
+	IntVector2 p1 = p0 + IntVector2((int)md.x_, (int)md.y_);
+
+	float n0x = (float) p0.x_ / resolution.x_;
+	float n0y = (float) p0.y_ / resolution.y_;
+	Ray r0 = camera_->GetScreenRay(n0x, n0y);
+	float d0 = r0.HitDistance(xyPlane);
+	Vector3 out0 = r0.origin_ + r0.direction_ * d0;
+
+	float n1x = (float) p1.x_ / resolution.x_;
+	float n1y = (float) p1.y_ / resolution.y_;
+	Ray r1 = camera_->GetScreenRay(n1x, n1y);
+	float d1 = r1.HitDistance(xyPlane);
+	Vector3 out1 = r1.origin_ + r1.direction_ * d1;
+	node_->Translate(out0 - out1, TS_WORLD);
+}
+
+void YOFlyController::DragMiddle(IntVector2 delta)
+{
+
+}
+
+void YOFlyController::DragRight(Vector2 md, Vector2 resolution)
+{
+	if (!enable_update_)
+		return;
+
+    if(Abs(md.x_) > Abs(md.y_))
+        md.y_ = 0.0f;
+    else if(Abs(md.x_) < Abs(md.y_))
+        md.x_ = 0.0f;
+
+    float dyaw   = -md.x_ * mouseSens_;                      // horizontal → yaw
+    float dpitch = (invertY_ ? md.y_ : -md.y_) * mouseSens_; // vertical → pitch
+    float droll  = 0.0f;
+
+    // Optional: hold ALT to roll with horizontal mouse motion
+    if (enableRoll_ && (input_->GetKeyDown(KEY_LALT) || input_->GetKeyDown(KEY_RALT)))
+    {
+        droll = dyaw;
+        dyaw  = 0.0f;
+    }
+    ApplyLook(dyaw, dpitch, droll);
+
+}
 
 void YOFlyController::Update(float dt)
 {
     if (!input_)
     	return;
 
+    auto* graphics = GetSubsystem<Graphics>();
+    IntVector2 size = graphics->GetSize();
     IntVector2 md = input_->GetMouseMove();
+    IntVector2 mouse = GetSubsystem<Input>()->GetMousePosition();
 
     if (input_->GetMouseButtonDown(MOUSEB_LEFT) && md != IntVector2::ZERO)
     {
-        IntVector2 p0 = GetSubsystem<Input>()->GetMousePosition();
-        IntVector2 p1 = p0 + md;
-        auto* graphics = GetSubsystem<Graphics>();
-
-        float n0x = (float)p0.x_ / graphics->GetWidth();
-        float n0y = (float)p0.y_ / graphics->GetHeight();
-        Ray r0 = camera_->GetScreenRay(n0x, n0y);
-        float d0 = r0.HitDistance(xyPlane);
-        Vector3 out0 = r0.origin_ + r0.direction_ * d0;
-
-        float n1x = (float)p1.x_ / graphics->GetWidth();
-        float n1y = (float)p1.y_ / graphics->GetHeight();
-        Ray r1 = camera_->GetScreenRay(n1x, n1y);
-        float d1 = r1.HitDistance(xyPlane);
-        Vector3 out1 = r1.origin_ + r1.direction_ * d1;
-
-        //printf("%d %d MOVE from (%f, %f, %f) to (%f, %f, %f) \n", md.x_, md.y_, out0.x_, out0.y_, out0.z_, out1.x_, out1.y_, out1.z_ );
-        node_->Translate(out0 - out1, TS_WORLD);
+    	DragLeft({(float)md.x_, (float)md.y_}, {(float)size.x_,(float) size.y_},{(float)mouse.x_,(float) mouse.y_});
     }
-
-    if(Abs(md.x_) > Abs(md.y_))
-        md.y_ = 0.0f;
-    else if(Abs(md.x_) < Abs(md.y_))
-        md.x_ = 0.0f;
     // --- Mouse look (RMB held)
-    if (input_->GetMouseButtonDown(MOUSEB_RIGHT))
+    if (input_->GetMouseButtonDown(MOUSEB_RIGHT) && enable_update_)
     {
-        float dyaw   = -md.x_ * mouseSens_;                      // horizontal → yaw
-        float dpitch = (invertY_ ? md.y_ : -md.y_) * mouseSens_; // vertical → pitch
-        float droll  = 0.0f;
-
-        // Optional: hold ALT to roll with horizontal mouse motion
-        if (enableRoll_ && (input_->GetKeyDown(KEY_LALT) || input_->GetKeyDown(KEY_RALT)))
-        {
-            droll = dyaw;
-            dyaw  = 0.0f;
-        }
-        ApplyLook(dyaw, dpitch, droll);
+    	DragRight({(float)md.x_, (float)md.y_}, {(float)size.x_,(float) size.y_});
     }
 
     // --- Movement (WASD + QE)
@@ -248,13 +276,15 @@ void YOFlyController::Update(float dt)
     GetUserAxesWorld(fwdW, rightW, upW);
 
     Vector3 move;
-    if (((input_->GetMouseButtonDown(MOUSEB_MIDDLE) && md.y_ > 0) || input_->GetScancodeDown(SCANCODE_W) )) move += fwdW;
-    if (((input_->GetMouseButtonDown(MOUSEB_MIDDLE) && md.y_ < 0) || input_->GetScancodeDown(SCANCODE_S) )) move -= fwdW;
-    if (input_->GetScancodeDown(SCANCODE_D)) move += rightW;
-    if (input_->GetScancodeDown(SCANCODE_A)) move -= rightW;
-    if (input_->GetScancodeDown(SCANCODE_E)) move += upW;
-    if (input_->GetScancodeDown(SCANCODE_Q)) move -= upW;
-
+    if(enable_update_)
+    {
+		if (((input_->GetMouseButtonDown(MOUSEB_MIDDLE) && md.y_ > 0) || input_->GetScancodeDown(SCANCODE_W) )) move += fwdW;
+		if (((input_->GetMouseButtonDown(MOUSEB_MIDDLE) && md.y_ < 0) || input_->GetScancodeDown(SCANCODE_S) )) move -= fwdW;
+		if (input_->GetScancodeDown(SCANCODE_D)) move += rightW;
+		if (input_->GetScancodeDown(SCANCODE_A)) move -= rightW;
+		if (input_->GetScancodeDown(SCANCODE_E)) move += upW;
+		if (input_->GetScancodeDown(SCANCODE_Q)) move -= upW;
+    }
     if (move.LengthSquared() > 0.0f)
         node_->Translate(move.Normalized() * speed * dt, TS_WORLD);
 

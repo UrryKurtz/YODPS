@@ -236,6 +236,9 @@ void YOViewer::HandleUpdate(StringHash eventType, VariantMap& eventData)
         engine_->Exit();
     }
 
+    bool mouseOverImGui = ui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow);
+    controller_->EnableUpdate(!mouseOverImGui);
+
     using namespace Update;
     float dt = eventData[P_TIMESTEP].GetFloat();
     plugin_bus_->OnUpdate(dt);

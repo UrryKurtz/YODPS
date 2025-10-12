@@ -42,6 +42,7 @@ class YOFlyController : public LogicComponent
     Vector3 posDelta_;
 
     int frames_;
+    bool enable_update_ {true};
 
 public:
     explicit YOFlyController(Context* context);
@@ -78,6 +79,12 @@ public:
     void ApplyLook(float dyawDeg, float dpitchDeg, float drollDeg);
 
     void MoveTo(int frames, Vector3 pos, float dyawDeg, float dpitchDeg, float drollDeg, float fov);
+    void EnableUpdate(bool enable);
+
+    void DragLeft(Vector2 delta, Vector2 resolution, Vector2 mouse);
+    void DragRight(Vector2 md, Vector2 resolution);
+
+    void DragMiddle(IntVector2 delta);
 
 
 protected:
