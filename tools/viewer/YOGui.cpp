@@ -23,7 +23,7 @@ bool YOGui::draw(YOVariant &cfg)
     param_ = "";
     path_ = "";
     index_.clear();
-    ui::PushID(&cfg);
+    ui::PushID(cfg.m_name.c_str());
     drawCfg(cfg);
     ui::PopID();
     return changed_;
