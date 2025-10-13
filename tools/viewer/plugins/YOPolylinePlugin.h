@@ -12,6 +12,7 @@
 #include <Urho3D/Graphics/CustomGeometry.h>
 #include <Urho3D/Graphics/Material.h>
 #include <Urho3D/Graphics/Model.h>
+#include <Urho3D/Scene/Scene.h>
 #include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/Graphics/Texture2D.h>
 
@@ -27,6 +28,7 @@
 struct YOInputData
 {
 	Node* root;
+	Node* root_overlay_;
 	YORootLogic *logic;
 	std::shared_ptr<YOVariant> data;
 //	std::array<std::vector<Node*>, YO_TYPE_NUM> types;
@@ -47,6 +49,8 @@ class YOPolylinePlugin : public IPlugin {
 	std::array<std::shared_ptr<YOVariant>, YO_INPUT_NUM> data_in_;
     std::array<std::shared_ptr<YOInputData>, YO_INPUT_NUM> data_;
     std::array<std::mutex, YO_INPUT_NUM> data_lock_;
+    Node *node_overlay_;
+    Scene *scene_overlay_;
 
     ResourceCache *cache_;
 	YOGui gui_;

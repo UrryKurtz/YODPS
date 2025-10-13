@@ -97,16 +97,23 @@ private:
     std::shared_ptr<YOVariant> config_;
     YOGui gui_;
 
-    SharedPtr<Scene>scene_;
-    SharedPtr<Node>world_;
-    SharedPtr<Node>overlay_;
-    SharedPtr<Node>internal_;
-    SharedPtr<Node>grid_;
+    SharedPtr<Node> world_;
+    SharedPtr<Node> internal_;
+    SharedPtr<Node> grid_;
+
+    SharedPtr<Texture2D> overlay_;
+    SharedPtr<Sprite> overlay_pad_;
 
     //int camera_select_;
-    SharedPtr<Node>cameraNode_;
-    SharedPtr<Camera>camera_;
-    SharedPtr<YOFlyController>controller_;
+    SharedPtr<Scene> scene_;
+    SharedPtr<Node> camera_node_;
+    SharedPtr<Camera> camera_;
+    SharedPtr<YOFlyController> controller_;
+
+    SharedPtr<Scene> scene_overlay_;
+    SharedPtr<Node> camera_node_overlay_;
+    SharedPtr<Camera> camera_overlay_;
+    SharedPtr<YOFlyController> controller_overlay_;
 
     SharedPtr<Technique> technique_;
     SharedPtr<Technique> technique_overlay_;
@@ -122,6 +129,5 @@ private:
 
     void HandleKeyDown(StringHash eventType, VariantMap& eventData);
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
-    void HandleFrame(StringHash eventType, VariantMap& eventData);
     void RenderUI();
 };

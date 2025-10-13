@@ -64,6 +64,5 @@ public:
 
 };
 
-
-
 #endif /* TOOLS_VIEWER_IPLUGIN_H_ */
+

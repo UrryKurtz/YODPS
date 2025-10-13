@@ -38,13 +38,19 @@ int main(int argc, char **argv)
     object[yo::k::object_type] = YOObjectType::YOModel;
     object[yo::k::style_id] = 0u;
 
+    object[yo::k::overlay] = true;
+
     YOVariant &obj_transform = object[yo::k::transform];
     obj_transform[yo::k::position] = YOVector3{0.0f, 0.0f, 0.0f};
     obj_transform[yo::k::rotation] = YOVector3{0.0f, 0.0f, 0.0f};
-    obj_transform[yo::k::scale] = YOVector3{1.0f, 1.0f, 1.0f};
+    obj_transform[yo::k::scale] = YOVector3{0.2f, 0.2f, 0.2f};
+    //obj_transform[yo::k::scale] = YOVector3{1.0f, 1.0f, 1.0f};
+    //object[yo::k::model] = "Models/Passat.mdl";
+    //object[yo::k::texture] = "Materials/Passat.xml";
 
-    object[yo::k::model] = "Models/Passat.mdl";
+    object[yo::k::model] = "Models/SteeringWheel.mdl";
     object[yo::k::texture] = "Materials/Passat.xml";
+
 
     frame[yo::k::objects].push_back(object);
 
@@ -55,10 +61,12 @@ int main(int argc, char **argv)
     node.connect();
 
     YOVariant &object_ = frame[yo::k::objects][0];
-    YOVector3 pos = { 0, 0, 1};
-    YOVector3 rot = { 180, 0, -90};
+    //YOVector3 pos = { 0, 0, 1};
+    //YOVector3 rot = { 180, 0, -90};
+    YOVector3 pos = { 32, 0, 0};
+    YOVector3 rot = { 180, 90, -90};
     float angle_deg = 0.0f;
-    float da = 0.025f;
+    float da = 0.05f;
 
     while(node.isRunning())
     {
@@ -67,11 +75,12 @@ int main(int argc, char **argv)
         node.sendMessage(topic_, msg);
         usleep(5000);
 
-        pos.x = 25*sin(angle_deg * 0.0175433f );
-        pos.y = 25*cos(angle_deg * 0.0175433f );
+        //pos.x = 25*sin(angle_deg * 0.0175433f );
+        //pos.y = 25*cos(angle_deg * 0.0175433f );
         object_[yo::k::transform][yo::k::position] = pos;
 
-        rot.z += da;
+        //rot.z += da;
+        rot.x += da;
         object_[yo::k::transform][yo::k::rotation] = rot;
 
         angle_deg += da;

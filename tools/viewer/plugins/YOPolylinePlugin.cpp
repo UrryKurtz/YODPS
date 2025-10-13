@@ -6,7 +6,7 @@
  */
 
 #include "YOPolylinePlugin.h"
-
+#include <Urho3D/Graphics/Renderer.h>
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/Sprite.h>
 
@@ -69,6 +69,9 @@ SharedPtr<Texture2D> YOPolylinePlugin::CreateTexture()
 YOPolylinePlugin::YOPolylinePlugin(Context* context) : IPlugin(context)
 {
     cache_ = GetSubsystem<ResourceCache>();
+	auto* renderer = GetSubsystem<Renderer>();
+	scene_overlay_ = (Scene*) context_->GetGlobalVar("YO_OVERLAY_SCENE").GetVoidPtr();
+	node_overlay_ = scene_overlay_->CreateChild(name_.c_str());
 }
 
 YOPolylinePlugin::~YOPolylinePlugin()
@@ -185,9 +188,13 @@ void YOPolylinePlugin::OnUpdate(float timeStep)
     	   data_[i] = std::make_shared<YOInputData>();
     	   data_[i]->root = node_->CreateChild();
     	   data_[i]->root->SetTemporary(true);
+    	   data_[i]->root_overlay_ = node_overlay_->CreateChild();
+		   data_[i]->root_overlay_->SetTemporary(true);
     	   data_[i]->logic = data_[i]->root->CreateComponent<YORootLogic>();
+
     	   data_[i]->logic->setMaterials(material_fill_, material_line_, material_text_);
     	   data_[i]->logic->SetInputConfig((*inputs_cfg_)[i]);
+    	   data_[i]->logic->SetOverlayRoot(data_[i]->root_overlay_);
        }
 
        data_[i]->logic->UpdateConfig();

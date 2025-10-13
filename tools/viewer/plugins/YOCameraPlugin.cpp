@@ -6,6 +6,7 @@
  */
 
 #include "YOCameraPlugin.h"
+#include <Urho3D/Graphics/Renderer.h>
 #include <Urho3D/Graphics/Graphics.h>
 #include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/Graphics/Model.h>
@@ -35,9 +36,15 @@ inline void createCameraCfg(uint32_t i, YOVariant &config, const std::string &na
     config[yo::k::fov] = YOLimitF { .value = 55.0f, .min = 0.0f, .max = 180.f, .speed = 0.1f};
 }
 
-YOCameraPlugin::YOCameraPlugin(Context *context, Camera *camera, YOFlyController *fc) : IPlugin(context), camera_(camera), fc_(fc){
-	// TODO Auto-generated constructor stub
- cache_ = GetSubsystem<ResourceCache>();
+YOCameraPlugin::YOCameraPlugin(Context *context) : IPlugin(context)
+{
+	cache_ = GetSubsystem<ResourceCache>();
+	auto* renderer = GetSubsystem<Renderer>();
+	Viewport *vp = renderer->GetViewport(0);
+	camera_ = vp->GetCamera();
+	scene_ = vp->GetScene();
+	Node *camNode = scene_->FindChild("CameraNode");
+	fc_ = camNode->GetComponent<YOFlyController>();
 }
 
 YOCameraPlugin::~YOCameraPlugin() {
@@ -46,7 +53,7 @@ YOCameraPlugin::~YOCameraPlugin() {
 
 void YOCameraPlugin::OnStart()
 {
-    cameras_cfg_ = &(*config_)[yo::k::cameras];
+	cameras_cfg_ = &(*config_)[yo::k::cameras];
     params_cfg_ = &(*config_)[yo::k::config];
 
     if(cameras_cfg_->getTypeId() != 1  || cameras_cfg_->getArraySize() != YO_CAMERA_NUM)
@@ -70,7 +77,6 @@ void YOCameraPlugin::OnStart()
     		break;
     	}
     }
-    scene_ = camera_->GetScene();
 }
 
 void YOCameraPlugin::CreateCameraWindow(int i)
@@ -78,20 +84,17 @@ void YOCameraPlugin::CreateCameraWindow(int i)
 	std::shared_ptr<YOViewStruct> info = std::make_shared<YOViewStruct>();
 	info->node = scene_->CreateChild("TEST NODE");
 	info->cam = MakeShared<Camera>(context_);
-	info->txt = MakeShared<Texture2D>(context_);
-
 	info->fly = info->node->CreateComponent<YOFlyController >();
 	info->fly->SetCamera(info->cam);
-
-	info->txt->SetNumLevels(1);
-	info->txt->SetSize(1920, 1080, TextureFormat::TEX_FORMAT_RGB32_FLOAT, TextureFlag::BindRenderTarget);
-	//auto vp = MakeShared<Viewport>(context_, scene_, camera_);
 	auto vp = MakeShared<Viewport>(context_, scene_, info->cam);
+	info->txt = MakeShared<Texture2D>(context_);
+	info->txt->SetSize(1920, 1080, TextureFormat::TEX_FORMAT_RGB32_FLOAT, TextureFlag::BindRenderTarget);
 	info->txt->SetFilterMode(TextureFilterMode::FILTER_ANISOTROPIC);
 	info->txt->GetRenderSurface()->SetViewport(0, vp);
 	info->txt->GetRenderSurface()->SetUpdateMode(SURFACE_UPDATEALWAYS);
 	auto systemUI = GetSubsystem<SystemUI>();
 	systemUI->ReferenceTexture(info->txt);
+
 	auto &camx = (*cameras_cfg_)[i];
 	uint32_t &mask = camx[yo::k::mask].getU32();
 	info->cam->SetViewMask(mask);
@@ -178,6 +181,9 @@ void YOCameraPlugin::OnGui()
 
 void YOCameraPlugin::OnUpdate(float timeStep)
 {
+    bool mouseOverImGui = ui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow);
+    fc_->EnableUpdate(!mouseOverImGui);
+
     if(camera_select_>-1)
     {
     	if((*cameras_cfg_)[camera_select_][yo::k::record])

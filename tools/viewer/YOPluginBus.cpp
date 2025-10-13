@@ -160,7 +160,6 @@ void YOPluginBus::OnStop()
 void YOPluginBus::OnStart(Scene *scene)
 {
 	std::cout << "YOPluginBus::OnStart " << std::endl;
-
 	for( auto &pi : plugins_)
 	{
 		std::cout << "OnStart plugin " << pi.first << " " << scene << " " << pi.first << std::endl;
@@ -170,7 +169,6 @@ void YOPluginBus::OnStart(Scene *scene)
 		pi.second.plugin->OnStart();
 		pi.second.subs = pi.second.plugin->GetSubscriptions();
 		pi.second.adverts = pi.second.plugin->GetAdvertisements();
-
 	    pthread_create(&pi.second.thread, NULL, fn_thread, &pi.second);
 	}
 }

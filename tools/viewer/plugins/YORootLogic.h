@@ -32,7 +32,9 @@ class YORootLogic: public LogicComponent
   	 YOStatus input_status_;
   	 YOStatus type_status_[YO_TYPE_NUM];
   	 ResourceCache *cache_ = GetSubsystem<ResourceCache>();
-     Font *font_ ;
+     Font *font_ {nullptr};
+     Node *root_ovelay_{nullptr};
+     std::vector<SharedPtr<Node>> nodes_;
 
 
 public:
@@ -48,6 +50,7 @@ public:
 
 	void UpdateConfig();
 
+	void SetOverlayRoot(Node *overlay);
 	void SetInputConfig(YOVariant &input_cfg);
 	void ConvertRoot(std::shared_ptr<YOVariant> frame);
 	static void RegisterObject(Context* context)

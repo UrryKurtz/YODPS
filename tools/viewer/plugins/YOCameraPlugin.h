@@ -22,20 +22,19 @@ struct YOViewStruct {
 	SharedPtr<Texture2D> txt {nullptr};
 };
 
-
 class YOCameraPlugin: public IPlugin {
 	YOVariant *cameras_cfg_ {nullptr};
 	YOVariant *params_cfg_ {nullptr};
 	int camera_select_ {0};
 	YOGui gui_;
-	Camera *camera_{nullptr};
+	Camera *camera_ {nullptr};
+	Scene *scene_ {nullptr};
 	YOFlyController *fc_{nullptr};
-	Scene *scene_{nullptr};
 	ResourceCache *cache_;
 	std::shared_ptr<YOViewStruct> views_[YO_CAMERA_NUM];
 
 public:
-	YOCameraPlugin(Context *context, Camera *camera, YOFlyController *fc);
+	YOCameraPlugin(Context *context);
 	virtual ~YOCameraPlugin();
 	void OnStart() override;
 	void OnGui() override;

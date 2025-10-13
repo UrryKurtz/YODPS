@@ -19,6 +19,12 @@ YORootLogic::~YORootLogic()
 
 }
 
+void YORootLogic::SetOverlayRoot(Node *overlay)
+{
+	root_ovelay_ = overlay;
+}
+
+
 void YORootLogic::SetInputConfig(YOVariant &input_cfg)
 {
 	input_cfg_ = &input_cfg;
@@ -56,15 +62,20 @@ void YORootLogic::ConvertRoot(std::shared_ptr<YOVariant> frame)
     node_->SetRotation(Quaternion((Vector3&)transform[yo::k::rotation].get<YOVector3>()));
     node_->SetScale((Vector3&)transform[yo::k::scale].get<YOVector3>());
 
+    root_ovelay_->SetPosition((Vector3&)transform[yo::k::position].get<YOVector3>());
+	root_ovelay_->SetRotation(Quaternion((Vector3&)transform[yo::k::rotation].get<YOVector3>()));
+	root_ovelay_->SetScale((Vector3&)transform[yo::k::scale].get<YOVector3>());
+
     YOVariant &objects = (*frame)[yo::k::objects];
-    auto &nodes = node_->GetChildren();
-    for(int i = nodes.size(); i < objects.getArraySize(); i++ )
+
+    for(int i = nodes_.size(); i < objects.getArraySize(); i++ )
     {
-    	Node *node  = node_->CreateChild();
+    	SharedPtr<Node> node = MakeShared<Node>(context_);
     	node->SetTemporary(true);
 		YONodeLogic *nl = node->CreateComponent<YONodeLogic>();
 		nl->SetMaterials(material_fill_, material_line_, material_text_);
 		nl->SetFont(font_);
+		nodes_.push_back(node);
     }
 
     subs_.clear();
@@ -72,7 +83,22 @@ void YORootLogic::ConvertRoot(std::shared_ptr<YOVariant> frame)
 	{
 		YOVariant &object = objects[i];
 		uint32_t style_id = object[yo::k::style_id];
-		SharedPtr<Node> node = nodes[i];
+		SharedPtr<Node> node = nodes_[i];
+
+		node->SetPosition(Vector3::ZERO);
+		node->SetRotation(Quaternion::IDENTITY);
+		node->SetScale(1.0f);
+
+		if(object.hasChild(yo::k::overlay) && object[yo::k::overlay].getBool())
+		{
+			node->SetParent(root_ovelay_);
+		}
+		else
+		{
+			node->SetParent(node_);
+		}
+
+
 		auto nl = node->GetComponent<YONodeLogic>();
 		subs_[style_id].push_back(nl);
 		nl->SetInput(&input_status_);
