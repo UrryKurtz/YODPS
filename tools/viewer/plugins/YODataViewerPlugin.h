@@ -10,8 +10,17 @@
 #include <tinyxml2.h>
 #include <shared_mutex>
 #include "IPlugin.h"
+#include <Urho3D/IO/FileSystem.h>
 
 using namespace tinyxml2;
+
+
+struct YOPlotInfo
+{
+	uint32_t bytepos;
+	std::string field;
+	uint32_t primitive;
+};
 
 struct YODataInfo
 {
@@ -22,6 +31,7 @@ struct YODataInfo
 	std::vector<uint8_t> data;
 	YOTimestamp ts;
 	YOVariant *config;
+	std::unordered_map <uint32_t, YOPlotInfo> plot;
 };
 
 class YODataViewerPlugin: public IPlugin
@@ -32,6 +42,7 @@ class YODataViewerPlugin: public IPlugin
 	std::map <std::string, std::shared_ptr<YODataInfo>> streams_;
 	mutable std::shared_mutex mu_;
 	YOGui gui_;
+	std::string current_topic_;
 
 public:
 	YODataViewerPlugin(Context *context);
@@ -44,6 +55,8 @@ public:
 	std::shared_ptr<YODataInfo> GetOrCreateData(const std::string &topic);
 	std::vector<std::pair<std::string, std::shared_ptr<YODataInfo>>> GetSnapshot() const;
 
+	void PlotData(uint32_t bytepos, const std::string &field_name, uint32_t primitive);
+
 	void Draw();
 	void DrawInfo(std::shared_ptr<YODataInfo> &data);
 
@@ -52,6 +65,7 @@ public:
 	void DrawStruct(const uint8_t *data, YOVariant &config, uint32_t bytepos, const std::string &name, const std::string &type_name);
 
 	void OnStart() override;
+	void OnData(const std::string &topic, std::shared_ptr<YOMessage> message) override ;
 	void OnGui() override;
 
 

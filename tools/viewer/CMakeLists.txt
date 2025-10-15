@@ -30,6 +30,7 @@ plugins/YOPlotterPlugin.cpp
 plugins/YOOBD2Plugin.cpp
 plugins/YOCANPlugin.cpp
 plugins/YOTestPlugin.cpp
+plugins/YODataViewerPlugin.cpp
 ${CONVERT_SOURCES}
 )
 
