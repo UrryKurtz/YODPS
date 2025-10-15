@@ -155,6 +155,7 @@ enum class YOFrameFormat : uint32_t
     YO_YUV420P,
 };
 
+#pragma pack(push, 1)
 struct tMessageHeader
 {
     uint8_t      ui8Tag;
@@ -195,6 +196,7 @@ struct tCANFDData
     tMessageHeader sHeader;
     tDataFD sData;
 };
+#pragma pack(pop)
 
 struct YOImageData {
     int64_t ts;

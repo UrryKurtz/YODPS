@@ -50,7 +50,7 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
 
     if(cfg.hasChild(yo::k::name))
     {
-        name += " [" + cfg[yo::k::name].get<std::string>() + "]";
+        name += " [" + cfg[yo::k::name].getStr() + "]";
     }
     ui::SetNextItemWidth(250);
 
