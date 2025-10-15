@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
+<adtf:ddl xmlns:adtf="adtf">
+
+	<datatypes>
+		<datatype description="predefined ADTF tBool datatype" max="tTrue" min="tFalse" name="tBool" size="8" />
+		<datatype description="predefined ADTF tChar datatype" max="127" min="-128" name="tChar" size="8" />
+		<datatype description="predefined ADTF tFloat32 datatype" max="3.402823e+38" min="-3.402823e+38" name="tFloat32" size="32" />
+		<datatype description="predefined ADTF tFloat64 datatype" max="1.797693e+308" min="-1.797693e+308" name="tFloat64" size="64" />
+		<datatype description="predefined ADTF tInt16 datatype" max="32767" min="-32768" name="tInt16" size="16" />
+		<datatype description="predefined ADTF tInt32 datatype" max="2147483647" min="-2147483648" name="tInt32" size="32" />
+		<datatype description="predefined ADTF tInt64 datatype" max="9223372036854775807" min="-9223372036854775808" name="tInt64" size="64" />
+		<datatype description="predefined ADTF tInt8 datatype" max="127" min="-128" name="tInt8" size="8" />
+		<datatype description="predefined ADTF tUInt16 datatype" max="65535" min="0" name="tUInt16" size="16" />
+		<datatype description="predefined ADTF tUInt32 datatype" max="4294967295" min="0" name="tUInt32" size="32" />
+		<datatype description="predefined ADTF tUInt64 datatype" max="18446744073709551615" min="0" name="tUInt64" size="64" />
+		<datatype description="predefined ADTF tUInt8 datatype" max="255" min="0" name="tUInt8" size="8" />
+	</datatypes>
+
+	<enums>
+		<enum name="eMessageTag" type="tUInt8">
+			<element name="MT_Data" value="0" />
+			<element name="MT_Status" value="1" />
+		</enum>
+		<enum name="eDataFlags" type="tUInt16">
+			<element name="DF_ERROR_FRAME" value="1" />
+			<element name="DF_NONE" value="0" />
+			<element name="DF_REMOTE_FRAME" value="2" />
+			<element name="DF_TX_COMPLETED" value="4" />
+		</enum>
+	</enums>
+	
+	<structs>
+		<struct name="tMessageHeader" alignment="1" version="1">
+			<element type="eMessageTag" name="ui8Tag" bytepos="0" arraysize="1" byteorder="LE" alignment="1" />
+			<element type="tUInt8" name="ui8Channel" bytepos="1" arraysize="1" byteorder="LE" alignment="1" />
+			<element type="tInt64" name="tmTimeStamp" bytepos="2" arraysize="1" byteorder="LE" alignment="1" />
+		</struct>
+
+		<struct name="tData" alignment="1" version="1">
+			<element type="tUInt32" name="ui32Id" bytepos="0" arraysize="1" byteorder="LE" alignment="1" />
+			<element type="tUInt8" name="ui8Length" bytepos="4" arraysize="1" byteorder="LE" alignment="1" />
+			<element type="tUInt8" name="ui8Reserved" bytepos="5" arraysize="1" byteorder="LE" alignment="1" />
+			<element type="eDataFlags" name="ui16Flags" bytepos="6" arraysize="1" byteorder="LE" alignment="1" />
+			<element type="tUInt16" name="ui16Reserved" bytepos="8" arraysize="1" byteorder="LE" alignment="1" />
+			<element type="tUInt32" name="ui32Reserved" bytepos="10" arraysize="1" byteorder="LE" alignment="1" />
+			<element type="tUInt8" name="aui8Data" bytepos="14" arraysize="8" byteorder="LE" alignment="1" />		
+		</struct>
+		
+		<struct name="tCANData" alignment="1" version="1">
+			<element type="tMessageHeader" name="sHeader" bytepos="0" arraysize="1" byteorder="LE" alignment="1" />
+			<element type="tData" name="sData" bytepos="10" arraysize="1" byteorder="LE" alignment="1" />
+		</struct>
+	</structs>
+</adtf:ddl>
