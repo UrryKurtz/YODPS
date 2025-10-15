@@ -4,3 +4,6 @@
 /Data/OSM
 /.cproject
 /.project
+/*.xml
+/imgui.ini
+/.clang-format
