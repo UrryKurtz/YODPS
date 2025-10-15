@@ -24,6 +24,7 @@ YOPlotterPlugin::~YOPlotterPlugin()
 void YOPlotterPlugin::OnStop()
 {
 	map_key_.lock();
+	streams_->getMap().clear();
 	for(auto stream : data_)
 	{
 		(*streams_)[stream.first] = stream.second.stream_cfg;
