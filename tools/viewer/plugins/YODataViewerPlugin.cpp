@@ -185,7 +185,7 @@ void YODataViewerPlugin::OnStart()
 }
 void YODataViewerPlugin::OnData(const std::string &topic, std::shared_ptr<YOMessage> message)
 {
-	std::cout << " YODataViewerPlugin " << topic << std::endl;
+	//std::cout << " YODataViewerPlugin " << topic << std::endl;
 	std::shared_ptr<YODataInfo> data = GetOrCreateData(topic);
 	data->ts = message->getTimestamp();
 	data->data.resize( message->getDataSize());
