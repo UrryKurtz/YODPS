@@ -52,7 +52,7 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
     {
         name += " [" + cfg[yo::k::name].getStr() + "]";
     }
-    ui::SetNextItemWidth(250);
+    ui::SetNextItemWidth(160);
 
     switch (size_t xtype = cfg.m_value.index())
     {
@@ -268,12 +268,14 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
             }
             break;
         case 22: //YOVector3
+        	ui::SetNextItemWidth(180);
             if(ui::DragFloat3(name.c_str(), (float *)&cfg.get<YOVector3>()))
             {
                 changed = true;
             }
             break;
         case 23: //YOVector4
+        	ui::SetNextItemWidth(180);
             if(ui::DragFloat4(name.c_str(), (float *)&cfg.get<YOVector4>()))
             {
                 changed = true;
@@ -281,6 +283,7 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
             break;
 
         case 24: //YOColor3F
+        	ui::SetNextItemWidth(180);
             if(ui::ColorEdit3(name.c_str(), (float *)&cfg.get<YOColor3F>(), ImGuiColorEditFlags_NoInputs))
             {
                 changed = true;
@@ -288,6 +291,7 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
             break;
 
         case 25: //YOColor4F
+        	ui::SetNextItemWidth(180);
             if(ui::ColorEdit4(name.c_str(), (float *)&cfg.get<YOColor4F>(), ImGuiColorEditFlags_NoInputs))
             {
                 changed = true;
@@ -296,6 +300,7 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
 
         case 26: //YOColor3C
             {
+            	ui::SetNextItemWidth(180);
                 YOColor3F clr = convert(cfg.get<YOColor3C>());
                 if(ui::ColorEdit3(name.c_str(), (float *)&cfg.get<YOColor3C>(), ImGuiColorEditFlags_NoInputs))
                 {
@@ -307,6 +312,7 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
 
         case 27: //YOColor4C
             {
+            	ui::SetNextItemWidth(180);
                 YOColor4F clr = convert(cfg.get<YOColor4C>());
                 if(ui::ColorEdit4(name.c_str(), (float *)&clr, ImGuiColorEditFlags_NoInputs))
                 {
@@ -317,6 +323,7 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
             break;
         case 34: //YOColor4CList, //34
         {
+        	ui::SetNextItemWidth(180);
         	if (ui::CollapsingHeader(name.c_str()))
 			{
 				ui::Indent();
