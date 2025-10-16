@@ -121,6 +121,7 @@ namespace yo::k {
     YO_KEY(step_fast,  "stf")
     YO_KEY(style_id,   "sid")
 	YO_KEY(subscribe,  "sub")
+	YO_KEY(system,     "sys")
     YO_KEY(text,       "txt")
 	YO_KEY(texture,    "txr")
 	YO_KEY(tile,       "til")
