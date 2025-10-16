@@ -155,7 +155,7 @@ void YODataViewerPlugin::OnStart()
 	if(!settings_->hasChild(yo::k::topic))
 		(*settings_)[yo::k::topic] = "PLOTTER";
 
-	ads_.push_back((*settings_)[yo::k::topic].getStr());
+	Advertise((*settings_)[yo::k::topic].getStr());
 
 	if(channels_->getTypeId()!=1)
 		channels_->m_value = YOArray();
@@ -180,7 +180,7 @@ void YODataViewerPlugin::OnStart()
 				<<  " Stream: " << stream
 				<<  " Size: " << data->size
 			    << std::endl;
-		subs_.push_back(topic);
+		Subscribe(topic);
 	}
 }
 void YODataViewerPlugin::OnData(const std::string &topic, std::shared_ptr<YOMessage> message)

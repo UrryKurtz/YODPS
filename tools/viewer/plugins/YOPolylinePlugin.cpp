@@ -98,14 +98,6 @@ void YOPolylinePlugin::OnSetConfig(YOVariant *config)
 	        createInputCfg(i, (*inputs_cfg_)[i]);
 	    }
 	}
-
-	if((*params_cfg_)[yo::k::subscribe].get<bool>() == true)
-	{
-		for(int i = 0; i < YO_INPUT_NUM; i++)
-		{
-			RegisterTopic("INPUT" + std::to_string(i), i);
-		}
-	}
 }
 
 void YOPolylinePlugin::OnStart()
@@ -132,7 +124,6 @@ void YOPolylinePlugin::OnStart()
     material_text_->SetCullMode(CULL_NONE);
 
     YOVariant &wrld = config_->get(yo::k::inputs);
-    std::cout << __FUNCTION__ << " " << __LINE__ << std::endl;
     for(int input = 0; input < wrld.getArraySize(); input++)
 	{
 		YOVariant &inp_cfg = wrld[input][yo::k::types];
@@ -157,6 +148,10 @@ void YOPolylinePlugin::OnStart()
 			YOVariant &text_cfg = type_cfg[yo::k::text];
 			texture_text_->SetData(0, input, type, 1, 1, &text_cfg[yo::k::color].get<YOColor4F>());
 		}
+		std::string topic = "INPUT" + std::to_string(input);
+
+		if((*params_cfg_)[yo::k::subscribe].getBool())
+			RegisterTopic(topic, input);
 	}
 }
 

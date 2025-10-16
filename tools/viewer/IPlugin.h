@@ -30,8 +30,8 @@ class IPlugin : public Object {
 	 YOVariant *config_ {nullptr};
 	 Node *node_;
 	 std::map<std::string, int> topics_;
-	 std::vector<std::string> subs_;
-	 std::vector<std::string> ads_;
+	 //std::vector<std::string> subs_;
+	 //std::vector<std::string> ads_;
 
 protected:
 	 YOPluginBus *bus_;
@@ -55,9 +55,12 @@ public:
 	virtual void OnUpdate(float timeStep){}
 	virtual void OnGui(){}
 
-	std::vector<std::string> GetSubscriptions() const { return subs_; }
-	std::vector<std::string> GetAdvertisements() const { return ads_; }
-	void RegisterTopic(const std::string &name, int num) {topics_[name] = num; subs_.push_back(name); }
+	void Subscribe(const std::string &topic);
+	void Unsubscribe(const std::string &topic);
+	void Advertise(const std::string &topic);
+	void Unadvertise(const std::string &topic);
+
+	void RegisterTopic(const std::string &name, int num) {topics_[name] = num; Subscribe(name);}
     int GetTopicId(const std::string &name) {return topics_[name];}
 	void Transmit(const std::string &topic, const uint8_t* data, size_t size);
 	void Transmit(const std::string &topic, const YOVariant &data);

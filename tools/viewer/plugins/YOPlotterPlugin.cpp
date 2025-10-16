@@ -52,7 +52,7 @@ void YOPlotterPlugin::OnStart()
 		data_[stream.first].name = stream.first;
 		std::cout << "Loading stream: " << stream.first << std::endl;
 	}
-	subs_.push_back((*settings_)["Topic"].c_str());
+	Subscribe((*settings_)["Topic"].c_str());
 }
 
 YOVariant StreamConfig(const std::string &name)

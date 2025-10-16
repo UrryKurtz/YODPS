@@ -26,6 +26,7 @@ void IPlugin::Transmit(const std::string &topic, const YOVariant &data)
 {
 	bus_->Transmit(this, topic, data);
 }
+
 void IPlugin::TransmitSys(const std::string &topic, const YOVariant &data)
 {
 	YOMessage msg(data);
@@ -35,6 +36,26 @@ void IPlugin::TransmitSys(const std::string &topic, const YOVariant &data)
 void IPlugin::TransmitSys(const std::string &topic, YOMessage &data)
 {
 	bus_->TransmitSys(this, topic, data);
+}
+
+void IPlugin::Subscribe(const std::string &topic)
+{
+	bus_->Subscribe(this, topic);
+}
+
+void IPlugin::Unsubscribe(const std::string &topic)
+{
+	bus_->Unsubscribe(this, topic);
+}
+
+void IPlugin::Advertise(const std::string &topic)
+{
+	bus_->Advertise(this, topic);
+}
+
+void IPlugin::Unadvertise(const std::string &topic)
+{
+	bus_->Unadvertise(this, topic);
 }
 
 int fn(const std::string &topic, std::shared_ptr<YOMessage> message, void *param)
@@ -54,29 +75,9 @@ int fn_sys(const std::string &topic, std::shared_ptr<YOMessage> message, void *p
 void *fn_thread(void *param)
 {
 	YOPluginInfo *pi = (YOPluginInfo *) param;
-	pi->yonode = new YONode(pi->name.c_str());
 	pi->yonode->subscribeSysFn(fn_sys, param);
-
-	for(auto &topic : pi->adverts)
-	{
-		pi->yonode->advertise(topic.c_str());
-	}
-
-	for(auto &topic : pi->subs)
-	{
-		pi->yonode->subscribe(topic.c_str(), fn, param);
-	}
-
-	if(pi->subs.size())
-	{
-		pi->yonode->start(); //blocking
-		pi->yonode->disconnect();
-		pi->yonode->shutdown();
-	}
-	else
-	{
-		pi->yonode->connect();
-	}
+	pi->yonode->start(); //blocking
+	pi->yonode->shutdown();
     return  param;
 }
 
@@ -121,6 +122,45 @@ void YOPluginBus::Transmit(IPlugin* self, const std::string &topic, const YOVari
 	YOMessage msg(data);
 	p_info.yonode->sendMessage(topic.c_str(), msg);
 }
+
+
+void YOPluginBus::Subscribe(IPlugin* self, const std::string &topic)
+{
+	YOPluginInfo &p_info = plugins_[self->GetName()];
+	p_info.yonode->subscribe(topic.c_str(), fn, &p_info);
+}
+
+void YOPluginBus::Unsubscribe(IPlugin* self, const std::string &topic)
+{
+	YOPluginInfo &p_info = plugins_[self->GetName()];
+	p_info.yonode->unsubscribe(topic.c_str());
+}
+
+void YOPluginBus::Advertise(IPlugin* self, const std::string &topic)
+{
+	std::cout << __FUNCTION__ << " " << __LINE__ << " = " << self->GetName() << " "  << plugins_.count(self->GetName()) << std::endl ;
+	YOPluginInfo &p_info = plugins_[self->GetName()];
+	p_info.yonode->advertise(topic.c_str(), 0, 0);
+}
+
+void YOPluginBus::Unadvertise(IPlugin* self, const std::string &topic)
+{
+	YOPluginInfo &p_info = plugins_[self->GetName()];
+	p_info.yonode->unadvertise(topic.c_str());
+}
+
+void YOPluginBus::SubscribeSys(IPlugin* self, const std::string &topic)
+{
+	YOPluginInfo &p_info = plugins_[self->GetName()];
+
+}
+
+void YOPluginBus::UnsubscribeSys(IPlugin* self, const std::string &topic)
+{
+	YOPluginInfo &p_info = plugins_[self->GetName()];
+}
+
+
 
 void YOPluginBus::SetConfig(YOVariant *config)
 {
@@ -183,12 +223,13 @@ void YOPluginBus::OnStart(Scene *scene)
 	for( auto &pi : plugins_)
 	{
 		std::cout << "OnStart plugin " << pi.first << " " << scene << " " << pi.first << std::endl;
+		pi.second.yonode = new YONode(pi.first.c_str());
 		pi.second.node = scene->CreateChild(pi.first.c_str());
 		pi.second.plugin->SetNode(pi.second.node);
 		pi.second.plugin->SetConfig(pi.second.config);
 		pi.second.plugin->OnStart();
-		pi.second.subs = pi.second.plugin->GetSubscriptions();
-		pi.second.adverts = pi.second.plugin->GetAdvertisements();
+		//pi.second.subs = pi.second.plugin->GetSubscriptions();
+		//pi.second.adverts = pi.second.plugin->GetAdvertisements();
 	    pthread_create(&pi.second.thread, NULL, fn_thread, &pi.second);
 	}
 }

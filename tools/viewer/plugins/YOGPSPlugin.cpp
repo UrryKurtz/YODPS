@@ -52,10 +52,10 @@ void YOGPSPlugin::OnStart()
 	topic_ = (*config_)[yo::k::topic].get<std::string>();
 
 	if ((*config_)[yo::k::subscribe].get<bool>())
-		subs_.push_back(topic_);
-		subs_.push_back("COORDINATES");
+		Subscribe(topic_);
 
-	ads_.push_back(topic_);
+	Subscribe("COORDINATES"); //yo_gps data from gpsd
+	Advertise(topic_);
 	update_ = true;
 }
 

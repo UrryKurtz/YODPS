@@ -30,8 +30,8 @@ void YOTestPlugin::OnStart()
 		(*config_)[yo::k::data][yo::k::output][yo::k::topic] = "OUTPUT";
 		(*config_)[yo::k::data][yo::k::output][yo::k::value] = "";
 	}
-	subs_.push_back( (*config_)[yo::k::data][yo::k::input][yo::k::topic].getStr() );
-	ads_.push_back( (*config_)[yo::k::data][yo::k::output][yo::k::topic].getStr() );
+	Subscribe( (*config_)[yo::k::data][yo::k::input][yo::k::topic].getStr() );
+	Advertise( (*config_)[yo::k::data][yo::k::output][yo::k::topic].getStr() );
 
 	if(!config_->hasChild(yo::k::system))
 	{

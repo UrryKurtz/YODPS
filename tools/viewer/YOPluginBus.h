@@ -33,8 +33,8 @@ struct YOPluginInfo
 	Urho3D::Node* node {};
 	YOVariant *config {nullptr};
 	std::string file;
-    std::vector<std::string> subs;       // GetSubscriptions()
-	std::vector<std::string> adverts;    // GetAdvertisements()
+    //std::vector<std::string> subs;       // GetSubscriptions()
+	//std::vector<std::string> adverts;    // GetAdvertisements()
 	pthread_t thread {};
 	YONode *yonode {nullptr};
 };
@@ -53,6 +53,15 @@ public:
 	void Transmit(IPlugin* self, const std::string &topic, const YOVariant &data);
 	void Transmit(IPlugin* self, const std::string &topic, YOMessage &message);
 	void TransmitSys(IPlugin* self, const std::string &topic, YOMessage &message);
+
+	void Subscribe(IPlugin* self, const std::string &topic);
+	void Unsubscribe(IPlugin* self, const std::string &topic);
+
+	void Advertise(IPlugin* self, const std::string &topic);
+	void Unadvertise(IPlugin* self, const std::string &topic);
+
+	void SubscribeSys(IPlugin* self, const std::string &topic);
+	void UnsubscribeSys(IPlugin* self, const std::string &topic);
 
 	void OnStart(Scene *scene);
 	void OnStop();

@@ -62,7 +62,7 @@ class YONode {
 
     YOSocketInfo *m_sock_data;
     YOSocketInfo *m_sock_sys;
-    YOSocketInfo *m_sock_log;
+    //YOSocketInfo *m_sock_log;
 
     std::string m_name;
     YOVariant m_config;
@@ -96,14 +96,15 @@ public:
 	void sendMessage(const std::string &topic, std::shared_ptr<YOMessage> message);
 
 	void sendMessageSys(const std::string &topic, YOMessage &message);
-	void subscribeSysGroup(const std::string &topic);
-	void unsubscribeSysGroup(const std::string &topic);
+	void subscribeSys(const std::string &topic);
+	void unsubscribeSys(const std::string &topic);
 	void subscribeSysFn(YOSubSharedFn fn, void *param);
 
 	void subscribe(const std::string &topic, YOSubFn fn, void *data);
 	void subscribe(const std::string &topic, YOSubSharedFn fn, void *data);
 	void unsubscribe(const std::string &topic);
 	void advertise(const std::string &topic, uint16_t type = 0, uint16_t subtype = 0);
+	void unadvertise(const std::string &topic);
 
 	void addPollFunction(YOPollFn, void *data);
 	void addSignalFunction(int signal, YOSigFn fn, void *data);

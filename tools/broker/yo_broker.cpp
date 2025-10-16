@@ -4,6 +4,12 @@
  *  Created on: Jun 5, 2025
  *      Author: kurtz
  */
+#define MCAP_IMPLEMENTATION
+#define MCAP_COMPRESSION_NO_LZ4
+#define MCAP_COMPRESSION_NO_ZSTD
+#include <mcap/writer.hpp>
+#include <fstream>
+#include "YOVariant.h"
 #include <assert.h>
 #include <iostream>
 #include "config.h"
@@ -18,7 +24,6 @@ struct YOSample
 {
     YOHeaderBase *base = nullptr;
     uint32_t topic_len;
-
     YOMessageData data;
     YOMessageData ext_data;
 };
@@ -36,18 +41,19 @@ std::mutex mutex_;
 uint64_t last_slot_;
 uint64_t last_time_;
 
-#define MCAP_IMPLEMENTATION
-#define MCAP_COMPRESSION_NO_LZ4
-#define MCAP_COMPRESSION_NO_ZSTD
-#include <mcap/writer.hpp>
-#include <fstream>
-
+int fn_sys(const std::string &topic, std::shared_ptr<YOMessage> message, void *param)
+{
+	std::cout << " SYSTEM MSG " << topic << std::endl;
+	return 0;
+}
+YONode *g_node = 0;
 
 void* system(void *arg)
 {
-	YONode node("BROKER");
-	node.start();
-	return arg;
+	g_node->start();
+	g_node->disconnect();
+	g_node->shutdown();
+	return 0;
 }
 
 void* worker(void *arg)
@@ -74,7 +80,7 @@ void* worker(void *arg)
     ch.messageEncoding = "binary";
     w.addChannel(ch);
 
-    while (1)
+    while (g_node->isRunning())
     {
         mutex_.lock();
         while (!data_map_.empty() && last_slot_ - data_map_.begin()->first > 3000000000)
@@ -84,7 +90,7 @@ void* worker(void *arg)
             data_map_.erase(begin_s);
         }
         mutex_.unlock();
-        std::cout << " LAST SLOT " << last_slot_ << std::endl;
+        //std::cout << " LAST SLOT " << last_slot_ << std::endl;
 
         for (auto &vec : tmp_data_)
         {
@@ -104,14 +110,16 @@ void* worker(void *arg)
                 zmq_msg_close((zmq_msg_t*) &s->data.message);
                 zmq_msg_close((zmq_msg_t*) &s->ext_data.message);
             }
-
         }
         tmp_data_.clear();
-        std::cout << " QUEUE: " << data_map_.size() << " FILE SIZE: "  << w.statistics().messageCount << std::endl;
-
-        usleep(500000);
+        //std::cout << " QUEUE: " << data_map_.size() << " FILE SIZE: "  << w.statistics().messageCount << std::endl;
+        usleep(50000);
     }
+
+    std::cout << " END OF RECORDING: " << std::endl;
     w.close();
+    exit(0);
+
     return 0;
 }
 
@@ -208,9 +216,9 @@ void start_proxy()
 			{xpub_socket_data, 0, ZMQ_POLLIN, 0}};
 
     uint64_t msg_num = 0;
-    while (1)
+    while (g_node->isRunning())
     {
-        int rc = zmq_poll(items, 4, 1000);
+        int rc = zmq_poll(items, 4, 500);
         if (rc == -1)
             break;
 
@@ -240,6 +248,7 @@ void start_proxy()
         	send_back(xsub_socket_data, xpub_socket_data);
         }
     }
+    std::cout << " End of proxy thread " << std::endl;
 }
 
 int main(int argc, char **argv)
@@ -247,10 +256,20 @@ int main(int argc, char **argv)
     std::cout << "Starting Broker Version " << YO_BROKER_VERSION_MAJOR << "." << YO_BROKER_VERSION_MINOR << std::endl;
     std::cout << " SUB: " << YO_SUB_DATA_SRV << "   PUB: " << YO_PUB_DATA_SRV << std::endl;
 
+	g_node = new YONode("BROKER");
+	g_node->subscribeSysFn(fn_sys, 0);
+
     pthread_t tid;
     int thread_id = 1;
 
     if (pthread_create(&tid, nullptr, worker, &thread_id) != 0)
+    {
+        std::cerr << "Thread create error\n";
+        return 1;
+    }
+    pthread_t tsys;
+
+    if (pthread_create(&tid, nullptr, system, &thread_id) != 0)
     {
         std::cerr << "Thread create error\n";
         return 1;
@@ -263,9 +282,17 @@ int main(int argc, char **argv)
         std::cerr << "Thread join error\n";
         return 1;
     }
+
+    if (pthread_join(tsys, nullptr) != 0)
+    {
+        std::cerr << "Thread join error\n";
+        return 1;
+    }
+
+
+
     /*
      void *context = zmq_ctx_new();
-
      // Create frontend and backend sockets
      void *frontend_sub = zmq_socket(context, ZMQ_XSUB);
      //assert (frontend_sub);
@@ -280,7 +307,6 @@ int main(int argc, char **argv)
 
      // Start the queue proxy, which runs until ETERM
      zmq_proxy(frontend_sub, backend_pub, NULL);
-
      */
     return 0;
 

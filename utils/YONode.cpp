@@ -77,8 +77,12 @@ YONode::YONode(const char *node_name)
     m_context = zmq_ctx_new();
     m_sock_data = CreateSockets(m_context);
     m_sock_sys = CreateSockets(m_context);
-    m_sock_log = CreateSockets(m_context);
+    //m_sock_log = CreateSockets(m_context);
     m_sys_fn = nullptr;
+    m_sys_param = nullptr;
+    zmq_setsockopt(m_sock_sys->sub, ZMQ_SUBSCRIBE, m_name.c_str(), m_name.size());
+	std::cout << " System socket subscribed to [" << m_name << "]"<< std::endl;
+
     /*
     sysctl net.core.rmem_max
     sysctl net.core.wmem_max
@@ -99,7 +103,7 @@ YONode::~YONode()
     delete (zmq_pollitem_t*) m_poll;
     delete m_sock_data;
     delete m_sock_sys;
-    delete m_sock_log;
+    //delete m_sock_log;
 }
 
 void YONode::setConfig(YOVariant &config)
@@ -187,13 +191,13 @@ void YONode::sendMessageSys(const std::string &topic, YOMessage &message)
 	sendMessage(topic, message, m_sock_sys->pub);
 }
 
-void YONode::subscribeSysGroup(const std::string &topic)
+void YONode::subscribeSys(const std::string &topic)
 {
 	zmq_setsockopt(m_sock_sys->sub, ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
 	std::cout << " System socket subscribed to [" << topic << "]"<< std::endl;
 }
 
-void YONode::unsubscribeSysGroup(const std::string &topic)
+void YONode::unsubscribeSys(const std::string &topic)
 {
 	zmq_setsockopt(m_sock_sys->sub, ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
 	std::cout << " System socket unsubscribed from [" << topic << "]"<< std::endl;
@@ -207,39 +211,40 @@ void YONode::subscribeSysFn(YOSubSharedFn fn, void *param)
 
 void YONode::subscribe(const std::string &topic, YOSubFn fn, void *data)
 {
-    //std::cout << " Subscribe fn to topic [" << topic << "]" << std::endl;
-    m_sub_map[topic] = {topic, fn, 0, data};
+   	std::cout << " Subscribed to [" << topic<< "]"<< std::endl;
+	m_sub_map[topic] = {topic, fn, 0, data};
+    zmq_setsockopt(m_sock_data->sub, ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
 }
 
 void YONode::subscribe(const std::string &topic, YOSubSharedFn fn, void *data)
 {
-    //std::cout << " Subscribe shared fn to topic [" << topic << "]" << std::endl;
-    m_sub_map[topic] = {topic, 0, fn, data};
+	std::cout << " Subscribed ext to [" << topic<< "]"<< std::endl;
+	m_sub_map[topic] = {topic, 0, fn, data};
+    zmq_setsockopt(m_sock_data->sub, ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
 }
 
 void YONode::unsubscribe(const std::string &topic)
 {
-    m_sub_map.erase(topic);
+    std::cout << " Unsubscribed from [" << topic<< "]"<< std::endl;
+	m_sub_map.erase(topic);
     zmq_setsockopt(m_sock_data->sub, ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
 }
 
 void YONode::advertise(const std::string &topic, uint16_t type, uint16_t subtype)
 {
+	printf("Advertise topic [%s] type: %02X subtype: %02X  \n", topic.c_str(), type, subtype);
     m_pub_map[topic] = {type, subtype};
-    printf("Advertise topic [%s] type: %02X subtype: %02X  \n", topic.c_str(), type, subtype);
+}
+
+void YONode::unadvertise(const std::string &topic)
+{
+    printf("Unadvertise topic [%s] \n", topic.c_str());
+	m_pub_map.erase(topic);
 }
 
 int YONode::connect()
 {
-	zmq_setsockopt(m_sock_sys->sub, ZMQ_SUBSCRIBE, m_name.c_str(), m_name.size());
-	std::cout << " System socket subscribed to [" << m_name << "]"<< std::endl;
-
-    for (auto topics : m_sub_map)
-    { //TODO make immediate subscription
-    	zmq_setsockopt(m_sock_data->sub, ZMQ_SUBSCRIBE, topics.first.c_str(), topics.first.size());
-        std::cout << " Subscribed to [" << topics.first.c_str() << "]"<< std::endl;
-    }
-    zmq_connect(m_sock_data->sub, YO_PUB_DATA_SRV);
+	zmq_connect(m_sock_data->sub, YO_PUB_DATA_SRV);
     zmq_connect(m_sock_data->pub, YO_SUB_DATA_SRV);
     zmq_connect(m_sock_sys->sub, YO_PUB_SYS_SRV);
     zmq_connect(m_sock_sys->pub, YO_SUB_SYS_SRV);

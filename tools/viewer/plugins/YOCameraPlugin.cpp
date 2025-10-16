@@ -17,8 +17,6 @@ namespace yo::k
 	 YO_KEY(window,    "win")
 }
 
-
-
 inline void createCameraCfg(uint32_t i, YOVariant &config, const std::string &name)
 {
 	config.m_name = name;

@@ -51,9 +51,9 @@ void YOOBD2Plugin::OnStart()
 	requests_ = &(*config_)[yo::k::requests];
 	settings_ = &(*config_)[yo::k::settings];
 
-	ads_.push_back((*config_)[yo::k::settings][yo::k::advertise].getStr());
-	ads_.push_back((*config_)[yo::k::settings][yo::k::can].getStr());
-	subs_.push_back((*config_)[yo::k::settings][yo::k::subscribe].getStr());
+	Advertise((*config_)[yo::k::settings][yo::k::advertise].getStr());
+	Advertise((*config_)[yo::k::settings][yo::k::can].getStr());
+	Subscribe((*config_)[yo::k::settings][yo::k::subscribe].getStr());
 }
 
 inline void split_lines(const std::string& s, std::vector<std::string>& out) {

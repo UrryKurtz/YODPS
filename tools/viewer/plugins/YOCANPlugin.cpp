@@ -64,7 +64,7 @@ void YOCANPlugin::OnStart()
 	if (!settings_->hasChild(yo::k::topic))
 		(*settings_)[yo::k::topic] = "PLOTTER";
 
-	ads_.push_back((*settings_)[yo::k::topic].getStr());
+	Advertise( (*settings_)[yo::k::topic].getStr() );
 
 	if (channels_->getTypeId() != 1)
 	{
