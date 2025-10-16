@@ -58,7 +58,7 @@ int processSharedData(const std::string &topic, std::shared_ptr<YOMessage>messag
 
 int main(int argc, char **argv) {
 	std::cout << "Starting Test Version " << YO_TEST_VERSION_MAJOR << "." << YO_TEST_VERSION_MINOR << std::endl;
-    std::cout << " SUB: " << YO_SUB_SRV  << "   PUB: " <<  YO_PUB_SRV << std::endl;
+    std::cout << " SUB: " << YO_SUB_DATA_SRV  << "   PUB: " <<  YO_PUB_DATA_SRV << std::endl;
 
     char *sub = argv[1];
     std::cout << " SUBSCRIBE: " << sub << std::endl;

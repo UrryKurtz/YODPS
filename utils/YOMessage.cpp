@@ -99,12 +99,12 @@ const char *YOMessage::getTopic()
     return (const char*) m_data.buffer;
 }
 
-void YOMessage::setTopic(const char *topic)
+void YOMessage::setTopic(const std::string &topic)
 {
     // [000...topic0][TS][INFO]
-    m_topic_len = std::strlen(topic);
+    m_topic_len = topic.size();
     m_topic_start = YO_MAX_TOPIC_LENGTH - m_topic_len - 1;
-    memcpy(m_data.buffer + m_topic_start, topic, m_topic_len);
+    memcpy(m_data.buffer + m_topic_start, topic.c_str(), m_topic_len);
 }
 
 uint8_t *YOMessage::getExtData()

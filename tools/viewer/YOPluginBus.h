@@ -37,9 +37,7 @@ struct YOPluginInfo
 	std::vector<std::string> adverts;    // GetAdvertisements()
 	pthread_t thread {};
 	YONode *yonode {nullptr};
-
 };
-
 
 class YOPluginBus : public Object {
 
@@ -54,6 +52,7 @@ public:
 	void Transmit(IPlugin* self, const std::string &topic, const uint8_t* data, size_t size);
 	void Transmit(IPlugin* self, const std::string &topic, const YOVariant &data);
 	void Transmit(IPlugin* self, const std::string &topic, YOMessage &message);
+	void TransmitSys(IPlugin* self, const std::string &topic, YOMessage &message);
 
 	void OnStart(Scene *scene);
 	void OnStop();

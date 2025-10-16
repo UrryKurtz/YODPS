@@ -232,8 +232,11 @@ struct YOHeader //size = 48
     YOHeaderBase base;
 };
 
-#define YO_SUB_SRV "tcp://127.0.0.1:5550"
-#define YO_PUB_SRV "tcp://127.0.0.1:5551"
+#define YO_SUB_DATA_SRV "tcp://127.0.0.1:5550"
+#define YO_PUB_DATA_SRV "tcp://127.0.0.1:5551"
+
+#define YO_SUB_SYS_SRV "tcp://127.0.0.1:5552"
+#define YO_PUB_SYS_SRV "tcp://127.0.0.1:5553"
 
 
 #endif /* UTILS_YOTYPES_H_ */

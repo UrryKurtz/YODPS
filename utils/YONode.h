@@ -32,7 +32,6 @@ struct YOSigData
     void *data;
 };
 
-
 struct YOSubData
 {
     std::string topic;
@@ -54,18 +53,27 @@ struct YOPubData
     uint16_t subtype;
 };
 
+struct YOSocketInfo;
+
 class YONode {
     void* m_context;
     std::map<std::string, void*> m_user_data;
-    void *m_socket_pub;
-    void *m_socket_sub;
     void *m_poll;
+
+    YOSocketInfo *m_sock_data;
+    YOSocketInfo *m_sock_sys;
+    YOSocketInfo *m_sock_log;
 
     std::string m_name;
     YOVariant m_config;
     std::unordered_map<std::string, YOSubData> m_sub_map;
     std::unordered_map<std::string, YOPubData> m_pub_map;
     std::unordered_map<int, YOSigData> m_sig_map;
+    YOSubSharedFn m_sys_fn;
+    void *m_sys_param;
+
+    std::shared_ptr<YOMessage> readMessage(void *sock_sub);
+    void sendMessage(const std::string &topic, YOMessage &message, void *pub_sock);
 
 public:
 	YONode(const char *node_name = "");
@@ -84,20 +92,25 @@ public:
 	int stop();
 	bool isRunning();
 
-	void sendMessage(const char *topic, YOMessage &message);
-	void sendMessage(const char *topic, std::shared_ptr<YOMessage> message);
+	void sendMessage(const std::string &topic, YOMessage &message);
+	void sendMessage(const std::string &topic, std::shared_ptr<YOMessage> message);
 
-	void subscribe(const char *topic, YOSubFn fn, void *data);
-	void subscribe(const char *topic, YOSubSharedFn fn, void *data);
-	void unsubscribe(const char *topic);
-	void advertise(const char *topic, uint16_t type = 0, uint16_t subtype = 0);
+	void sendMessageSys(const std::string &topic, YOMessage &message);
+	void subscribeSysGroup(const std::string &topic);
+	void unsubscribeSysGroup(const std::string &topic);
+	void subscribeSysFn(YOSubSharedFn fn, void *param);
+
+	void subscribe(const std::string &topic, YOSubFn fn, void *data);
+	void subscribe(const std::string &topic, YOSubSharedFn fn, void *data);
+	void unsubscribe(const std::string &topic);
+	void advertise(const std::string &topic, uint16_t type = 0, uint16_t subtype = 0);
 
 	void addPollFunction(YOPollFn, void *data);
 	void addSignalFunction(int signal, YOSigFn fn, void *data);
 	YOSigData *getSignalFunction(int signal);
 
-	void setUserData(const char *name, void *data);
-	void *getUserData(const char *name);
+	void setUserData(const std::string &name, void *data);
+	void *getUserData(const std::string &name);
 
 	void logInfo(const char* fmt, ...);
 	void logWarning(const char* fmt, ...);

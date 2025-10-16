@@ -9,6 +9,7 @@
 #include "config.h"
 #include "zmq.h"
 #include "YOTypes.h"
+#include "YONode.h"
 #include <queue>
 #include <mutex>
 #include <pthread.h>
@@ -40,6 +41,14 @@ uint64_t last_time_;
 #define MCAP_COMPRESSION_NO_ZSTD
 #include <mcap/writer.hpp>
 #include <fstream>
+
+
+void* system(void *arg)
+{
+	YONode node("BROKER");
+	node.start();
+	return arg;
+}
 
 void* worker(void *arg)
 {
@@ -112,101 +121,123 @@ void my_free_fn (void *data_, void *hint_)
     std::cout << " my_free_fn " << std::endl;
 }
 
+void set_socket(void *sock)
+{
+	int size = 512 * 1024 * 1024; // 512MB
+	int hwm = 100000; // 100k msgs
+    zmq_setsockopt(sock, ZMQ_RCVHWM, &hwm, sizeof(hwm));
+    zmq_setsockopt(sock, ZMQ_SNDHWM, &hwm, sizeof(hwm));
+    zmq_setsockopt(sock, ZMQ_RCVBUF, &size, sizeof(size));
+    zmq_setsockopt(sock, ZMQ_SNDBUF, &size, sizeof(size));
+}
+
+void send_back(void *sock_sub, void *sock_pub)
+{
+    zmq_msg_t sub;
+    zmq_msg_init(&sub);
+    if (zmq_msg_recv(&sub, sock_pub, 0) != -1)
+    {
+        std::string topic((char*) zmq_msg_data(&sub) + 1);
+        std::cout << " SUB/UNSUB " << zmq_msg_size(&sub) << " : " << topic << std::endl;
+        sub_map_[topic] = 0;
+        zmq_msg_send(&sub, sock_sub, 0);
+    }
+    zmq_msg_close(&sub);
+}
+
+std::shared_ptr<YOSample> get_sample(void *sock_sub, void *sock_pub)
+{
+	zmq_msg_t data;
+	zmq_msg_init(&data);
+	int rcv = zmq_msg_recv(&data, sock_sub, 0);
+	std::shared_ptr<YOSample> sample = 0;
+	//std::cout << " DATA " << rcv << std::endl;
+	if (rcv != -1)
+	{
+		sample = std::make_shared<YOSample>();
+		zmq_msg_init((zmq_msg_t*)&sample->data.message);
+		zmq_msg_copy((zmq_msg_t*) &sample->data.message, &data);
+		int more;
+		size_t more_size = sizeof(more);
+		zmq_getsockopt(sock_sub, ZMQ_RCVMORE, &more, &more_size);
+		zmq_msg_send(&data, sock_pub, more ? ZMQ_SNDMORE : 0);
+		zmq_msg_close(&data);
+
+		if (more)
+		{
+			zmq_msg_t ext_data;
+			zmq_msg_init(&ext_data);
+			zmq_msg_recv(&ext_data, sock_sub, 0);
+			//std::cout << " EXT DATA : " << more << std::endl;
+			zmq_msg_init((zmq_msg_t*) &sample->ext_data.message);
+			zmq_msg_copy((zmq_msg_t*) &sample->ext_data.message, &ext_data);
+			sample->ext_data.buffer = (uint8_t*) zmq_msg_data((zmq_msg_t*) &sample->ext_data.message);
+			sample->ext_data.size = zmq_msg_size((zmq_msg_t*) &sample->ext_data.message);
+			zmq_msg_send(&ext_data, sock_pub, 0);
+			zmq_msg_close(&ext_data);
+		}
+		sample->data.buffer = (uint8_t*) zmq_msg_data((zmq_msg_t*) &sample->data.message);
+		sample->topic_len = std::strlen((const char*) sample->data.buffer);
+		sample->base = (YOHeaderBase*) (sample->data.buffer + sample->topic_len + 1);
+		sample->data.size = zmq_msg_size((zmq_msg_t*) &sample->data);
+	}
+	return sample;
+}
+
 void start_proxy()
 {
     void *context = zmq_ctx_new();
-    void *xsub_socket = zmq_socket(context, ZMQ_XSUB);
-    void *xpub_socket = zmq_socket(context, ZMQ_XPUB);
+    void *xsub_socket_data = zmq_socket(context, ZMQ_XSUB);
+    void *xpub_socket_data = zmq_socket(context, ZMQ_XPUB);
+    set_socket(xsub_socket_data);
+    set_socket(xpub_socket_data);
+    int res_fd = zmq_bind(xsub_socket_data, YO_SUB_DATA_SRV);
+    int res_bd = zmq_bind(xpub_socket_data, YO_PUB_DATA_SRV);
 
-    int size = 512 * 1024 * 1024; // 256 MB
-    zmq_setsockopt(xsub_socket, ZMQ_RCVBUF, &size, sizeof(size));
-    zmq_setsockopt(xsub_socket, ZMQ_SNDBUF, &size, sizeof(size));
+    void *xsub_socket_sys = zmq_socket(context, ZMQ_XSUB);
+    void *xpub_socket_sys = zmq_socket(context, ZMQ_XPUB);
+    set_socket(xsub_socket_sys);
+    set_socket(xpub_socket_sys);
+    int res_fs = zmq_bind(xsub_socket_sys, YO_SUB_SYS_SRV);
+    int res_bs = zmq_bind(xpub_socket_sys, YO_PUB_SYS_SRV);
 
-    zmq_setsockopt(xpub_socket, ZMQ_RCVBUF, &size, sizeof(size));
-    zmq_setsockopt(xpub_socket, ZMQ_SNDBUF, &size, sizeof(size));
+    zmq_pollitem_t items[] = {
+    		{xsub_socket_sys, 0, ZMQ_POLLIN, 0},
+			{xpub_socket_sys, 0, ZMQ_POLLIN, 0},
+    		{xsub_socket_data, 0, ZMQ_POLLIN, 0},
+			{xpub_socket_data, 0, ZMQ_POLLIN, 0}};
 
-    int hwm = 100000; // 100k сообщений
-    zmq_setsockopt(xsub_socket, ZMQ_RCVHWM, &hwm, sizeof(hwm));
-    zmq_setsockopt(xsub_socket, ZMQ_SNDHWM, &hwm, sizeof(hwm));
-
-    zmq_setsockopt(xpub_socket, ZMQ_RCVHWM, &hwm, sizeof(hwm));
-    zmq_setsockopt(xpub_socket, ZMQ_SNDHWM, &hwm, sizeof(hwm));
-
-
-
-
-    int res_f = zmq_bind(xsub_socket, YO_SUB_SRV);
-    int res_b = zmq_bind(xpub_socket, YO_PUB_SRV);
-    zmq_pollitem_t items[] = { {xsub_socket, 0, ZMQ_POLLIN, 0}, {xpub_socket, 0, ZMQ_POLLIN, 0}};
     uint64_t msg_num = 0;
     while (1)
     {
-        int rc = zmq_poll(items, 2, 1000);
+        int rc = zmq_poll(items, 4, 1000);
         if (rc == -1)
             break;
 
-        if (items[1].revents & ZMQ_POLLIN) // send subscribe events from subscribers
+        if (items[0].revents & ZMQ_POLLIN) //got SYS msg, send a moved copy to the SYS backend
         {
-            zmq_msg_t sub;
-            zmq_msg_init(&sub);
-            if (zmq_msg_recv(&sub, xpub_socket, 0) != -1)
-            {
-                std::string topic((char*) zmq_msg_data(&sub) + 1);
-                std::cout << " SUB/UNSUB " << zmq_msg_size(&sub) << " : " << topic << std::endl;
-                sub_map_[topic] = 0;
-                zmq_msg_send(&sub, xsub_socket, 0);
-            }
-            zmq_msg_close(&sub);
+        	get_sample(xsub_socket_sys, xpub_socket_sys);
         }
-
-        if (items[0].revents & ZMQ_POLLIN) //got msg, send a moved copy to the backend and another copy to recorder
+        if (items[1].revents & ZMQ_POLLIN) // send subscribe events from subscribers SYS
         {
-            //std::cout << " DATA " << std::endl;
-            zmq_msg_t data;
-            zmq_msg_init(&data);
-            int rcv = zmq_msg_recv(&data, xsub_socket, 0);
-            //std::cout << " DATA " << rcv << std::endl;
-            if (rcv != -1)
-            {
-                std::shared_ptr<YOSample> sample = std::make_shared<YOSample>();
-                zmq_msg_init((zmq_msg_t*)&sample->data.message);
-                zmq_msg_copy((zmq_msg_t*) &sample->data.message, &data);
-                int more;
-                size_t more_size = sizeof(more);
-                zmq_getsockopt(xsub_socket, ZMQ_RCVMORE, &more, &more_size);
-                zmq_msg_send(&data, xpub_socket, more ? ZMQ_SNDMORE : 0);
-                zmq_msg_close(&data);
-
-                if (more)
-                {
-                    zmq_msg_t ext_data;
-                    zmq_msg_init(&ext_data);
-                    zmq_msg_recv(&ext_data, xsub_socket, 0);
-                    //std::cout << " EXT DATA : " << more << std::endl;
-                    zmq_msg_init((zmq_msg_t*) &sample->ext_data.message);
-                    zmq_msg_copy((zmq_msg_t*) &sample->ext_data.message, &ext_data);
-                    sample->ext_data.buffer = (uint8_t*) zmq_msg_data((zmq_msg_t*) &sample->ext_data.message);
-                    sample->ext_data.size = zmq_msg_size((zmq_msg_t*) &sample->ext_data.message);
-                    zmq_msg_send(&ext_data, xpub_socket, 0);
-                    zmq_msg_close(&ext_data);
-                }
-
-                sample->data.buffer = (uint8_t*) zmq_msg_data((zmq_msg_t*) &sample->data.message);
-                sample->topic_len = std::strlen((const char*) sample->data.buffer);
-                sample->base = (YOHeaderBase*) (sample->data.buffer + sample->topic_len + 1);
-                sample->data.size = zmq_msg_size((zmq_msg_t*) &sample->data);
+        	send_back(xsub_socket_sys, xpub_socket_sys);
+        }
+        if (items[2].revents & ZMQ_POLLIN) //got DATA msg, send a moved copy to the DATA backend and another copy to DATA recorder
+        {
+        	std::shared_ptr<YOSample> sample = get_sample(xsub_socket_data, xpub_socket_data);
+        	if(sample)
+        	{
                 uint64_t slot = (uint64_t) sample->base->timestamp & ~0xFFFFFULL; //cut 1.048.575 from ns ts
-
                 if (slot > last_slot_)
                     last_slot_ = slot;
-
                 mutex_.lock();
                 data_map_[slot].push_back(sample);
                 mutex_.unlock();
-
-                //printf("DONE SLOT: 0x%016lX  TS: 0x%016lX   Map size: %i MESSAGES: %llu\n", slot, sample->base->timestamp, data_map_.size(), msg_num++);
-                //printf("DONE TS: 0x%016lX   Map size: %i MESSAGES: %llu\n", sample->base->timestamp, data_map_.size(), msg_num++);
-            }
+        	}
+        }
+        if (items[3].revents & ZMQ_POLLIN) // send subscribe events from subscribers DATA
+        {
+        	send_back(xsub_socket_data, xpub_socket_data);
         }
     }
 }
@@ -214,7 +245,7 @@ void start_proxy()
 int main(int argc, char **argv)
 {
     std::cout << "Starting Broker Version " << YO_BROKER_VERSION_MAJOR << "." << YO_BROKER_VERSION_MINOR << std::endl;
-    std::cout << " SUB: " << YO_SUB_SRV << "   PUB: " << YO_PUB_SRV << std::endl;
+    std::cout << " SUB: " << YO_SUB_DATA_SRV << "   PUB: " << YO_PUB_DATA_SRV << std::endl;
 
     pthread_t tid;
     int thread_id = 1;

@@ -92,7 +92,7 @@ public:
     void initExtData(uint8_t *data, uint32_t size);
     uint8_t *initExtSize(uint32_t size);
 
-	void setTopic(const char *topic);
+	void setTopic(const std::string &topic);
 	const char *getTopic();
 
 };

@@ -26,6 +26,16 @@ void IPlugin::Transmit(const std::string &topic, const YOVariant &data)
 {
 	bus_->Transmit(this, topic, data);
 }
+void IPlugin::TransmitSys(const std::string &topic, const YOVariant &data)
+{
+	YOMessage msg(data);
+	bus_->TransmitSys(this, topic, msg);
+}
+
+void IPlugin::TransmitSys(const std::string &topic, YOMessage &data)
+{
+	bus_->TransmitSys(this, topic, data);
+}
 
 int fn(const std::string &topic, std::shared_ptr<YOMessage> message, void *param)
 {
@@ -34,11 +44,18 @@ int fn(const std::string &topic, std::shared_ptr<YOMessage> message, void *param
 	return 0;
 }
 
+int fn_sys(const std::string &topic, std::shared_ptr<YOMessage> message, void *param)
+{
+	YOPluginInfo *pi = (YOPluginInfo *) param;
+	pi->plugin->OnSystem(topic, message);
+	return 0;
+}
+
 void *fn_thread(void *param)
 {
 	YOPluginInfo *pi = (YOPluginInfo *) param;
-
 	pi->yonode = new YONode(pi->name.c_str());
+	pi->yonode->subscribeSysFn(fn_sys, param);
 
 	for(auto &topic : pi->adverts)
 	{
@@ -60,9 +77,6 @@ void *fn_thread(void *param)
 	{
 		pi->yonode->connect();
 	}
-
-	//pi->yonode->addSignalFunction(SIGINT, sig_fn, &node);
-	std::cout << " THREAD FINISHED !!!!!!!!!!!!" << pi->name << std::endl;
     return  param;
 }
 
@@ -93,6 +107,12 @@ void YOPluginBus::Transmit(IPlugin* self, const std::string &topic, YOMessage &m
 {
 	YOPluginInfo &p_info = plugins_[self->GetName()];
 	p_info.yonode->sendMessage(topic.c_str(), message);
+}
+
+void YOPluginBus::TransmitSys(IPlugin* self, const std::string &topic, YOMessage &message)
+{
+	YOPluginInfo &p_info = plugins_[self->GetName()];
+	p_info.yonode->sendMessageSys(topic.c_str(), message);
 }
 
 void YOPluginBus::Transmit(IPlugin* self, const std::string &topic, const YOVariant &data)

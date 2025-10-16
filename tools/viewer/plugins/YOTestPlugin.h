@@ -20,6 +20,7 @@ public:
 	virtual ~YOTestPlugin();
 	void OnStart() override;
 	void OnData(const std::string &topic, std::shared_ptr<YOMessage> message) override;
+	void OnSystem(const std::string &topic, std::shared_ptr<YOMessage> message) override;
 	void OnGui()override;
 };
 
