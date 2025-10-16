@@ -51,6 +51,7 @@ public:
 	virtual void OnSetNode(Node *node){}
 	virtual void OnStop(){}
 	virtual void OnData(const std::string &topic, std::shared_ptr<YOMessage> message){}
+	virtual void OnSystem(const std::string &topic, std::shared_ptr<YOMessage> message){}
 	virtual void OnUpdate(float timeStep){}
 	virtual void OnGui(){}
 
@@ -61,6 +62,8 @@ public:
 	void Transmit(const std::string &topic, const uint8_t* data, size_t size);
 	void Transmit(const std::string &topic, const YOVariant &data);
 	void Transmit(const std::string &topic, YOMessage &message);
+	void TransmitSys(const std::string &topic, const YOVariant &data);
+	void TransmitSys(const std::string &topic, YOMessage &message);
 
 };
 
