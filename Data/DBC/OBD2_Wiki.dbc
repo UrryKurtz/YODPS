@@ -1,0 +1,1392 @@
+VERSION "OBD2 v0.1"
+
+NS_ :
+    NS_DESC_
+    CM_
+    BA_DEF_
+    BA_
+    VAL_
+    CAT_DEF_
+    CAT_
+    FILTER
+    EV_DATA_
+    ENVVAR_DATA_
+    SGTYPE_
+    SGTYPE_VAL_
+    BA_DEF_DEF_
+    BA_DEF_DEF_REL_
+    BU_SG_REL_
+    BU_EV_REL_
+    BU_BO_REL_
+    SG_MUL_VAL_
+
+BS_:
+
+BU_: OBD2
+
+BO_ 0 Supported_PIDs_01_20: 4 OBD2
+ SG_ Supported_A : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_B : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_C : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_D : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PID_01_Supported : 0|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_02_Supported : 1|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_03_Supported : 2|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_04_Supported : 3|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_05_Supported : 4|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_06_Supported : 5|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_07_Supported : 6|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_08_Supported : 7|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_09_Supported : 8|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_0A_Supported : 9|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_0B_Supported : 10|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_0C_Supported : 11|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_0D_Supported : 12|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_0E_Supported : 13|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_0F_Supported : 14|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_10_Supported : 15|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_11_Supported : 16|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_12_Supported : 17|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_13_Supported : 18|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_14_Supported : 19|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_15_Supported : 20|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_16_Supported : 21|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_17_Supported : 22|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_18_Supported : 23|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_19_Supported : 24|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_1A_Supported : 25|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_1B_Supported : 26|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_1C_Supported : 27|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_1D_Supported : 28|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_1E_Supported : 29|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_1F_Supported : 30|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_20_Supported : 31|1@1+ (1,0) [0|1] "" OBD2
+
+BO_ 32 Supported_PIDs_21_40: 4 OBD2
+ SG_ Supported_A : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_B : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_C : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_D : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PID_21_Supported : 0|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_22_Supported : 1|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_23_Supported : 2|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_24_Supported : 3|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_25_Supported : 4|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_26_Supported : 5|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_27_Supported : 6|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_28_Supported : 7|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_29_Supported : 8|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_2A_Supported : 9|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_2B_Supported : 10|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_2C_Supported : 11|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_2D_Supported : 12|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_2E_Supported : 13|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_2F_Supported : 14|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_30_Supported : 15|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_31_Supported : 16|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_32_Supported : 17|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_33_Supported : 18|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_34_Supported : 19|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_35_Supported : 20|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_36_Supported : 21|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_37_Supported : 22|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_38_Supported : 23|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_39_Supported : 24|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_3A_Supported : 25|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_3B_Supported : 26|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_3C_Supported : 27|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_3D_Supported : 28|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_3E_Supported : 29|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_3F_Supported : 30|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_40_Supported : 31|1@1+ (1,0) [0|1] "" OBD2
+
+BO_ 64 Supported_PIDs_41_60: 4 OBD2
+ SG_ Supported_A : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_B : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_C : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_D : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PID_41_Supported : 0|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_42_Supported : 1|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_43_Supported : 2|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_44_Supported : 3|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_45_Supported : 4|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_46_Supported : 5|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_47_Supported : 6|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_48_Supported : 7|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_49_Supported : 8|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_4A_Supported : 9|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_4B_Supported : 10|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_4C_Supported : 11|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_4D_Supported : 12|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_4E_Supported : 13|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_4F_Supported : 14|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_50_Supported : 15|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_51_Supported : 16|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_52_Supported : 17|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_53_Supported : 18|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_54_Supported : 19|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_55_Supported : 20|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_56_Supported : 21|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_57_Supported : 22|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_58_Supported : 23|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_59_Supported : 24|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_5A_Supported : 25|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_5B_Supported : 26|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_5C_Supported : 27|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_5D_Supported : 28|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_5E_Supported : 29|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_5F_Supported : 30|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_60_Supported : 31|1@1+ (1,0) [0|1] "" OBD2
+
+BO_ 96 Supported_PIDs_61_80: 4 OBD2
+ SG_ Supported_A : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_B : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_C : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_D : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PID_61_Supported : 0|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_62_Supported : 1|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_63_Supported : 2|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_64_Supported : 3|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_65_Supported : 4|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_66_Supported : 5|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_67_Supported : 6|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_68_Supported : 7|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_69_Supported : 8|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_6A_Supported : 9|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_6B_Supported : 10|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_6C_Supported : 11|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_6D_Supported : 12|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_6E_Supported : 13|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_6F_Supported : 14|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_70_Supported : 15|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_71_Supported : 16|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_72_Supported : 17|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_73_Supported : 18|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_74_Supported : 19|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_75_Supported : 20|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_76_Supported : 21|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_77_Supported : 22|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_78_Supported : 23|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_79_Supported : 24|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_7A_Supported : 25|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_7B_Supported : 26|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_7C_Supported : 27|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_7D_Supported : 28|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_7E_Supported : 29|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_7F_Supported : 30|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_80_Supported : 31|1@1+ (1,0) [0|1] "" OBD2
+
+BO_ 128 Supported_PIDs_81_A0: 4 OBD2
+ SG_ Supported_A : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_B : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_C : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_D : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PID_81_Supported : 0|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_82_Supported : 1|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_83_Supported : 2|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_84_Supported : 3|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_85_Supported : 4|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_86_Supported : 5|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_87_Supported : 6|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_88_Supported : 7|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_89_Supported : 8|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_8A_Supported : 9|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_8B_Supported : 10|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_8C_Supported : 11|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_8D_Supported : 12|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_8E_Supported : 13|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_8F_Supported : 14|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_90_Supported : 15|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_91_Supported : 16|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_92_Supported : 17|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_93_Supported : 18|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_94_Supported : 19|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_95_Supported : 20|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_96_Supported : 21|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_97_Supported : 22|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_98_Supported : 23|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_99_Supported : 24|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_9A_Supported : 25|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_9B_Supported : 26|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_9C_Supported : 27|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_9D_Supported : 28|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_9E_Supported : 29|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_9F_Supported : 30|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_A0_Supported : 31|1@1+ (1,0) [0|1] "" OBD2
+
+BO_ 160 Supported_PIDs_A1_C0: 4 OBD2
+ SG_ Supported_A : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_B : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_C : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_D : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PID_A1_Supported : 0|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_A2_Supported : 1|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_A3_Supported : 2|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_A4_Supported : 3|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_A5_Supported : 4|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_A6_Supported : 5|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_A7_Supported : 6|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_A8_Supported : 7|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_A9_Supported : 8|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_AA_Supported : 9|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_AB_Supported : 10|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_AC_Supported : 11|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_AD_Supported : 12|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_AE_Supported : 13|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_AF_Supported : 14|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_B0_Supported : 15|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_B1_Supported : 16|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_B2_Supported : 17|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_B3_Supported : 18|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_B4_Supported : 19|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_B5_Supported : 20|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_B6_Supported : 21|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_B7_Supported : 22|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_B8_Supported : 23|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_B9_Supported : 24|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_BA_Supported : 25|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_BB_Supported : 26|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_BC_Supported : 27|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_BD_Supported : 28|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_BE_Supported : 29|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_BF_Supported : 30|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_C0_Supported : 31|1@1+ (1,0) [0|1] "" OBD2
+
+BO_ 192 Supported_PIDs_C1_E0: 4 OBD2
+ SG_ Supported_A : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_B : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_C : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Supported_D : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PID_C1_Supported : 0|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_C2_Supported : 1|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_C3_Supported : 2|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_C4_Supported : 3|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_C5_Supported : 4|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_C6_Supported : 5|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_C7_Supported : 6|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_C8_Supported : 7|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_C9_Supported : 8|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_CA_Supported : 9|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_CB_Supported : 10|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_CC_Supported : 11|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_CD_Supported : 12|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_CE_Supported : 13|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_CF_Supported : 14|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_D0_Supported : 15|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_D1_Supported : 16|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_D2_Supported : 17|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_D3_Supported : 18|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_D4_Supported : 19|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_D5_Supported : 20|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_D6_Supported : 21|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_D7_Supported : 22|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_D8_Supported : 23|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_D9_Supported : 24|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_DA_Supported : 25|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_DB_Supported : 26|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_DC_Supported : 27|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_DD_Supported : 28|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_DE_Supported : 29|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_DF_Supported : 30|1@1+ (1,0) [0|1] "" OBD2
+ SG_ PID_E0_Supported : 31|1@1+ (1,0) [0|1] "" OBD2
+
+BO_ 1 Status_since_DTCs_cleared: 4 OBD2
+ SG_ MIL_On : 7|1@1+ (1,0) [0|1] "" OBD2
+ SG_ DTC_Count : 0|7@1+ (1,0) [0|127] "" OBD2
+ SG_ Common_Misfire_Avail : 8|1@1+ (1,0) [0|1] "" OBD2
+ SG_ Common_FuelSys_Avail : 9|1@1+ (1,0) [0|1] "" OBD2
+ SG_ Common_Comps_Avail : 10|1@1+ (1,0) [0|1] "" OBD2
+ SG_ EngineType_Diesel : 11|1@1+ (1,0) [0|1] "" OBD2
+ SG_ Common_Misfire_Incmp : 12|1@1+ (1,0) [0|1] "" OBD2
+ SG_ Common_FuelSys_Incmp : 13|1@1+ (1,0) [0|1] "" OBD2
+ SG_ Common_Comps_Incmp : 14|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_Catalyst_Avail : 16|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_HeatedCat_Avail : 17|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_Evap_Avail : 18|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_SecondaryAir_Avail : 19|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_GPF_Avail : 20|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_O2Sensor_Avail : 21|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_O2Heater_Avail : 22|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_EGR_VVT_Avail : 23|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_Catalyst_Incmp : 24|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_HeatedCat_Incmp : 25|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_Evap_Incmp : 26|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_SecondaryAir_Incmp : 27|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_GPF_Incmp : 28|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_O2Sensor_Incmp : 29|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_O2Heater_Incmp : 30|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_EGR_VVT_Incmp : 31|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_NMHC_Cat_Avail : 16|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_NOx_SCR_Avail : 17|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_Reserved_C2_Avail : 18|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_BoostPress_Avail : 19|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_Reserved_C4_Avail : 20|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_ExhGasSensor_Avail : 21|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_PM_Filter_Avail : 22|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_EGR_VVT_Avail : 23|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_NMHC_Cat_Incmp : 24|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_NOx_SCR_Incmp : 25|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_Reserved_D2_Incmp : 26|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_BoostPress_Incmp : 27|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_Reserved_D4_Incmp : 28|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_ExhGasSensor_Incmp : 29|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_PM_Filter_Incmp : 30|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_EGR_VVT_Incmp : 31|1@1+ (1,0) [0|1] "" OBD2
+
+BO_ 2 Freeze_DTC: 2 OBD2
+ SG_ Freeze_DTC_Raw : 0|16@1+ (1,0) [0|65535] "" OBD2
+
+BO_ 3 Fuel_system_status: 2 OBD2
+ SG_ Fuel_system1_status : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Fuel_system2_status : 8|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 4 Calculated_engine_load: 1 OBD2
+ SG_ Calculated_Engine_Load : 0|8@1+ (0.39215686274509803,0) [0|100] "%" OBD2
+
+BO_ 5 Engine_coolant_temperature: 1 OBD2
+ SG_ Coolant_Temp : 0|8@1+ (1,-40) [-40|215] "°C" OBD2
+
+BO_ 6 Short_term_fuel_trim_B1: 1 OBD2
+ SG_ STFT_B1 : 0|8@1+ (0.78125,-100) [-100|99.22] "%" OBD2
+
+BO_ 7 Long_term_fuel_trim_B1: 1 OBD2
+ SG_ LTFT_B1 : 0|8@1+ (0.78125,-100) [-100|99.22] "%" OBD2
+
+BO_ 8 Short_term_fuel_trim_B2: 1 OBD2
+ SG_ STFT_B2 : 0|8@1+ (0.78125,-100) [-100|99.22] "%" OBD2
+
+BO_ 9 Long_term_fuel_trim_B2: 1 OBD2
+ SG_ LTFT_B2 : 0|8@1+ (0.78125,-100) [-100|99.22] "%" OBD2
+
+BO_ 10 Fuel_pressure: 1 OBD2
+ SG_ Fuel_Pressure : 0|8@1+ (3,0) [0|765] "kPa" OBD2
+
+BO_ 11 MAP: 1 OBD2
+ SG_ MAP : 0|8@1+ (1,0) [0|255] "kPa" OBD2
+
+BO_ 12 Engine_RPM: 2 OBD2
+ SG_ Engine_RPM : 0|16@1+ (0.25,0) [0|16383.75] "rpm" OBD2
+
+BO_ 13 Vehicle_speed: 1 OBD2
+ SG_ Vehicle_Speed : 0|8@1+ (1,0) [0|255] "km/h" OBD2
+
+BO_ 14 Timing_advance: 1 OBD2
+ SG_ Timing_Advance : 0|8@1+ (0.5,-64) [-64|63.5] "°" OBD2
+
+BO_ 15 Intake_air_temperature: 1 OBD2
+ SG_ IAT : 0|8@1+ (1,-40) [-40|215] "°C" OBD2
+
+BO_ 16 MAF_air_flow_rate: 2 OBD2
+ SG_ MAF : 0|16@1+ (0.01,0) [0|655.35] "g/s" OBD2
+
+BO_ 17 Throttle_position: 1 OBD2
+ SG_ Throttle_Position : 0|8@1+ (0.39215686274509803,0) [0|100] "%" OBD2
+
+BO_ 18 Secondary_air_status: 1 OBD2
+ SG_ Secondary_Air_Status : 0|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 19 O2_sensors_present_2banks: 1 OBD2
+ SG_ O2_Sensors_Present_Mask : 0|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 20 O2_B1S1: 2 OBD2
+ SG_ O2_Voltage : 0|8@1+ (0.005,0) [0|1.275] "V" OBD2
+ SG_ O2_STFT : 8|8@1+ (0.78125,-100) [-100|99.22] "%" OBD2
+
+BO_ 21 O2_B1S2: 2 OBD2
+ SG_ O2_Voltage : 0|8@1+ (0.005,0) [0|1.275] "V" OBD2
+ SG_ O2_STFT : 8|8@1+ (0.78125,-100) [-100|99.22] "%" OBD2
+
+BO_ 22 O2_B1S3: 2 OBD2
+ SG_ O2_Voltage : 0|8@1+ (0.005,0) [0|1.275] "V" OBD2
+ SG_ O2_STFT : 8|8@1+ (0.78125,-100) [-100|99.22] "%" OBD2
+
+BO_ 23 O2_B1S4: 2 OBD2
+ SG_ O2_Voltage : 0|8@1+ (0.005,0) [0|1.275] "V" OBD2
+ SG_ O2_STFT : 8|8@1+ (0.78125,-100) [-100|99.22] "%" OBD2
+
+BO_ 24 O2_B2S1: 2 OBD2
+ SG_ O2_Voltage : 0|8@1+ (0.005,0) [0|1.275] "V" OBD2
+ SG_ O2_STFT : 8|8@1+ (0.78125,-100) [-100|99.22] "%" OBD2
+
+BO_ 25 O2_B2S2: 2 OBD2
+ SG_ O2_Voltage : 0|8@1+ (0.005,0) [0|1.275] "V" OBD2
+ SG_ O2_STFT : 8|8@1+ (0.78125,-100) [-100|99.22] "%" OBD2
+
+BO_ 26 O2_B2S3: 2 OBD2
+ SG_ O2_Voltage : 0|8@1+ (0.005,0) [0|1.275] "V" OBD2
+ SG_ O2_STFT : 8|8@1+ (0.78125,-100) [-100|99.22] "%" OBD2
+
+BO_ 27 O2_B2S4: 2 OBD2
+ SG_ O2_Voltage : 0|8@1+ (0.005,0) [0|1.275] "V" OBD2
+ SG_ O2_STFT : 8|8@1+ (0.78125,-100) [-100|99.22] "%" OBD2
+
+BO_ 28 OBD_standards: 1 OBD2
+ SG_ OBD_Standard_Code : 0|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 29 O2_sensors_present_4banks: 1 OBD2
+ SG_ O2_Sensors_Present_Mask_4banks : 0|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 30 Auxiliary_input_status: 1 OBD2
+ SG_ Power_Take_Off_Status : 0|1@1+ (1,0) [0|1] "" OBD2
+
+BO_ 31 Run_time_since_engine_start: 2 OBD2
+ SG_ Run_Time : 0|16@1+ (1,0) [0|65535] "s" OBD2
+
+BO_ 33 Distance_with_MIL_on: 2 OBD2
+ SG_ Distance_MIL_On : 0|16@1+ (1,0) [0|65535] "km" OBD2
+
+BO_ 34 Fuel_rail_pressure_rel_vac: 2 OBD2
+ SG_ Fuel_Rail_Pressure_Rel : 0|16@1+ (0.079,0) [0|5160.945] "kPa" OBD2
+
+BO_ 35 Fuel_rail_pressure_direct: 2 OBD2
+ SG_ Fuel_Rail_Pressure_Direct : 0|16@1+ (10,0) [0|655350] "kPa" OBD2
+
+BO_ 36 O2_S1_WR_lambda_voltage: 4 OBD2
+ SG_ WR_O2S1_Lambda : 0|16@1+ (3.0517578125e-05,0) [0|2] "" OBD2
+ SG_ WR_O2S1_Voltage : 16|16@1+ (0.00390625,0) [0|0.99609375] "V" OBD2
+
+BO_ 37 O2_S2_WR_lambda_voltage: 4 OBD2
+ SG_ WR_O2S2_Lambda : 0|16@1+ (3.0517578125e-05,0) [0|2] "" OBD2
+ SG_ WR_O2S2_Voltage : 16|16@1+ (0.00390625,0) [0|0.99609375] "V" OBD2
+
+BO_ 38 O2_S3_WR_lambda_voltage: 4 OBD2
+ SG_ WR_O2S3_Lambda : 0|16@1+ (3.0517578125e-05,0) [0|2] "" OBD2
+ SG_ WR_O2S3_Voltage : 16|16@1+ (0.00390625,0) [0|0.99609375] "V" OBD2
+
+BO_ 39 O2_S4_WR_lambda_voltage: 4 OBD2
+ SG_ WR_O2S4_Lambda : 0|16@1+ (3.0517578125e-05,0) [0|2] "" OBD2
+ SG_ WR_O2S4_Voltage : 16|16@1+ (0.00390625,0) [0|0.99609375] "V" OBD2
+
+BO_ 40 O2_S5_WR_lambda_voltage: 4 OBD2
+ SG_ WR_O2S5_Lambda : 0|16@1+ (3.0517578125e-05,0) [0|2] "" OBD2
+ SG_ WR_O2S5_Voltage : 16|16@1+ (0.00390625,0) [0|0.99609375] "V" OBD2
+
+BO_ 41 O2_S6_WR_lambda_voltage: 4 OBD2
+ SG_ WR_O2S6_Lambda : 0|16@1+ (3.0517578125e-05,0) [0|2] "" OBD2
+ SG_ WR_O2S6_Voltage : 16|16@1+ (0.00390625,0) [0|0.99609375] "V" OBD2
+
+BO_ 42 O2_S7_WR_lambda_voltage: 4 OBD2
+ SG_ WR_O2S7_Lambda : 0|16@1+ (3.0517578125e-05,0) [0|2] "" OBD2
+ SG_ WR_O2S7_Voltage : 16|16@1+ (0.00390625,0) [0|0.99609375] "V" OBD2
+
+BO_ 43 O2_S8_WR_lambda_voltage: 4 OBD2
+ SG_ WR_O2S8_Lambda : 0|16@1+ (3.0517578125e-05,0) [0|2] "" OBD2
+ SG_ WR_O2S8_Voltage : 16|16@1+ (0.00390625,0) [0|0.99609375] "V" OBD2
+
+BO_ 44 Commanded_EGR: 1 OBD2
+ SG_ Commanded_EGR : 0|8@1+ (0.39215686274509803,0) [0|100] "%" OBD2
+
+BO_ 45 EGR_Error: 1 OBD2
+ SG_ EGR_Error : 0|8@1+ (0.78125,-100) [-100|100] "%" OBD2
+
+BO_ 46 Commanded_evap_purge: 1 OBD2
+ SG_ Commanded_Evap_Purge : 0|8@1+ (0.39215686274509803,0) [0|100] "%" OBD2
+
+BO_ 47 Fuel_level: 1 OBD2
+ SG_ Fuel_Level : 0|8@1+ (0.39215686274509803,0) [0|100] "%" OBD2
+
+BO_ 48 Warmups_since_cleared: 1 OBD2
+ SG_ Warmups_Since_Codes_Cleared : 0|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 49 Distance_since_codes_cleared: 2 OBD2
+ SG_ Distance_Since_Clear : 0|16@1+ (1,0) [0|65535] "km" OBD2
+
+BO_ 50 Evap_System_Vapor_Pressure: 2 OBD2
+ SG_ Evap_Pressure_Pa          : 0|16@1+ (0.25,0) [-8192|8191.75] "Pa" OBD2
+ 
+BO_ 51 Barometric_pressure: 1 OBD2
+ SG_ Barometric_Pressure : 0|8@1+ (1,0) [0|255] "kPa" OBD2
+
+BO_ 52 O2S1_Wideband: 4 OBD2
+ SG_ O2S1_Lambda               : 0|16@1+ (0.000030517578125,0) [0|2] "" OBD2
+ SG_ O2S1_Current_mA           : 16|16@1+ (0.00390625,-128) [-128|127.996] "mA" OBD2
+
+BO_ 53 O2S2_Wideband: 4 OBD2
+ SG_ O2S2_Lambda               : 0|16@1+ (0.000030517578125,0) [0|2] "" OBD2
+ SG_ O2S2_Current_mA           : 16|16@1+ (0.00390625,-128) [-128|127.996] "mA" OBD2
+
+BO_ 54 O2S3_Wideband: 4 OBD2
+ SG_ O2S3_Lambda               : 0|16@1+ (0.000030517578125,0) [0|2] "" OBD2
+ SG_ O2S3_Current_mA           : 16|16@1+ (0.00390625,-128) [-128|127.996] "mA" OBD2
+
+BO_ 55 O2S4_Wideband: 4 OBD2
+ SG_ O2S4_Lambda               : 0|16@1+ (0.000030517578125,0) [0|2] "" OBD2
+ SG_ O2S4_Current_mA           : 16|16@1+ (0.00390625,-128) [-128|127.996] "mA" OBD2
+
+BO_ 56 O2S5_Wideband: 4 OBD2
+ SG_ O2S5_Lambda               : 0|16@1+ (0.000030517578125,0) [0|2] "" OBD2
+ SG_ O2S5_Current_mA           : 16|16@1+ (0.00390625,-128) [-128|127.996] "mA" OBD2
+
+BO_ 57 O2S6_Wideband: 4 OBD2
+ SG_ O2S6_Lambda               : 0|16@1+ (0.000030517578125,0) [0|2] "" OBD2
+ SG_ O2S6_Current_mA           : 16|16@1+ (0.00390625,-128) [-128|127.996] "mA" OBD2
+
+BO_ 58 O2S7_Wideband: 4 OBD2
+ SG_ O2S7_Lambda               : 0|16@1+ (0.000030517578125,0) [0|2] "" OBD2
+ SG_ O2S7_Current_mA           : 16|16@1+ (0.00390625,-128) [-128|127.996] "mA" OBD2
+
+BO_ 59 O2S8_Wideband: 4 OBD2
+ SG_ O2S8_Lambda               : 0|16@1+ (0.000030517578125,0) [0|2] "" OBD2
+ SG_ O2S8_Current_mA           : 16|16@1+ (0.00390625,-128) [-128|127.996] "mA" OBD2
+ 
+BO_ 60 Catalyst_Temperature_B1S1: 2 OBD2
+ SG_ Cat_Temp_B1S1 : 0|16@1+ (0.1,0) [0|6553.5] "°C" OBD2
+
+BO_ 61 Catalyst_Temperature_B2S1: 2 OBD2
+ SG_ Cat_Temp_B2S1 : 0|16@1+ (0.1,0) [0|6553.5] "°C" OBD2
+
+BO_ 62 Catalyst_Temperature_B1S2: 2 OBD2
+ SG_ Cat_Temp_B1S2 : 0|16@1+ (0.1,0) [0|6553.5] "°C" OBD2
+
+BO_ 63 Catalyst_Temperature_B2S2: 2 OBD2
+ SG_ Cat_Temp_B2S2 : 0|16@1+ (0.1,0) [0|6553.5] "°C" OBD2
+
+BO_ 65 Status_this_drive_cycle: 4 OBD2
+ SG_ MIL_On_DC : 7|1@1+ (1,0) [0|1] "" OBD2
+ SG_ DTC_Count_DC : 0|7@1+ (1,0) [0|127] "" OBD2
+ SG_ Common_Misfire_Avail_DC : 8|1@1+ (1,0) [0|1] "" OBD2
+ SG_ Common_FuelSys_Avail_DC : 9|1@1+ (1,0) [0|1] "" OBD2
+ SG_ Common_Comps_Avail_DC : 10|1@1+ (1,0) [0|1] "" OBD2
+ SG_ EngineType_Diesel_DC : 11|1@1+ (1,0) [0|1] "" OBD2
+ SG_ Common_Misfire_Incmp_DC : 12|1@1+ (1,0) [0|1] "" OBD2
+ SG_ Common_FuelSys_Incmp_DC : 13|1@1+ (1,0) [0|1] "" OBD2
+ SG_ Common_Comps_Incmp_DC : 14|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_Catalyst_Avail_DC : 16|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_HeatedCat_Avail_DC : 17|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_Evap_Avail_DC : 18|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_SecondaryAir_Avail_DC : 19|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_GPF_Avail_DC : 20|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_O2Sensor_Avail_DC : 21|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_O2Heater_Avail_DC : 22|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_EGR_VVT_Avail_DC : 23|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_Catalyst_Incmp_DC : 24|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_HeatedCat_Incmp_DC : 25|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_Evap_Incmp_DC : 26|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_SecondaryAir_Incmp_DC : 27|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_GPF_Incmp_DC : 28|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_O2Sensor_Incmp_DC : 29|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_O2Heater_Incmp_DC : 30|1@1+ (1,0) [0|1] "" OBD2
+ SG_ SI_EGR_VVT_Incmp_DC : 31|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_NMHC_Cat_Avail_DC : 16|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_NOx_SCR_Avail_DC : 17|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_Reserved_C2_Avail_DC : 18|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_BoostPress_Avail_DC : 19|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_Reserved_C4_Avail_DC : 20|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_ExhGasSensor_Avail_DC : 21|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_PM_Filter_Avail_DC : 22|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_EGR_VVT_Avail_DC : 23|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_NMHC_Cat_Incmp_DC : 24|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_NOx_SCR_Incmp_DC : 25|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_Reserved_D2_Incmp_DC : 26|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_BoostPress_Incmp_DC : 27|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_Reserved_D4_Incmp_DC : 28|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_ExhGasSensor_Incmp_DC : 29|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_PM_Filter_Incmp_DC : 30|1@1+ (1,0) [0|1] "" OBD2
+ SG_ CI_EGR_VVT_Incmp_DC : 31|1@1+ (1,0) [0|1] "" OBD2
+
+BO_ 66 Control_module_voltage: 2 OBD2
+ SG_ Control_Module_Voltage : 0|16@1+ (0.001,0) [0|65.535] "V" OBD2
+
+BO_ 67 Absolute_load_value: 2 OBD2
+ SG_ Absolute_Load : 0|16@1+ (0.04,0) [0|2621.4] "%" OBD2
+
+BO_ 68 Commanded_equivalence_ratio: 2 OBD2
+ SG_ Equivalence_Ratio : 0|16@1+ (3.0517578125e-05,0) [0|2] "" OBD2
+
+BO_ 69 Relative_throttle_position: 1 OBD2
+ SG_ Relative_Throttle_Position : 0|8@1+ (0.39215686274509803,0) [0|100] "%" OBD2
+
+BO_ 70 Ambient_air_temperature: 1 OBD2
+ SG_ Ambient_Temp : 0|8@1+ (1,-40) [-40|215] "°C" OBD2
+
+BO_ 71 Absolute_throttle_position_B: 1 OBD2
+ SG_ Absolute_Throttle_B : 0|8@1+ (0.39215686274509803,0) [0|100] "%" OBD2
+
+BO_ 72 Absolute_throttle_position_C: 1 OBD2
+ SG_ Absolute_Throttle_C : 0|8@1+ (0.39215686274509803,0) [0|100] "%" OBD2
+
+BO_ 73 Accelerator_pedal_position_D: 1 OBD2
+ SG_ Accel_Pedal_D : 0|8@1+ (0.39215686274509803,0) [0|100] "%" OBD2
+
+BO_ 74 Accelerator_pedal_position_E: 1 OBD2
+ SG_ Accel_Pedal_E : 0|8@1+ (0.39215686274509803,0) [0|100] "%" OBD2
+
+BO_ 75 Accelerator_pedal_position_F: 1 OBD2
+ SG_ Accel_Pedal_F : 0|8@1+ (0.39215686274509803,0) [0|100] "%" OBD2
+
+BO_ 76 Commanded_throttle_actuator: 1 OBD2
+ SG_ Commanded_Throttle_Actuator : 0|8@1+ (0.39215686274509803,0) [0|100] "%" OBD2
+
+BO_ 77 Time_run_with_MIL_on: 2 OBD2
+ SG_ Time_MIL_On : 0|16@1+ (1,0) [0|65535] "min" OBD2
+
+BO_ 78 Time_since_codes_cleared: 2 OBD2
+ SG_ Time_Since_Clear : 0|16@1+ (1,0) [0|65535] "min" OBD2
+
+BO_ 79 Max_values_Lambda_V_I_MAP: 4 OBD2
+ SG_ Max_AFR_Equiv_Ratio       : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Max_O2_Sensor_Voltage_V   : 8|8@1+ (1,0) [0|255] "V" OBD2
+ SG_ Max_O2_Sensor_Current_mA  : 16|8@1+ (1,0) [0|255] "mA" OBD2
+ SG_ Max_MAP_kPa               : 24|8@1+ (10,0) [0|2550] "kPa" OBD2
+
+BO_ 80 Max_MAF: 4 OBD2
+ SG_ Max_MAF_gps               : 0|8@1+ (10,0) [0|2550] "g/s" OBD2
+ SG_ Reserved_B                : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Reserved_C                : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Reserved_D                : 24|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 81 Fuel_Type: 1 OBD2
+ SG_ Fuel_Type                 : 0|8@1+ (1,0) [0|255] "" OBD2 
+
+BO_ 82 Ethanol_fuel_percentage: 1 OBD2
+ SG_ Ethanol_Percentage : 0|8@1+ (0.39215686274509803,0) [0|100] "%" OBD2
+
+BO_ 83 Abs_Evap_Vapor_Pressure: 2 OBD2
+ SG_ Evap_Pressure_kPa         : 0|16@1+ (0.005,0) [0|327.675] "kPa" OBD2
+
+BO_ 84 Evap_Vapor_Pressure: 2 OBD2
+ SG_ Evap_Pressure_Pa_Signed   : 0|16@1+ (1,0) [-32768|32767] "Pa" OBD2
+
+BO_ 85 STFT_Secondary: 2 OBD2
+ SG_ STFT_Sec_Bank1_pct        : 0|8@1+ (0.78125,-100) [-100|99.21875] "%" OBD2
+ SG_ STFT_Sec_Bank3_pct        : 8|8@1+ (0.78125,-100) [-100|99.21875] "%" OBD2
+
+BO_ 90 Relative_accelerator_pedal_position: 1 OBD2
+ SG_ Relative_Accel_Pedal : 0|8@1+ (0.39215686274509803,0) [0|100] "%" OBD2
+
+BO_ 92 Engine_oil_temperature: 1 OBD2
+ SG_ Oil_Temperature : 0|8@1+ (1,-40) [-40|215] "°C" OBD2
+
+BO_ 94 Engine_fuel_rate_raw: 2 OBD2
+ SG_ Engine_Fuel_Rate_Raw : 0|16@1+ (1,0) [0|65535] "" OBD2
+
+BO_ 95 Emission_requirements: 1 OBD2
+ SG_ Emission_Requirements_Code : 0|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 97 Drivers_demand_engine_percent_torque: 1 OBD2
+ SG_ Drivers_Demand_Torque_pct : 0|8@1+ (1,-125) [-125|130] "%" OBD2
+ 
+BO_ 98 Actual_engine_percent_torque: 1 OBD2
+ SG_ Actual_Engine_Torque_pct : 0|8@1+ (1,-125) [-125|130] "%" OBD2
+ 
+BO_ 99 Engine_reference_torque: 2 OBD2
+ SG_ Engine_Ref_Torque_Nm : 0|16@1+ (1,0) [0|65535] "N·m" OBD2
+ 
+BO_ 100 Engine_percent_torque_data: 5 OBD2
+ SG_ Idle_Torque_pct : 0|8@1+ (1,-125) [-125|130] "%" OBD2
+ SG_ Engine_Point1_Torque_pct : 8|8@1+ (1,-125) [-125|130] "%" OBD2
+ SG_ Engine_Point2_Torque_pct : 16|8@1+ (1,-125) [-125|130] "%" OBD2
+ SG_ Engine_Point3_Torque_pct : 24|8@1+ (1,-125) [-125|130] "%" OBD2
+ SG_ Engine_Point4_Torque_pct : 32|8@1+ (1,-125) [-125|130] "%" OBD2
+
+BO_ 101 Auxiliary_IO_supported: 2 OBD2
+ SG_ AuxIO_Bit_0 : 0|1@1+ (1,0) [0|1] "" OBD2
+ SG_ AuxIO_Bit_1 : 1|1@1+ (1,0) [0|1] "" OBD2
+ SG_ AuxIO_Bit_2 : 2|1@1+ (1,0) [0|1] "" OBD2
+ SG_ AuxIO_Bit_3 : 3|1@1+ (1,0) [0|1] "" OBD2
+ SG_ AuxIO_Bit_4 : 4|1@1+ (1,0) [0|1] "" OBD2
+ SG_ AuxIO_Bit_5 : 5|1@1+ (1,0) [0|1] "" OBD2
+ SG_ AuxIO_Bit_6 : 6|1@1+ (1,0) [0|1] "" OBD2
+ SG_ AuxIO_Bit_7 : 7|1@1+ (1,0) [0|1] "" OBD2
+ SG_ AuxIO_Bit_8 : 8|1@1+ (1,0) [0|1] "" OBD2
+ SG_ AuxIO_Bit_9 : 9|1@1+ (1,0) [0|1] "" OBD2
+ SG_ AuxIO_Bit_10 : 10|1@1+ (1,0) [0|1] "" OBD2
+ SG_ AuxIO_Bit_11 : 11|1@1+ (1,0) [0|1] "" OBD2
+ SG_ AuxIO_Bit_12 : 12|1@1+ (1,0) [0|1] "" OBD2
+ SG_ AuxIO_Bit_13 : 13|1@1+ (1,0) [0|1] "" OBD2
+ SG_ AuxIO_Bit_14 : 14|1@1+ (1,0) [0|1] "" OBD2
+ SG_ AuxIO_Bit_15 : 15|1@1+ (1,0) [0|1] "" OBD2
+
+BO_ 102 Mass_air_flow_sensor_AB: 5 OBD2
+ SG_ MAF_SensorA_Supported : 0|1@1+ (1,0) [0|1] "" OBD2
+ SG_ MAF_SensorB_Supported : 1|1@1+ (1,0) [0|1] "" OBD2
+ SG_ MAF_SensorA_gps : 8|16@1+ (0.03125,0) [0|2047.96875] "g/s" OBD2
+ SG_ MAF_SensorB_gps : 24|16@1+ (0.03125,0) [0|2047.96875] "g/s" OBD2
+
+BO_ 103 Engine_coolant_temperature_sensors: 3 OBD2
+ SG_ ECT_Sensor1_Supported : 0|1@1+ (1,0) [0|1] "" OBD2
+ SG_ ECT_Sensor2_Supported : 1|1@1+ (1,0) [0|1] "" OBD2
+ SG_ ECT_Sensor1_degC : 8|8@1+ (1,-40) [-40|215] "°C" OBD2
+ SG_ ECT_Sensor2_degC : 16|8@1+ (1,-40) [-40|215] "°C" OBD2
+
+BO_ 104 Intake_air_temperature_sensors: 3 OBD2
+ SG_ IAT_Sensor1_Supported : 0|1@1+ (1,0) [0|1] "" OBD2
+ SG_ IAT_Sensor2_Supported : 1|1@1+ (1,0) [0|1] "" OBD2
+ SG_ IAT_Sensor1_degC : 8|8@1+ (1,-40) [-40|215] "°C" OBD2
+ SG_ IAT_Sensor2_degC : 16|8@1+ (1,-40) [-40|215] "°C" OBD2
+
+BO_ 105 EGR_actual_commanded_error: 7 OBD2
+ SG_ EGR_Actual_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGR_Commanded_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGR_Error_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGR_Raw_D : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGR_Raw_E : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGR_Raw_F : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGR_Raw_G : 48|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 106 Cmd_Diesel_Intake_Airflow_Ctrl: 5 OBD2
+ SG_ IntakeFlow_A_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ IntakeFlow_B_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ IntakeFlow_C_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ IntakeFlow_D_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ IntakeFlow_E_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 107 EGR_Temperature: 5 OBD2
+ SG_ EGR_Temp_A_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGR_Temp_B_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGR_Temp_C_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGR_Temp_D_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGR_Temp_E_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 108 Cmd_Throttle_Actuator_and_Relative_Pos: 5 OBD2
+ SG_ Throttle_A_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Throttle_B_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Throttle_C_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Throttle_D_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Throttle_E_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 109 Fuel_pressure_control_system: 11 OBD2
+ SG_ FuelPressCtrl_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelPressCtrl_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelPressCtrl_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelPressCtrl_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelPressCtrl_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelPressCtrl_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelPressCtrl_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelPressCtrl_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelPressCtrl_8_raw : 64|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelPressCtrl_9_raw : 72|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelPressCtrl_10_raw : 80|8@1+ (1,0) [0|255] "" OBD2
+ 
+BO_ 110 Injection_pressure_control_system: 9 OBD2
+ SG_ InjectionPressCtrl_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ InjectionPressCtrl_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ InjectionPressCtrl_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ InjectionPressCtrl_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ InjectionPressCtrl_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ InjectionPressCtrl_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ InjectionPressCtrl_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ InjectionPressCtrl_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ InjectionPressCtrl_8_raw : 64|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 111 Turbo_comp_inlet_pressure: 3 OBD2
+ SG_ TC_InletPress_A_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ TC_InletPress_B_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ TC_InletPress_C_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 112 Boost_pressure_control: 10 OBD2
+ SG_ BoostCtrl_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ BoostCtrl_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ BoostCtrl_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ BoostCtrl_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ BoostCtrl_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ BoostCtrl_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ BoostCtrl_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ BoostCtrl_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ BoostCtrl_8_raw : 64|8@1+ (1,0) [0|255] "" OBD2
+ SG_ BoostCtrl_9_raw : 72|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 113 VGT_control: 6 OBD2
+ SG_ VGT_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ VGT_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ VGT_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ VGT_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ VGT_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ VGT_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 114 Wastegate_control: 5 OBD2
+ SG_ Wastegate_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Wastegate_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Wastegate_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Wastegate_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Wastegate_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 115 Exhaust_pressure: 5 OBD2
+ SG_ ExhaustPress_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ ExhaustPress_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ ExhaustPress_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ ExhaustPress_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ ExhaustPress_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 116 Turbocharger_RPM: 5 OBD2
+ SG_ TurboRPM_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ TurboRPM_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ TurboRPM_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ TurboRPM_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ TurboRPM_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 117 Turbocharger_temperature1: 7 OBD2
+ SG_ TurboTemp1_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ TurboTemp1_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ TurboTemp1_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ TurboTemp1_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ TurboTemp1_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ TurboTemp1_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ TurboTemp1_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 118 Turbocharger_temperature2: 7 OBD2
+ SG_ TurboTemp2_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ TurboTemp2_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ TurboTemp2_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ TurboTemp2_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ TurboTemp2_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ TurboTemp2_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ TurboTemp2_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 119 Charge_air_cooler_temperature: 5 OBD2
+ SG_ CACT_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ CACT_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ CACT_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ CACT_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ CACT_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 120 EGT_Bank1: 9 OBD2
+ SG_ EGT_Sensor1_Supported : 0|1@1+ (1,0) [0|1] "" OBD2
+ SG_ EGT_Sensor2_Supported : 1|1@1+ (1,0) [0|1] "" OBD2
+ SG_ EGT_Sensor3_Supported : 2|1@1+ (1,0) [0|1] "" OBD2
+ SG_ EGT_Sensor4_Supported : 3|1@1+ (1,0) [0|1] "" OBD2
+ SG_ EGT_Sensor1_Temp_C    : 8|16@1+ (0.1,-40) [-40|6553.5] "°C" OBD2
+ SG_ EGT_Sensor2_Temp_C    : 24|16@1+ (0.1,-40) [-40|6553.5] "°C" OBD2
+ SG_ EGT_Sensor3_Temp_C    : 40|16@1+ (0.1,-40) [-40|6553.5] "°C" OBD2
+ SG_ EGT_Sensor4_Temp_C    : 56|16@1+ (0.1,-40) [-40|6553.5] "°C" OBD2
+
+BO_ 121 EGT_Bank2: 9 OBD2
+ SG_ EGT_Sensor1_Supported : 0|1@1+ (1,0) [0|1] "" OBD2
+ SG_ EGT_Sensor2_Supported : 1|1@1+ (1,0) [0|1] "" OBD2
+ SG_ EGT_Sensor3_Supported : 2|1@1+ (1,0) [0|1] "" OBD2
+ SG_ EGT_Sensor4_Supported : 3|1@1+ (1,0) [0|1] "" OBD2
+ SG_ EGT_Sensor1_Temp_C    : 8|16@1+ (0.1,-40) [-40|6553.5] "°C" OBD2
+ SG_ EGT_Sensor2_Temp_C    : 24|16@1+ (0.1,-40) [-40|6553.5] "°C" OBD2
+ SG_ EGT_Sensor3_Temp_C    : 40|16@1+ (0.1,-40) [-40|6553.5] "°C" OBD2
+ SG_ EGT_Sensor4_Temp_C    : 56|16@1+ (0.1,-40) [-40|6553.5] "°C" OBD2
+
+BO_ 122 DPF_diff_pressure: 7 OBD2
+ SG_ DPF_DiffP_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DPF_DiffP_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DPF_DiffP_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DPF_DiffP_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DPF_DiffP_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DPF_DiffP_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DPF_DiffP_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 123 DPF_data: 7 OBD2
+ SG_ DPF_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DPF_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DPF_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DPF_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DPF_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DPF_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DPF_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 124 DPF_temperature: 9 OBD2
+ SG_ DPF_Temp_degC : 0|16@1+ (0.1,-40) [-40|6553.5] "°C" OBD2
+ SG_ DPF_Temp_Raw_0 : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DPF_Temp_Raw_1 : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DPF_Temp_Raw_2 : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DPF_Temp_Raw_3 : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DPF_Temp_Raw_4 : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DPF_Temp_Raw_5 : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DPF_Temp_Raw_6 : 64|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 125 NOx_NTE_Status: 1 OBD2
+ SG_ NOx_NTE_Status_Byte : 0|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 126 PM_NTE_Status: 1 OBD2
+ SG_ PM_NTE_Status_Byte : 0|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 127 Engine_run_time_ext: 13 OBD2
+ SG_ Run_Time_s : 8|32@1+ (1,0) [0|4294967295] "s" OBD2
+ SG_ RunTime_Raw_0 : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ RunTime_Raw_5 : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ RunTime_Raw_6 : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ RunTime_Raw_7 : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ RunTime_Raw_8 : 64|8@1+ (1,0) [0|255] "" OBD2
+ SG_ RunTime_Raw_9 : 72|8@1+ (1,0) [0|255] "" OBD2
+ SG_ RunTime_Raw_10 : 80|8@1+ (1,0) [0|255] "" OBD2
+ SG_ RunTime_Raw_11 : 88|8@1+ (1,0) [0|255] "" OBD2
+ SG_ RunTime_Raw_12 : 96|8@1+ (1,0) [0|255] "" OBD2
+ 
+BO_ 129 AECD_Run_time_1_10: 41 OBD2
+ SG_ AECD1to10_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_8_raw : 64|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_9_raw : 72|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_10_raw : 80|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_11_raw : 88|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_12_raw : 96|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_13_raw : 104|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_14_raw : 112|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_15_raw : 120|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_16_raw : 128|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_17_raw : 136|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_18_raw : 144|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_19_raw : 152|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_20_raw : 160|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_21_raw : 168|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_22_raw : 176|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_23_raw : 184|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_24_raw : 192|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_25_raw : 200|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_26_raw : 208|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_27_raw : 216|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_28_raw : 224|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_29_raw : 232|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_30_raw : 240|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_31_raw : 248|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_32_raw : 256|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_33_raw : 264|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_34_raw : 272|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_35_raw : 280|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_36_raw : 288|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_37_raw : 296|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_38_raw : 304|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_39_raw : 312|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD1to10_40_raw : 320|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 130 AECD_Run_time_11_20: 41 OBD2
+ SG_ AECD11to20_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_8_raw : 64|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_9_raw : 72|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_10_raw : 80|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_11_raw : 88|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_12_raw : 96|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_13_raw : 104|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_14_raw : 112|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_15_raw : 120|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_16_raw : 128|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_17_raw : 136|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_18_raw : 144|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_19_raw : 152|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_20_raw : 160|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_21_raw : 168|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_22_raw : 176|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_23_raw : 184|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_24_raw : 192|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_25_raw : 200|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_26_raw : 208|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_27_raw : 216|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_28_raw : 224|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_29_raw : 232|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_30_raw : 240|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_31_raw : 248|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_32_raw : 256|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_33_raw : 264|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_34_raw : 272|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_35_raw : 280|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_36_raw : 288|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_37_raw : 296|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_38_raw : 304|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_39_raw : 312|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to20_40_raw : 320|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 131 NOx_sensor_data: 9 OBD2
+ SG_ NOx_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOx_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOx_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOx_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOx_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOx_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOx_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOx_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOx_8_raw : 64|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 132 Manifold_surface_temperature: 1 OBD2
+ SG_ Manifold_Surface_degC : 0|8@1+ (1,-40) [-40|215] "°C" OBD2
+
+BO_ 133 NOx_reagent_system: 10 OBD2
+ SG_ Reagent_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Reagent_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Reagent_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Reagent_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Reagent_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Reagent_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Reagent_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Reagent_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Reagent_8_raw : 64|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOx_Reagent_Level_pct : 72|8@1+ (0.39215686274509803,0) [0|100] "%" OBD2
+
+BO_ 134 Particulate_matter_sensor: 5 OBD2
+ SG_ PM_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PM_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PM_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PM_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PM_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 135 Intake_MAP_extended: 5 OBD2
+ SG_ MAPext_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ MAPext_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ MAPext_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ MAPext_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ MAPext_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 136 SCR_Induce_System: 13 OBD2
+ SG_ SCR_Induce_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ SCR_Induce_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ SCR_Induce_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ SCR_Induce_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ SCR_Induce_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ SCR_Induce_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ SCR_Induce_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ SCR_Induce_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ SCR_Induce_8_raw : 64|8@1+ (1,0) [0|255] "" OBD2
+ SG_ SCR_Induce_9_raw : 72|8@1+ (1,0) [0|255] "" OBD2
+ SG_ SCR_Induce_10_raw : 80|8@1+ (1,0) [0|255] "" OBD2
+ SG_ SCR_Induce_11_raw : 88|8@1+ (1,0) [0|255] "" OBD2
+ SG_ SCR_Induce_12_raw : 96|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 137 AECD_Run_time_11_15: 41 OBD2
+ SG_ AECD11to15_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_8_raw : 64|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_9_raw : 72|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_10_raw : 80|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_11_raw : 88|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_12_raw : 96|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_13_raw : 104|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_14_raw : 112|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_15_raw : 120|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_16_raw : 128|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_17_raw : 136|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_18_raw : 144|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_19_raw : 152|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_20_raw : 160|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_21_raw : 168|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_22_raw : 176|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_23_raw : 184|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_24_raw : 192|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_25_raw : 200|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_26_raw : 208|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_27_raw : 216|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_28_raw : 224|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_29_raw : 232|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_30_raw : 240|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_31_raw : 248|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_32_raw : 256|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_33_raw : 264|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_34_raw : 272|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_35_raw : 280|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_36_raw : 288|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_37_raw : 296|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_38_raw : 304|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_39_raw : 312|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD11to15_40_raw : 320|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 138 AECD_Run_time_16_20: 41 OBD2
+ SG_ AECD16to20_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_8_raw : 64|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_9_raw : 72|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_10_raw : 80|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_11_raw : 88|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_12_raw : 96|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_13_raw : 104|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_14_raw : 112|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_15_raw : 120|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_16_raw : 128|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_17_raw : 136|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_18_raw : 144|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_19_raw : 152|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_20_raw : 160|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_21_raw : 168|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_22_raw : 176|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_23_raw : 184|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_24_raw : 192|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_25_raw : 200|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_26_raw : 208|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_27_raw : 216|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_28_raw : 224|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_29_raw : 232|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_30_raw : 240|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_31_raw : 248|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_32_raw : 256|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_33_raw : 264|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_34_raw : 272|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_35_raw : 280|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_36_raw : 288|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_37_raw : 296|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_38_raw : 304|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_39_raw : 312|8@1+ (1,0) [0|255] "" OBD2
+ SG_ AECD16to20_40_raw : 320|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 139 Diesel_Aftertreatment: 7 OBD2
+ SG_ Aftertreat_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Aftertreat_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Aftertreat_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Aftertreat_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Aftertreat_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Aftertreat_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Aftertreat_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 140 O2_WideRange_block: 17 OBD2
+ SG_ O2WR_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2WR_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2WR_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2WR_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2WR_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2WR_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2WR_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2WR_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2WR_8_raw : 64|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2WR_9_raw : 72|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2WR_10_raw : 80|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2WR_11_raw : 88|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2WR_12_raw : 96|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2WR_13_raw : 104|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2WR_14_raw : 112|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2WR_15_raw : 120|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2WR_16_raw : 128|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 141 Throttle_position_G: 1 OBD2
+ SG_ Throttle_Pos_G_pct : 0|8@1+ (0.39215686274509803,0) [0|100] "%" OBD2
+
+BO_ 142 Engine_friction_percent_torque: 1 OBD2
+ SG_ Engine_Friction_Torque_pct : 0|8@1+ (1,-125) [-125|130] "%" OBD2
+
+BO_ 143 PM_Sensor_B1_B2: 7 OBD2
+ SG_ PM_B1B2_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PM_B1B2_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PM_B1B2_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PM_B1B2_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PM_B1B2_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PM_B1B2_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PM_B1B2_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 144 WWH_OBD_System_Info1: 3 OBD2
+ SG_ WWHOBD1_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ WWHOBD1_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ WWHOBD1_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 145 WWH_OBD_System_Info2: 5 OBD2
+ SG_ WWHOBD2_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ WWHOBD2_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ WWHOBD2_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ WWHOBD2_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ WWHOBD2_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 146 Fuel_System_Control2: 2 OBD2
+ SG_ FuelSysCtrl2_A_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelSysCtrl2_B_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 147 WWH_OBD_Counters_Support: 3 OBD2
+ SG_ WWHOBD_CtrSupp_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ WWHOBD_CtrSupp_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ WWHOBD_CtrSupp_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 148 NOx_Warning_And_Inducement: 12 OBD2
+ SG_ NOxWarn_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxWarn_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxWarn_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxWarn_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxWarn_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxWarn_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxWarn_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxWarn_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxWarn_8_raw : 64|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxWarn_9_raw : 72|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxWarn_10_raw : 80|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxWarn_11_raw : 88|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 152 EGT_Sensor_Block1: 9 OBD2
+ SG_ EGT1_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGT1_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGT1_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGT1_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGT1_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGT1_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGT1_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGT1_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGT1_8_raw : 64|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 153 EGT_Sensor_Block2: 9 OBD2
+ SG_ EGT2_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGT2_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGT2_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGT2_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGT2_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGT2_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGT2_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGT2_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EGT2_8_raw : 64|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 154 Hybrid_EV_System_Battery_Voltage: 6 OBD2
+ SG_ HEV_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ HEV_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ HEV_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ HEV_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ HEV_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ HEV_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 155 DEF_Sensor_Data: 4 OBD2
+ SG_ DEF_A_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DEF_B_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DEF_C_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DEF_Level_pct : 24|8@1+ (0.39215686274509803,0) [0|100] "%" OBD2
+
+BO_ 156 O2_Sensor_Data_Block: 17 OBD2
+ SG_ O2Blk_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2Blk_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2Blk_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2Blk_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2Blk_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2Blk_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2Blk_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2Blk_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2Blk_8_raw : 64|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2Blk_9_raw : 72|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2Blk_10_raw : 80|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2Blk_11_raw : 88|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2Blk_12_raw : 96|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2Blk_13_raw : 104|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2Blk_14_raw : 112|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2Blk_15_raw : 120|8@1+ (1,0) [0|255] "" OBD2
+ SG_ O2Blk_16_raw : 128|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 157 Engine_Fuel_Rate_block: 4 OBD2
+ SG_ FuelRate_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelRate_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelRate_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelRate_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 158 Engine_Exhaust_Flow_Rate_block: 2 OBD2
+ SG_ ExhaustFlow_A_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ ExhaustFlow_B_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 159 Fuel_System_Percentage_Use: 9 OBD2
+ SG_ FuelPctUse_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelPctUse_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelPctUse_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelPctUse_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelPctUse_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelPctUse_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelPctUse_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelPctUse_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ FuelPctUse_8_raw : 64|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 161 NOx_Sensor_Corrected_Data: 9 OBD2
+ SG_ NOxCorr_0_raw : 0|8@1+ (1,0) [0|255] "ppm" OBD2
+ SG_ NOxCorr_1_raw : 8|8@1+ (1,0) [0|255] "ppm" OBD2
+ SG_ NOxCorr_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxCorr_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxCorr_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxCorr_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxCorr_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxCorr_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxCorr_8_raw : 64|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 162 Cylinder_Fuel_Rate: 2 OBD2
+ SG_ Cyl_Fuel_Rate_mg_per_stroke : 0|16@1+ (0.03125,0) [0|2047.96875] "mg/stroke" OBD2
+
+BO_ 163 Evap_System_Vapor_Pressure_Ext: 9 OBD2
+ SG_ EvapPressExt_0_raw : 0|8@1+ (1,0) [0|255] "Pa" OBD2
+ SG_ EvapPressExt_1_raw : 8|8@1+ (1,0) [0|255] "Pa" OBD2
+ SG_ EvapPressExt_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EvapPressExt_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EvapPressExt_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EvapPressExt_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EvapPressExt_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EvapPressExt_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+ SG_ EvapPressExt_8_raw : 64|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 164 Transmission_Actual_Gear: 4 OBD2
+ SG_ TransGear_Supported : 9|1@1+ (1,0) [0|1] "" OBD2
+ SG_ Trans_Actual_Gear_Ratio : 16|16@1+ (0.001,0) [0|65.535] "ratio" OBD2
+ SG_ Trans_A_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ Trans_B_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 165 Commanded_DEF_Dosing: 4 OBD2
+ SG_ DEF_Dosing_Supported : 0|1@1+ (1,0) [0|1] "" OBD2
+ SG_ DEF_Dosing_Command_pct : 8|8@1+ (0.5,0) [0|127.5] "%" OBD2
+ SG_ DEF_Aux_C_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ DEF_Aux_D_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 166 Odometer: 4 OBD2
+ SG_ Odometer_km : 0|32@1+ (0.1,0) [0|429496729.5] "km" OBD2
+
+BO_ 167 NOx_Sensor_Conc_S3_S4: 4 OBD2
+ SG_ NOxS34_0_raw : 0|8@1+ (1,0) [0|255] "ppm" OBD2
+ SG_ NOxS34_1_raw : 8|8@1+ (1,0) [0|255] "ppm" OBD2
+ SG_ NOxS34_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxS34_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 168 NOx_Sensor_Corrected_Conc_S3_S4: 4 OBD2
+ SG_ NOxCorrS34_0_raw : 0|8@1+ (1,0) [0|255] "ppm" OBD2
+ SG_ NOxCorrS34_1_raw : 8|8@1+ (1,0) [0|255] "ppm" OBD2
+ SG_ NOxCorrS34_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ NOxCorrS34_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 169 ABS_Disable_Switch_State: 4 OBD2
+ SG_ ABS_Disable_Supported : 0|1@1+ (1,0) [0|1] "" OBD2
+ SG_ ABS_Disable_Active : 16|1@1+ (1,0) [0|1] "" OBD2
+ SG_ ABS_Raw_A : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ ABS_Raw_B : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ ABS_Raw_C : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ ABS_Raw_D : 24|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 195 Fuel_Level_Input_A_B: 2 OBD2
+ SG_ FuelLevel_Input_A_raw : 0|8@1+ (1,0) [0|255] "%" OBD2
+ SG_ FuelLevel_Input_B_raw : 8|8@1+ (1,0) [0|255] "%" OBD2
+
+BO_ 196 Exhaust_Particulate_Control_Diag_Time_Count: 8 OBD2
+ SG_ Diag_Time_s : 0|8@1+ (1,0) [0|255] "s" OBD2
+ SG_ Diag_Count : 8|8@1+ (1,0) [0|255] "count" OBD2
+ SG_ Engine_Idle_Request : 13|1@1+ (1,0) [0|1] "" OBD2
+ SG_ Engine_Stop_Request : 14|1@1+ (1,0) [0|1] "" OBD2
+ SG_ ExhPartCtrl_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ ExhPartCtrl_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ ExhPartCtrl_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ ExhPartCtrl_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ ExhPartCtrl_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+ SG_ ExhPartCtrl_7_raw : 56|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 197 Fuel_Pressure_A_B: 4 OBD2
+ SG_ Fuel_Pressure_A_raw : 0|16@1+ (1,0) [0|65535] "kPa" OBD2
+ SG_ Fuel_Pressure_B_raw : 16|16@1+ (1,0) [0|65535] "kPa" OBD2
+
+BO_ 198 Particulate_Control_Counters: 7 OBD2
+ SG_ PC_Counter_0_raw : 0|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PC_Counter_1_raw : 8|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PC_Counter_2_raw : 16|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PC_Counter_3_raw : 24|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PC_Counter_4_raw : 32|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PC_Counter_5_raw : 40|8@1+ (1,0) [0|255] "" OBD2
+ SG_ PC_Counter_6_raw : 48|8@1+ (1,0) [0|255] "" OBD2
+
+BO_ 199 Distance_since_reflash_or_module_repl: 2 OBD2
+ SG_ Distance_Reflash_km : 0|16@1+ (1,0) [0|65535] "km" OBD2
+
+BO_ 200 NOx_PCD_Warning_Lamp_Status: 1 OBD2
+ SG_ NCD_PCD_Bit_0 : 0|1@1+ (1,0) [0|1] "" OBD2
+ SG_ NCD_PCD_Bit_1 : 1|1@1+ (1,0) [0|1] "" OBD2
+ SG_ NCD_PCD_Bit_2 : 2|1@1+ (1,0) [0|1] "" OBD2
+ SG_ NCD_PCD_Bit_3 : 3|1@1+ (1,0) [0|1] "" OBD2
+ SG_ NCD_PCD_Bit_4 : 4|1@1+ (1,0) [0|1] "" OBD2
+ SG_ NCD_PCD_Bit_5 : 5|1@1+ (1,0) [0|1] "" OBD2
+ SG_ NCD_PCD_Bit_6 : 6|1@1+ (1,0) [0|1] "" OBD2
+ SG_ NCD_PCD_Bit_7 : 7|1@1+ (1,0) [0|1] "" OBD2
+
+ 
