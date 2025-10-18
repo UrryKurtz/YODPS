@@ -151,7 +151,7 @@ void YOGui::drawCfg(YOVariant &cfg, const std::string &path, bool add, bool show
        case 5: //YOStringList
        {
            YOStringList &sl = cfg.get<YOStringList>();
-           if (ui::BeginCombo((name + "##" + new_path) .c_str(), sl.items[sl.select].c_str()))
+           if (ui::BeginCombo((name + "##" + new_path) .c_str(), sl.items.size() ? sl.items[sl.select].c_str() : ""))
            {
                for (int n = 0; n < (int)sl.items.size(); n++) {
                    bool isSelected = (sl.select == n);
