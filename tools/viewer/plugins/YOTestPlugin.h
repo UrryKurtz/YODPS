@@ -13,6 +13,16 @@
 using namespace Urho3D;
 class YOTestPlugin: public IPlugin
 {
+	std::string in_topic_;
+	std::string in_value_;
+	std::string out_topic_;
+	std::string out_value_;
+
+	YOVariant data_cfg_ {"Data"};
+	YOVariant data_cfg_old_ {"Data"};
+
+	YOVariant sys_cfg_ {"System"};
+	YOVariant sys_cfg_old_ {"System"};
 
 	YOGui gui_;
 public:
