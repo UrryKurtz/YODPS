@@ -9,10 +9,44 @@
 #include <cstdint>
 #include "YONode.h"
 
+struct YOSubData
+{
+    std::string topic;
+    YOSubFn fn;
+    YOSubSharedFn shared_fn;
+    void *data;
+};
+
+struct YOPollData
+{
+    pthread_t thread;
+    YOPollFn fn;
+    void *data;
+};
+
+struct YOPubData
+{
+    uint16_t type;
+    uint16_t subtype;
+};
 struct YOSocketInfo
 {
-	void *pub;
-	void *sub;
+	void *sock {nullptr};
+	bool bind {false};
+	std::vector<std::string> sockets;
+};
+
+struct YONode::YONodeInfo
+{
+    void* context;
+    zmq_pollitem_t poll[YOSockType::Count];
+    std::array<YOSocketInfo, YOSockType::Count> sockets;
+    YOSubSharedFn sys_fn;
+    void *sys_param;
+
+    std::unordered_map<std::string, YOSubData> sub_map;
+    std::unordered_map<std::string, YOPubData> pub_map;
+    std::unordered_map<int, YOSigData> sig_map;
 };
 
 YONode *g_node_ = nullptr;
@@ -45,65 +79,49 @@ bool YONode::isRunning()
     return !stop_flag;
 }
 
-void SetSocket(void *sock)
+void CreateSocket(YOSocketInfo &sock_data, void* context, int type, const char *default_socket)
 {
+	sock_data.sock = zmq_socket(context, type);
+	sock_data.sockets.push_back(default_socket);
 	int size = 128 * 1024 * 1024; // 128MB
 	int hwm = 100000; // 100k msgs
-    zmq_setsockopt(sock, ZMQ_RCVHWM, &hwm, sizeof(hwm));
-    zmq_setsockopt(sock, ZMQ_SNDHWM, &hwm, sizeof(hwm));
-    zmq_setsockopt(sock, ZMQ_RCVBUF, &size, sizeof(size));
-    zmq_setsockopt(sock, ZMQ_SNDBUF, &size, sizeof(size));
+    int a0 = zmq_setsockopt(sock_data.sock, ZMQ_RCVHWM, &hwm, sizeof(hwm));
+    int a1 = zmq_setsockopt(sock_data.sock, ZMQ_SNDHWM, &hwm, sizeof(hwm));
+    int a2 = zmq_setsockopt(sock_data.sock, ZMQ_RCVBUF, &size, sizeof(size));
+    int a3 = zmq_setsockopt(sock_data.sock, ZMQ_SNDBUF, &size, sizeof(size));
 }
 
-void SetSockets(YOSocketInfo *si)
-{
-	SetSocket(si->pub);
-	SetSocket(si->sub);
-}
-YOSocketInfo* CreateSockets(void* context)
-{
-	YOSocketInfo* sock_data = (YOSocketInfo*) malloc(sizeof(YOSocketInfo));
-	sock_data->pub = zmq_socket(context, ZMQ_PUB);
-	sock_data->sub = zmq_socket(context, ZMQ_SUB);
-	SetSockets(sock_data);
-	return sock_data;
-}
-
-YONode::YONode(const char *node_name)
+YONode::YONode(const char *node_name) : m_info(std::make_unique<YONodeInfo>())
 {
     g_node_ = this;
 	m_name = node_name;
     signal(SIGINT, signal_handler);
-    m_context = zmq_ctx_new();
-    m_sock_data = CreateSockets(m_context);
-    m_sock_sys = CreateSockets(m_context);
-    //m_sock_log = CreateSockets(m_context);
-    m_sys_fn = nullptr;
-    m_sys_param = nullptr;
-    zmq_setsockopt(m_sock_sys->sub, ZMQ_SUBSCRIBE, m_name.c_str(), m_name.size());
-	std::cout << " System socket subscribed to [" << m_name << "]"<< std::endl;
+    m_info->context = zmq_ctx_new();
+    CreateSocket(m_info->sockets[YOSockType::DataSub], m_info->context, ZMQ_SUB, YO_SUB_DATA_SRV);
+    CreateSocket(m_info->sockets[YOSockType::DataPub], m_info->context, ZMQ_PUB, YO_PUB_DATA_SRV);
+    CreateSocket(m_info->sockets[YOSockType::SysSub], m_info->context, ZMQ_SUB, YO_SUB_SYS_SRV);
+    CreateSocket(m_info->sockets[YOSockType::SysPub], m_info->context, ZMQ_PUB, YO_PUB_SYS_SRV);
 
+    m_info->poll[YOSockType::DataSub] = { m_info->sockets[YOSockType::DataSub].sock, 0, ZMQ_POLLIN, 0};
+    m_info->poll[YOSockType::DataPub] = { m_info->sockets[YOSockType::DataPub].sock, 0, ZMQ_POLLIN, 0};
+    m_info->poll[YOSockType::SysSub] = { m_info->sockets[YOSockType::SysSub].sock, 0, ZMQ_POLLIN, 0};
+	m_info->poll[YOSockType::SysPub] = { m_info->sockets[YOSockType::SysPub].sock, 0, ZMQ_POLLIN, 0};
+
+    m_info->sys_fn = nullptr;
+    m_info->sys_param = nullptr;
+	zmq_setsockopt( m_info->sockets[YOSockType::SysSub].sock, ZMQ_SUBSCRIBE, m_name.c_str(), m_name.size());
+	std::cout << " System socket subscribed to [" << m_name << "]"<< std::endl;
     /*
     sysctl net.core.rmem_max
     sysctl net.core.wmem_max
     sudo sysctl -w net.core.rmem_max=134217728   # 128 MB
     sudo sysctl -w net.core.wmem_max=134217728
-*/
-    m_poll = malloc(sizeof(zmq_pollitem_t) * 4);
-    zmq_pollitem_t *items = (zmq_pollitem_t*) m_poll;
-    items[0] = {m_sock_sys->sub, 0, ZMQ_POLLIN, 0};
-    items[1] = {m_sock_sys->pub, 0, ZMQ_POLLIN, 0};
-    items[2] = {m_sock_data->sub, 0, ZMQ_POLLIN, 0};
-    items[3] = {m_sock_data->pub, 0, ZMQ_POLLIN, 0};
+    */
 }
 
 YONode::~YONode()
 {
     g_node_ = nullptr;
-    delete (zmq_pollitem_t*) m_poll;
-    delete m_sock_data;
-    delete m_sock_sys;
-    //delete m_sock_log;
 }
 
 void YONode::setConfig(YOVariant &config)
@@ -134,12 +152,13 @@ YOTimestamp YONode::getTimestamp()
 
 void YONode::addSignalFunction(int signal, YOSigFn fn, void *data)
 {
-    m_sig_map[signal] = {signal, fn, data};
+    m_info->sig_map[signal] = {signal, fn, data};
 }
+
 YOSigData *YONode::getSignalFunction(int signal)
 {
-    auto it = m_sig_map.find(signal);
-    if (it != m_sig_map.end()) {
+    auto it = m_info->sig_map.find(signal);
+    if (it != m_info->sig_map.end()) {
         return &it->second;
     }
     return nullptr;
@@ -170,15 +189,15 @@ void YONode::sendMessage(const std::string &topic, YOMessage &message, void *pub
 void YONode::sendMessage(const std::string &topic, YOMessage &message)
 {
     //TODO check first message size, initSize(0);
-    auto stream = m_pub_map.find(topic);
-    if (stream == m_pub_map.end())
+    auto stream = m_info->pub_map.find(topic);
+    if (stream == m_info->pub_map.end())
     {
         std::cout << " SendMessage: " << topic << " is not advertised " << std::endl;
         return;
     }
     message.setType(stream->second.type);
     message.setSubType(stream->second.subtype);
-    sendMessage(topic, message, m_sock_data->pub);
+    sendMessage(topic, message, m_info->sockets[YOSockType::DataPub].sock);
 }
 
 void free_fn(void *data, void *hint)
@@ -188,67 +207,66 @@ void free_fn(void *data, void *hint)
 
 void YONode::sendMessageSys(const std::string &topic, YOMessage &message)
 {
-	sendMessage(topic, message, m_sock_sys->pub);
+	sendMessage(topic, message, m_info->sockets[YOSockType::SysPub].sock);
 }
 
 void YONode::subscribeSys(const std::string &topic)
 {
-	zmq_setsockopt(m_sock_sys->sub, ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
+	zmq_setsockopt(m_info->sockets[YOSockType::SysSub].sock, ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
 	std::cout << " System socket subscribed to [" << topic << "]"<< std::endl;
 }
 
 void YONode::unsubscribeSys(const std::string &topic)
 {
-	zmq_setsockopt(m_sock_sys->sub, ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
+	zmq_setsockopt(m_info->sockets[YOSockType::SysSub].sock, ZMQ_UNSUBSCRIBE, topic.c_str(), topic.size());
 	std::cout << " System socket unsubscribed from [" << topic << "]"<< std::endl;
 }
 
 void YONode::subscribeSysFn(YOSubSharedFn fn, void *param)
 {
-	m_sys_fn = fn;
-	m_sys_param = param;
+	m_info->sys_fn = fn;
+	m_info->sys_param = param;
 }
 
 void YONode::subscribe(const std::string &topic, YOSubFn fn, void *data)
 {
    	std::cout << " Subscribed to [" << topic<< "]"<< std::endl;
-	m_sub_map[topic] = {topic, fn, 0, data};
-    zmq_setsockopt(m_sock_data->sub, ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
+   	m_info->sub_map[topic] = {topic, fn, 0, data};
+    zmq_setsockopt(m_info->sockets[YOSockType::DataSub].sock, ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
 }
 
 void YONode::subscribe(const std::string &topic, YOSubSharedFn fn, void *data)
 {
 	std::cout << " Subscribed ext to [" << topic<< "]"<< std::endl;
-	m_sub_map[topic] = {topic, 0, fn, data};
-    zmq_setsockopt(m_sock_data->sub, ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
+	m_info->sub_map[topic] = {topic, 0, fn, data};
+    zmq_setsockopt(m_info->sockets[YOSockType::DataSub].sock, ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
 }
 
 void YONode::unsubscribe(const std::string &topic)
 {
     std::cout << " Unsubscribed from [" << topic<< "]"<< std::endl;
-	m_sub_map.erase(topic);
-    zmq_setsockopt(m_sock_data->sub, ZMQ_SUBSCRIBE, topic.c_str(), topic.size());
+    m_info->sub_map.erase(topic);
+    zmq_setsockopt(m_info->sockets[YOSockType::DataSub].sock, ZMQ_UNSUBSCRIBE, topic.c_str(), topic.size());
 }
 
 void YONode::advertise(const std::string &topic, uint16_t type, uint16_t subtype)
 {
 	printf("Advertise topic [%s] type: %02X subtype: %02X  \n", topic.c_str(), type, subtype);
-    m_pub_map[topic] = {type, subtype};
+	m_info->pub_map[topic] = {type, subtype};
 }
 
 void YONode::unadvertise(const std::string &topic)
 {
     printf("Unadvertise topic [%s] \n", topic.c_str());
-	m_pub_map.erase(topic);
+    m_info->pub_map.erase(topic);
 }
 
 int YONode::connect()
 {
-	zmq_connect(m_sock_data->sub, YO_PUB_DATA_SRV);
-    zmq_connect(m_sock_data->pub, YO_SUB_DATA_SRV);
-    zmq_connect(m_sock_sys->sub, YO_PUB_SYS_SRV);
-    zmq_connect(m_sock_sys->pub, YO_SUB_SYS_SRV);
-
+	zmq_connect(m_info->sockets[YOSockType::DataSub].sock, YO_PUB_DATA_SRV);
+	zmq_connect(m_info->sockets[YOSockType::DataPub].sock, YO_SUB_DATA_SRV);
+	zmq_connect(m_info->sockets[YOSockType::SysSub].sock, YO_PUB_SYS_SRV);
+	zmq_connect(m_info->sockets[YOSockType::SysPub].sock, YO_SUB_SYS_SRV);
     usleep(2000);
     std::cout << " Connected: " << m_name << std::endl;
     return 0;
@@ -256,21 +274,21 @@ int YONode::connect()
 
 int YONode::disconnect()
 {
-    zmq_disconnect(m_sock_data->sub, YO_PUB_DATA_SRV);
-    zmq_disconnect(m_sock_data->pub, YO_SUB_DATA_SRV);
-    zmq_disconnect(m_sock_sys->sub, YO_PUB_SYS_SRV);
-    zmq_disconnect(m_sock_sys->pub, YO_SUB_SYS_SRV);
+    zmq_disconnect(m_info->sockets[YOSockType::DataSub].sock, YO_PUB_DATA_SRV);
+	zmq_disconnect(m_info->sockets[YOSockType::DataPub].sock, YO_SUB_DATA_SRV);
+    zmq_disconnect(m_info->sockets[YOSockType::SysSub].sock, YO_PUB_SYS_SRV);
+    zmq_disconnect(m_info->sockets[YOSockType::SysPub].sock, YO_SUB_SYS_SRV);
     return 0;
 }
 
 int YONode::shutdown()
 {
-	zmq_close(m_sock_data->sub);
-    zmq_close(m_sock_data->pub);
-    zmq_close(m_sock_sys->sub);
-    zmq_close(m_sock_sys->pub);
-    zmq_ctx_shutdown(m_context);
-    zmq_ctx_term(m_context);
+	zmq_close(m_info->sockets[YOSockType::DataPub].sock);
+	zmq_close(m_info->sockets[YOSockType::DataSub].sock);
+	zmq_close(m_info->sockets[YOSockType::SysPub].sock);
+	zmq_close(m_info->sockets[YOSockType::SysSub].sock);
+    zmq_ctx_shutdown(m_info->context);
+    zmq_ctx_term(m_info->context);
     return 0;
 }
 
@@ -302,25 +320,25 @@ std::shared_ptr<YOMessage> YONode::readMessage(void *sock_sub)
 
 int YONode::getMessage(int wait)
 {
-    zmq_pollitem_t *items = (zmq_pollitem_t*) m_poll;
-    int rc = zmq_poll(items, 4, 1000);
+    int rc = zmq_poll(m_info->poll, 4, wait);
+
     if (rc == -1)
         return rc; // Interrupted
 
-    if (items[0].revents & ZMQ_POLLIN) //system message
+    if (m_info->poll[YOSockType::SysSub].revents & ZMQ_POLLIN) //system message
     {
-    	std::shared_ptr<YOMessage> msg = readMessage(m_sock_sys->sub);
-    	if(m_sys_fn)
+    	std::shared_ptr<YOMessage> msg = readMessage(m_info->sockets[YOSockType::SysSub].sock);
+    	if(m_info->sys_fn)
     	{
-    		m_sys_fn((const char*) msg->m_data.buffer, msg, m_sys_param);
+    		m_info->sys_fn((const char*) msg->m_data.buffer, msg, m_info->sys_param);
     	}
     }
 
-    if (items[2].revents & ZMQ_POLLIN)
+    if (m_info->poll[YOSockType::DataSub].revents & ZMQ_POLLIN)
     {
-    	std::shared_ptr<YOMessage> msg = readMessage(m_sock_data->sub);
-        auto cb = m_sub_map.find(std::string((const char*) msg->m_data.buffer));
-        if (cb != m_sub_map.end())
+    	std::shared_ptr<YOMessage> msg = readMessage(m_info->sockets[YOSockType::DataSub].sock);
+        auto cb = m_info->sub_map.find(std::string((const char*) msg->m_data.buffer));
+        if (cb != m_info->sub_map.end())
         {
             //logInfo("PROCESS %s!!!!\n", (const char*) msg->m_data.buffer);
             if (cb->second.fn)
@@ -344,7 +362,6 @@ int YONode::start()
     while (isRunning())
     {
         getMessage(1000);
-
     }
     logInfo("POLLING STOPPED\n");
     disconnect();
