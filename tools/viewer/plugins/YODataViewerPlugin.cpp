@@ -24,8 +24,6 @@ namespace yo::k
 	YO_KEY(send, "snd")
 	YO_KEY(reverse, "rev")
 	YO_KEY(structs, "srs")
-	YO_KEY(streams, "sms")
-	YO_KEY(stream, "srm")
 }
 
 enum class YODatatype
