@@ -67,14 +67,9 @@ YOMessage::YOMessage(const YOVariant &variant)
 	data_ = std::make_unique<YOMessageData>();
 	zmq_msg_init(&data_->topic);
     zmq_msg_init_size(&data_->header, sizeof(YOHeader));
-    //zmq_msg_init(&data_->data);
-//    msgpack::sbuffer *buffer = new msgpack::sbuffer();
-//    msgpack::pack(*buffer, variant);
-//    zmq_msg_init_data(&data_->data, buffer->data(), buffer->size(), free_msgpak, buffer);
-    msgpack::sbuffer buffer;
-    msgpack::pack(buffer, variant);
-    zmq_msg_init_size(&data_->data, buffer.size());
-    memcpy(zmq_msg_data(&data_->data), buffer.data(), buffer.size());
+    msgpack::sbuffer *buffer = new msgpack::sbuffer();
+    msgpack::pack(*buffer, variant);
+    zmq_msg_init_data(&data_->data, buffer->data(), buffer->size(), free_msgpak, buffer);
     setType(4096);
 }
 
