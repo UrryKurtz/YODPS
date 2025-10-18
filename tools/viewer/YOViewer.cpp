@@ -23,6 +23,7 @@
 #include <Urho3D/SystemUI/SystemUI.h>
 #include <Urho3D/SystemUI/SystemUIEvents.h> // E_SYSTEMUI
 #include <Urho3D/SystemUI/ImGui.h>
+#include "plugins/YORecorderPlugin.h"
 
 #include "YOTestPlugin.h"
 #include "YOPlotterPlugin.h"
@@ -78,6 +79,7 @@ void YOViewer::Start()
     plugin_bus_->AddPlugin("OBDII", new YOOBD2Plugin(context_));
     plugin_bus_->AddPlugin("CAN Viewer", new YOCANPlugin(context_));
     plugin_bus_->AddPlugin("Data Viewer", new YODataViewerPlugin(context_));
+    plugin_bus_->AddPlugin("Recorder", new YORecorderPlugin(context_));
     plugin_bus_->OnStart(scene_);
 
     CreateXYGrid(world_, 200, 50, 1.0f, 0.0f);

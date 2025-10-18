@@ -31,6 +31,7 @@ plugins/YOOBD2Plugin.cpp
 plugins/YOCANPlugin.cpp
 plugins/YOTestPlugin.cpp
 plugins/YODataViewerPlugin.cpp
+plugins/YORecorderPlugin.cpp
 ${CONVERT_SOURCES}
 )
 
