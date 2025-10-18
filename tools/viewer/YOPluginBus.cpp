@@ -109,7 +109,7 @@ void YOPluginBus::Transmit(IPlugin* self, const std::string &topic, const uint8_
 
 	YOPluginInfo &p_info = plugins_[self->GetName()];
 	YOMessage msg;
-	msg.initData(data, size);
+	msg.setData(data, size);
 	p_info.yonode->sendMessage(topic.c_str(), msg);
 
 }
@@ -130,7 +130,7 @@ void YOPluginBus::TransmitSys(IPlugin* self, const std::string &topic, const uin
 {
 	YOPluginInfo &p_info = plugins_[self->GetName()];
 	YOMessage msg;
-	msg.initData(data, size);
+	msg.setData(data, size);
 	p_info.yonode->sendMessageSys(topic.c_str(), msg);
 }
 
@@ -177,8 +177,6 @@ void YOPluginBus::UnsubscribeSys(IPlugin* self, const std::string &topic)
 	YOPluginInfo &p_info = plugins_[self->GetName()];
 	p_info.yonode->unsubscribeSys(topic.c_str());
 }
-
-
 
 void YOPluginBus::SetConfig(YOVariant *config)
 {

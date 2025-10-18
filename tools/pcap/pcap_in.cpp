@@ -49,7 +49,7 @@ void run_tins()
                 {
                 const Tins::RawPDU &raw = ip.rfind_pdu<Tins::RawPDU>();
                 YOMessage msg;
-                msg.initData((uint8_t*) raw.payload().data(), raw.payload().size());
+                msg.setData((uint8_t*) raw.payload().data(), raw.payload().size());
                 g_node->sendMessage(g_topic.c_str(), msg);
             }
                 break;
@@ -82,7 +82,7 @@ bool callback(Tins::PDU &pdu)
             //const Tins::UDP &udp = pdu.rfind_pdu<Tins::UDP>();
             const Tins::RawPDU &raw = pdu.rfind_pdu<Tins::RawPDU>();
             YOMessage msg;
-            msg.initData((uint8_t*) raw.payload().data(), raw.payload().size());
+            msg.setData((uint8_t*) raw.payload().data(), raw.payload().size());
             g_node->sendMessage(g_topic.c_str(), msg);
         }
         break;

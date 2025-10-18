@@ -19,7 +19,7 @@ std::string g_topic = "VIDEO0";
 std::string g_device = "/dev/video0";
 std::string g_format = "JPEG";
 std::string g_size = "640x480";
-YOImageData g_image = {};
+YOImageInfo g_image = {};
 
 int g_width;
 int g_height;
@@ -172,11 +172,7 @@ int capture_image(int fd)
     g_image.ts = YONode::getTimestamp();
     g_image.size =  buf.bytesused;
     YOMessage msg(g_image);
-    msg.setExtData(g_buffer, buf.bytesused);
-
-
-//g_buffer, buf.bytesused, &g_image, sizeof(YOImgInfo)
-
+    msg.setData(g_buffer, buf.bytesused);
     g_node->sendMessage(g_topic.c_str(), msg);
 
 

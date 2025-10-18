@@ -4,141 +4,198 @@
  *  Created on: Jun 5, 2025
  *      Author: kurtz
  */
-
-#include "YOMessage.h"
 #include <zmq.h>
 
-void YOMessage::init()
-{
-    m_topic_len = 0;
-    zmq_msg_init((zmq_msg_t*) &m_data.message);
-    m_data.buffer = nullptr;
-    m_data.size = 0;
-    zmq_msg_init((zmq_msg_t*) &m_ext.message);
-    m_ext.buffer = nullptr;
-    m_ext.size = 0;
+#include "YOMessage.h"
 
-    m_header_ptr = nullptr;
-    m_shmem = false;
-    m_received = false;
-    m_multi = false;
-}
+struct YOMessage::YOMessageData
+{
+	zmq_msg_t topic;
+	zmq_msg_t header;
+	zmq_msg_t data;
+};
 
 YOMessage::YOMessage()
 {
-    init();
+	data_ = std::make_unique<YOMessageData>();
+	zmq_msg_init(&data_->topic);
+	zmq_msg_init_size(&data_->header, sizeof(YOHeader));
+	zmq_msg_init(&data_->data);
+}
+
+YOMessage::YOMessage(YOImageInfo &image)
+{
+	data_ = std::make_unique<YOMessageData>();
+	zmq_msg_init(&data_->topic);
+	zmq_msg_init_size(&data_->header, sizeof(YOHeader) + sizeof(image));
+	uint8_t *base = (uint8_t *) zmq_msg_data(&data_->header);
+	size_t hdr = sizeof(YOHeader);
+	memcpy(base  + hdr, &image, sizeof(image));
+	zmq_msg_init(&data_->data);
+	setType(4);
+}
+
+YOMessage::YOMessage(const tCANData &can)
+{
+	data_ = std::make_unique<YOMessageData>();
+	zmq_msg_init(&data_->topic);
+	zmq_msg_init_size(&data_->header, sizeof(YOHeader));
+	zmq_msg_init_size(&data_->data, sizeof(can));
+	memcpy(zmq_msg_data(&data_->data), &can, sizeof(can));
+	setType(512);
+}
+
+YOMessage::YOMessage(const tCANFDData &canfd)
+{
+	data_ = std::make_unique<YOMessageData>();
+	zmq_msg_init(&data_->topic);
+	zmq_msg_init_size(&data_->header, sizeof(YOHeader));
+	zmq_msg_init_size(&data_->data, sizeof(canfd));
+	memcpy(zmq_msg_data(&data_->data), &canfd, sizeof(canfd));
+	setType(512);
+	setSubType(3);
+}
+
+void free_msgpak(void* /*data*/, void* hint)
+{
+	msgpack::sbuffer* sb = (msgpack::sbuffer*)(hint);
+	delete sb;
+}
+
+YOMessage::YOMessage(const YOVariant &variant)
+{
+	data_ = std::make_unique<YOMessageData>();
+	zmq_msg_init(&data_->topic);
+    zmq_msg_init_size(&data_->header, sizeof(YOHeader));
+    //zmq_msg_init(&data_->data);
+//    msgpack::sbuffer *buffer = new msgpack::sbuffer();
+//    msgpack::pack(*buffer, variant);
+//    zmq_msg_init_data(&data_->data, buffer->data(), buffer->size(), free_msgpak, buffer);
+    msgpack::sbuffer buffer;
+    msgpack::pack(buffer, variant);
+    zmq_msg_init_size(&data_->data, buffer.size());
+    memcpy(zmq_msg_data(&data_->data), buffer.data(), buffer.size());
+    setType(4096);
 }
 
 YOMessage::~YOMessage()
 {
-    zmq_msg_close((zmq_msg_t*) &m_data.message);
-    zmq_msg_close((zmq_msg_t*) &m_ext.message);
+	zmq_msg_close(&data_->topic);
+    zmq_msg_close(&data_->header);
+    zmq_msg_close(&data_->data);
+}
+
+void YOMessage::init()
+{
 }
 
 void YOMessage::setTimestamp(YOTimestamp ts)
 {
-    if(m_header_ptr)
-        m_header_ptr->timestamp = ts;
+      getHeader()->timestamp = ts;
 }
 
 YOTimestamp YOMessage::getTimestamp()
 {
-    return m_header_ptr ? m_header_ptr->timestamp : 0;
+    return getHeader()->timestamp;
 }
 
-uint8_t *YOMessage::initSize(uint32_t data_size)
+uint8_t *YOMessage::initSize(uint32_t size)
 {
-    //std::cout << __FUNCTION__ << " " << __LINE__ << std::endl;
-    m_data.size = YO_MAX_TOPIC_LENGTH + offsetof(YOHeaderBase, data) + data_size;
-    //std::cout << " m_data.size " << m_data.size << std::endl;
-    m_data.buffer = (uint8_t*) calloc(1, m_data.size);
-    m_header_ptr  = (YOHeaderBase*) &m_data.buffer[YO_MAX_TOPIC_LENGTH];
-    m_header_ptr->size = data_size;
-    return m_header_ptr->data;
+	zmq_msg_init_size(&data_->data, size);
+	return (uint8_t*)zmq_msg_data(&data_->data);
 }
 
-void YOMessage::initData(const uint8_t *data, uint32_t size)
+void YOMessage::initData(uint8_t *data, uint32_t size, yo_free_fn *fn, void *hint)
 {
-    //can not just set ptr and size. Need to alloc for a Topic, TS & Info and copy data
-   initSize(size);
-   memcpy(m_header_ptr->data, data, size);
+	zmq_msg_init_data(&data_->data, data, size, fn, hint);
+}
+
+void YOMessage::setData(const uint8_t *data, uint32_t size)
+{
+	zmq_msg_init_size(&data_->data, size);
+	memcpy(zmq_msg_data(&data_->data), data, size);
 }
 
 uint8_t* YOMessage::getData()
 {
-    return m_header_ptr->data;//zmq_msg_data((zmq_msg_t*)m_msg_data);
+    return (uint8_t*) zmq_msg_data(&data_->data);
 }
 
 uint32_t YOMessage::getDataSize()
 {
-    return m_header_ptr->size; // zmq_msg_size((zmq_msg_t*)m_msg_data);
+	return zmq_msg_size(&data_->data);
+}
+
+YOHeader *YOMessage::getHeader()
+{
+	return (YOHeader *) zmq_msg_data(&data_->header);
+}
+
+uint32_t YOMessage::getHeaderSize()
+{
+	return zmq_msg_size(&data_->header);
 }
 
 void YOMessage::setType(uint16_t type)
 {
-    m_header_ptr->type = type;
+    getHeader()->type = type;
 }
 
 uint16_t YOMessage::getType()
 {
-    return m_header_ptr->type;
+    return getHeader()->type;
 }
 
 void YOMessage::setSubType(uint16_t subtype)
 {
-    m_header_ptr->subtype = subtype;
+    getHeader()->subtype = subtype;
 }
 
 uint16_t YOMessage::getSubType()
 {
-    return m_header_ptr->subtype;
+	return getHeader()->subtype;
 }
 
 const char *YOMessage::getTopic()
 {
-    return (const char*) m_data.buffer;
+    return (const char*)  zmq_msg_data(&data_->topic);
 }
 
 void YOMessage::setTopic(const std::string &topic)
 {
-    // [000...topic0][TS][INFO]
-    m_topic_len = topic.size();
-    m_topic_start = YO_MAX_TOPIC_LENGTH - m_topic_len - 1;
-    memcpy(m_data.buffer + m_topic_start, topic.c_str(), m_topic_len);
+	zmq_msg_init_size(&data_->topic, topic.size() + 1);
+    memcpy(zmq_msg_data(&data_->topic), topic.c_str(), topic.size() + 1);
 }
 
-uint8_t *YOMessage::getExtData()
+void YOMessage::sendTo(const std::string &topic, void *socket)
 {
-    return m_ext.buffer;
+	setTopic(topic);
+	zmq_msg_send(&data_->topic, socket, ZMQ_SNDMORE);
+	zmq_msg_send(&data_->header, socket, ZMQ_SNDMORE);
+	zmq_msg_send(&data_->data, socket, 0);
 }
 
-void YOMessage::setExtData(uint8_t *data, uint32_t size)
+bool YOMessage::readFrom(void *sock_sub)
 {
-    initExtSize(size);
-    memcpy(m_ext.buffer, data, size);
+	size_t more_size = sizeof(int);
+	int more_hdr;
+	zmq_msg_recv(&data_->topic, sock_sub, 0);
+	zmq_getsockopt(sock_sub, ZMQ_RCVMORE, &more_hdr, &more_size);
+	if (!more_hdr)
+	{
+		std::cout << " Error reading ZMQ Message " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << std::endl;
+		return false;
+	}
+
+	int more_data;
+	zmq_msg_recv(&data_->header, sock_sub, 0);
+
+	zmq_getsockopt(sock_sub, ZMQ_RCVMORE, &more_data, &more_size);
+	if (!more_data)
+	{
+		std::cout << " Error reading ZMQ Message " << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << std::endl;
+		return false;
+	}
+	zmq_msg_recv(&data_->data, sock_sub, 0);
+	return true;
 }
-
-
-uint32_t YOMessage::getExtDataSize()
-{
-    return m_ext.size;
-}
-
-void YOMessage::initExtData(uint8_t *data, uint32_t size)
-{
-    if(m_header_ptr)
-        m_header_ptr->ext_size = size;
-
-    m_ext.buffer = data;
-    m_ext.size = size;
-}
-uint8_t *YOMessage::initExtSize(uint32_t size)
-{
-    if(m_header_ptr)
-        m_header_ptr->ext_size = size;
-
-    m_ext.size = size;
-    m_ext.buffer = (uint8_t*) malloc(size);
-    return 0;
-}
-

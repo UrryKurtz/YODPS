@@ -171,19 +171,8 @@ void YONode::sendMessage(const std::string &topic, std::shared_ptr<YOMessage> me
 
 void YONode::sendMessage(const std::string &topic, YOMessage &message, void *pub_sock)
 {
-    message.setTopic(topic);
     message.setTimestamp(YONode::getTimestamp());
-
-	int flag = message.getExtDataSize() ? ZMQ_SNDMORE : 0;
-    int new_size = message.m_data.size - message.m_topic_start;
-    message.setTimestamp(YONode::getTimestamp());
-    zmq_msg_init_data((zmq_msg_t*) &message.m_data.message, message.m_data.buffer + message.m_topic_start, new_size, free_data_fn, message.m_data.buffer);
-    zmq_msg_send((zmq_msg_t*) &message.m_data.message, pub_sock, flag);
-    if (flag != 0)
-    {
-        zmq_msg_init_data((zmq_msg_t*) &message.m_ext.message, message.m_ext.buffer, message.m_ext.size, free_data_fn, message.m_ext.buffer);
-        zmq_msg_send((zmq_msg_t*) &message.m_ext.message, pub_sock, 0);
-    }
+    message.sendTo(topic, pub_sock);
 }
 
 void YONode::sendMessage(const std::string &topic, YOMessage &message)
@@ -263,10 +252,10 @@ void YONode::unadvertise(const std::string &topic)
 
 int YONode::connect()
 {
-	zmq_connect(m_info->sockets[YOSockType::DataSub].sock, YO_PUB_DATA_SRV);
-	zmq_connect(m_info->sockets[YOSockType::DataPub].sock, YO_SUB_DATA_SRV);
-	zmq_connect(m_info->sockets[YOSockType::SysSub].sock, YO_PUB_SYS_SRV);
-	zmq_connect(m_info->sockets[YOSockType::SysPub].sock, YO_SUB_SYS_SRV);
+	zmq_connect(m_info->sockets[YOSockType::DataSub].sock, YO_SUB_DATA_SRV);
+	zmq_connect(m_info->sockets[YOSockType::DataPub].sock, YO_PUB_DATA_SRV);
+	zmq_connect(m_info->sockets[YOSockType::SysSub].sock, YO_SUB_SYS_SRV);
+	zmq_connect(m_info->sockets[YOSockType::SysPub].sock, YO_PUB_SYS_SRV);
     usleep(2000);
     std::cout << " Connected: " << m_name << std::endl;
     return 0;
@@ -274,10 +263,10 @@ int YONode::connect()
 
 int YONode::disconnect()
 {
-    zmq_disconnect(m_info->sockets[YOSockType::DataSub].sock, YO_PUB_DATA_SRV);
-	zmq_disconnect(m_info->sockets[YOSockType::DataPub].sock, YO_SUB_DATA_SRV);
-    zmq_disconnect(m_info->sockets[YOSockType::SysSub].sock, YO_PUB_SYS_SRV);
-    zmq_disconnect(m_info->sockets[YOSockType::SysPub].sock, YO_SUB_SYS_SRV);
+    zmq_disconnect(m_info->sockets[YOSockType::DataSub].sock, YO_SUB_DATA_SRV);
+	zmq_disconnect(m_info->sockets[YOSockType::DataPub].sock, YO_PUB_DATA_SRV);
+    zmq_disconnect(m_info->sockets[YOSockType::SysSub].sock, YO_SUB_SYS_SRV);
+    zmq_disconnect(m_info->sockets[YOSockType::SysPub].sock, YO_PUB_SYS_SRV);
     return 0;
 }
 
@@ -301,20 +290,8 @@ int YONode::stop()
 std::shared_ptr<YOMessage> YONode::readMessage(void *sock_sub)
 {
 	std::shared_ptr<YOMessage> msg = std::make_shared<YOMessage>();
-    zmq_msg_recv((zmq_msg_t*) &msg->m_data.message, sock_sub, 0);
-    msg->m_data.buffer = (uint8_t*) zmq_msg_data((zmq_msg_t*) &msg->m_data.message);
-    msg->m_data.size = zmq_msg_size((zmq_msg_t*) &msg->m_data.message);
-    msg->m_topic_len = std::strlen((char*) msg->m_data.buffer);
-    msg->m_header_ptr = (YOHeaderBase*) (msg->m_data.buffer + msg->m_topic_len + 1);
-    int more;
-    size_t more_size = sizeof(more);
-    zmq_getsockopt(sock_sub, ZMQ_RCVMORE, &more, &more_size);
-    if (more)
-    {
-    	zmq_msg_recv((zmq_msg_t*) &msg->m_ext.message, sock_sub, 0);
-        msg->m_ext.buffer = (uint8_t*) zmq_msg_data((zmq_msg_t*) &msg->m_ext.message);
-        msg->m_ext.size = zmq_msg_size((zmq_msg_t*) &msg->m_ext.message);
-    }
+	msg->readFrom(sock_sub);
+
 	return msg;
 }
 
@@ -330,14 +307,15 @@ int YONode::getMessage(int wait)
     	std::shared_ptr<YOMessage> msg = readMessage(m_info->sockets[YOSockType::SysSub].sock);
     	if(m_info->sys_fn)
     	{
-    		m_info->sys_fn((const char*) msg->m_data.buffer, msg, m_info->sys_param);
+    		m_info->sys_fn(msg->getTopic(), msg, m_info->sys_param);
     	}
     }
 
     if (m_info->poll[YOSockType::DataSub].revents & ZMQ_POLLIN)
     {
     	std::shared_ptr<YOMessage> msg = readMessage(m_info->sockets[YOSockType::DataSub].sock);
-        auto cb = m_info->sub_map.find(std::string((const char*) msg->m_data.buffer));
+        auto cb = m_info->sub_map.find(msg->getTopic());
+
         if (cb != m_info->sub_map.end())
         {
             //logInfo("PROCESS %s!!!!\n", (const char*) msg->m_data.buffer);
@@ -357,8 +335,7 @@ int YONode::getMessage(int wait)
 int YONode::start()
 {
     connect();
-    std::cout << " Start polling " << std::endl;
-
+    std::cout << m_name << ": Start polling " << std::endl;
     while (isRunning())
     {
         getMessage(1000);

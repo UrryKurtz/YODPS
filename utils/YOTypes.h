@@ -198,39 +198,7 @@ struct tCANFDData
 };
 #pragma pack(pop)
 
-struct YOImageData {
-    int64_t ts;
-    uint16_t id;
-    uint16_t width;
-    uint16_t height;
-    uint16_t stride;
-    uint32_t size;
-    YOFrameFormat format;
-    uint8_t reserved[8];
-};
-
-struct YOHeaderBase //size = 16
-{
-    YOTimestamp timestamp;
-    uint16_t type;
-    uint16_t subtype;
-    uint32_t size;
-    uint32_t ext_size;
-    uint8_t data[0];
-};
-
-struct YOMessageData
-{
-    uint8_t  message[64]; //TODO make abstract
-    uint8_t *buffer; //message data starts
-    uint32_t size; //the whole buffer size
-};
-
-struct YOHeader //size = 48
-{
-    uint8_t topic[YO_MAX_TOPIC_LENGTH];
-    YOHeaderBase base;
-};
+#define YO_REC_DATA_SRV "tcp://127.0.0.1:7770"
 
 #define YO_SUB_DATA_SRV "tcp://127.0.0.1:5550"
 #define YO_PUB_DATA_SRV "tcp://127.0.0.1:5551"

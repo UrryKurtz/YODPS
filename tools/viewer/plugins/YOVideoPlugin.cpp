@@ -36,20 +36,20 @@ inline bool DecodeJpegToRGBA(const uint8_t* data, size_t size, SharedPtr<Image> 
 
 void YOVideoPlugin::OnData(const std::string &topic, std::shared_ptr<YOMessage> message)
 {
-	YOImageData *img_info = (YOImageData *)message->getData();
+	YOHeaderImage *img_info = (YOHeaderImage*)message->getHeader();
 	auto rgba = MakeShared<Image>(context_);
 
-	if(img_info->format == YOFrameFormat::YO_JPEG)
+	if(img_info->image.format == YOFrameFormat::YO_JPEG)
 	{
 		int width, height;
-		if(DecodeJpegToRGBA(message->getExtData(), message->getExtDataSize(), rgba, width, height))
+		if(DecodeJpegToRGBA(message->getData(), message->getDataSize(), rgba, width, height))
 		{
 			AddVideo(rgba, GetTopicId(topic));
 		}
 	}
-	else if(img_info->format == YOFrameFormat::YO_PNG)
+	else if(img_info->image.format == YOFrameFormat::YO_PNG)
 	{
-		MemoryBuffer buf(message->getExtData(), message->getExtDataSize());
+		MemoryBuffer buf(message->getData(), message->getDataSize());
 		rgba->Load(buf);
 		std::cout << topic << " : " << rgba->GetWidth() <<"x" << rgba->GetHeight() << std::endl;
 		AddVideo(rgba, GetTopicId(topic));

@@ -34,15 +34,15 @@ int processSharedTest(const std::string &topic, std::shared_ptr<YOMessage>messag
         errors++;
     }
 
-    if(message->getExtDataSize())
+    if(message->getDataSize())
     {
-        std::cout << " ExtDataSize " << message->getExtDataSize() << std::endl;
+        std::cout << " DataSize " << message->getDataSize() << std::endl;
 
         std::ostringstream oss;
         oss << "OUT//file_" << std::setw(5) << std::setfill('0') << fnum++ << ".jpeg";
 
        std::ofstream file(oss.str(), std::ios::binary);
-       file.write(reinterpret_cast<const char*>(message->getExtData()), message->getExtDataSize());
+       file.write(reinterpret_cast<const char*>(message->getData()), message->getDataSize());
     }
 
     std::cout << message->getTimestamp() << " " << topic << " Errors: " << errors << " num: " <<  *counter << std::endl;
@@ -52,7 +52,7 @@ int processSharedTest(const std::string &topic, std::shared_ptr<YOMessage>messag
 
 int processSharedData(const std::string &topic, std::shared_ptr<YOMessage>message, void *data)
 {
-    std::cout << " processSharedData received " << topic << " size: " << message->getDataSize() << " ext size: " << message->getExtDataSize() << std::endl;
+    std::cout << " processSharedData received " << topic << " size: " << message->getDataSize() << std::endl;
     return 0;
 }
 

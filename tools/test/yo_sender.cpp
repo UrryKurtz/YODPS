@@ -12,9 +12,7 @@
 
 int main(int argc, char **argv)
 {
-    char *sub = argv[1];
-
-
+	const char *sub = "TEST";
     std::cout << " ADVERTISE " <<  sub << std::endl;
 
     YONode node("TEST NODE");
@@ -43,6 +41,9 @@ int main(int argc, char **argv)
     	YOMessage msgA(frame);
         node.sendMessage("PLOTTER", msgA);
 
+        std::cout << " sent " <<  std::endl;
+/*
+
     	canfd_04.sData.aui8Data[0]++;
     	YOMessage msg_04(canfd_04);
     	node.sendMessage(sub, msg_04);
@@ -50,8 +51,9 @@ int main(int argc, char **argv)
     	canfd_05.sData.aui8Data[0]++;
     	YOMessage msg_05(canfd_05);
     	node.sendMessage(sub, msg_05);
+*/
 
-        usleep(50000);
+        usleep(250000);
         angle+=0.05;
     }
 }

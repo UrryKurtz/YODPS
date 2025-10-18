@@ -93,12 +93,10 @@ void YOGPSPlugin::OnData(const std::string &topic, std::shared_ptr<YOMessage> me
 	std::shared_ptr<YOVariant> gps = std::make_shared<YOVariant>(message->getDataSize(), (const char*) message->getData());
 	if(topic == "COORDINATES")
 	{
-		//std::cout << "OnData " << topic << " " << *gps << std::endl;
 		if(!(*config_)[yo::k::receiver].get<bool>())
 		{
 			return;
 		}
-
 		YOLimitI32 scale = (*config_)[yo::k::scale];
 		YOVector2 coord = (*gps)[yo::k::coord];
 		(*config_)[yo::k::coord] = coord;

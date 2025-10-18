@@ -9,7 +9,7 @@ project (yo_broker
 configure_file(config.h.in config.h)
 
 # This project will output an executable file
-add_executable(${PROJECT_NAME} yo_broker.cpp)
+add_executable(${PROJECT_NAME} yo_proxy.cpp)
 
 # Include the configuration header in the build
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_BINARY_DIR} )

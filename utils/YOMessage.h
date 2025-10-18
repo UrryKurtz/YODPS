@@ -11,68 +11,55 @@
 #include "YOVariant.h"
 #include <iostream>
 
+struct YOHeader //size = 16
+{
+    YOTimestamp timestamp;
+    uint16_t type;
+    uint16_t subtype;
+    uint32_t size;
+};
+
+struct YOImageInfo {
+	int64_t ts;
+    uint16_t id;
+    uint16_t width;
+    uint16_t height;
+    uint16_t stride;
+    uint32_t size;
+    YOFrameFormat format;
+    uint8_t reserved[8];
+};
+
+struct YOHeaderImage
+{
+	YOHeader header;
+	YOImageInfo image;
+};
+
+
+typedef void (yo_free_fn) (void *data_, void *hint_);
+
 class YOMessage
 {
-    /*
-     *  [TOPIC up 32 byets align right '0'][TS][INFO][DATA_A]
-     *  or
-     *  [TOPIC up 32 byets align right '0'][TS][INFO][DATA_A]   msg2 : [DATA_B]
-     *
-     * */
-
     friend class YONode;
-    uint8_t m_topic_len;
-    uint8_t m_topic_start;
-    YOMessageData m_data;
-    YOMessageData m_ext;
-    YOHeaderBase *m_header_ptr;
-
-    bool m_multi;
-    bool m_received;
-    bool m_shmem;
+    struct YOMessageData;
+    std::unique_ptr<YOMessageData> data_;
     void init();
 
 public:
 
     YOMessage(); //empty message to receive
-
-    template<typename T>
-    YOMessage(const T &data) { //create message to send
-        init();
-
-        int data_size = sizeof(data);
-
-        uint8_t *data_ptr = (uint8_t*) &data;
-        msgpack::sbuffer buffer;
-        YOMessageType data_type = YOMessageType::YOData;
-        //std::cout << " CONSTRUCTOR " << std::endl;
-
-        if constexpr (std::is_same_v<T, YOImageData>) {
-            data_type = YOMessageType::YOImage;
-        } else if constexpr (std::is_same_v<T, tCANData>) {
-            data_type = YOMessageType::YOCAN;
-        } else if constexpr (std::is_same_v<T, tCANFDData>) {
-            data_type = YOMessageType::YOCANFD;
-        } else if constexpr (std::is_same_v<T, YOVariant>) {
-            //std::cout << " CONSTRUCTOR VARIANT " << std::endl;
-            data_type = YOMessageType::YOConfig;
-            msgpack::pack(buffer, data);
-            data_size = buffer.size();
-            data_ptr = (uint8_t*) buffer.data();
-        } else {
-            //std::cout << " CONSTRUCTOR DATA" << std::endl;
-            //static_assert(dependent_false<T>::value, "Unknown meta type");
-        }
-
-        initData(data_ptr, data_size);
-        m_header_ptr->type = 0xAABB;
-        m_header_ptr->subtype = 0xCCDD;
-    }
-
-	virtual ~YOMessage();
+    YOMessage(YOImageInfo &image);
+    YOMessage(const tCANData &can);
+    YOMessage(const tCANFDData &canfd);
+    YOMessage(const YOVariant &variant);
+ 	virtual ~YOMessage();
 
 	void setTimestamp(YOTimestamp ts);
 	YOTimestamp getTimestamp();
+
+	YOHeader *getHeader();
+	uint32_t getHeaderSize();
 
     void setType(uint16_t type);
     uint16_t getType();
@@ -82,19 +69,16 @@ public:
 
     uint8_t *getData();
     uint32_t getDataSize();
-    void initData(const uint8_t *data, uint32_t size); //COPYING TO A MESSAGE BUFFER
+
+    void sendTo(const std::string &topic, void *socket);
+    bool readFrom(void *sock_sub);
+
+    void setData(const uint8_t *data, uint32_t size); //COPYING TO A MESSAGE BUFFER
+    void initData(uint8_t *data, uint32_t size, yo_free_fn *fn, void *hint); //Zero Copy
     uint8_t *initSize(uint32_t data_size);
-
-
-    void setExtData(uint8_t *data, uint32_t size);
-    uint8_t *getExtData();
-    uint32_t getExtDataSize();
-    void initExtData(uint8_t *data, uint32_t size);
-    uint8_t *initExtSize(uint32_t size);
 
 	void setTopic(const std::string &topic);
 	const char *getTopic();
-
 };
 
 #endif /* UTILS_YOMESSAGE_H_ */

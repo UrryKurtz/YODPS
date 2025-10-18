@@ -113,7 +113,7 @@ void YOTestPlugin::OnGui()
 
 		std::cout << "SEND " << val << std::endl;
 		YOMessage msg;
-		msg.initData((const uint8_t*)val.data(), val.size());
+		msg.setData((const uint8_t*)val.data(), val.size());
 
 		TransmitSys(sys_cfg_[yo::k::output][yo::k::topic].getStr(), msg);
 	}

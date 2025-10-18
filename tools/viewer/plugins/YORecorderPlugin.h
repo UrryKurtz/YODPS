@@ -11,7 +11,6 @@
 
 class YORecorderPlugin : public IPlugin
 {
-
 	YOVariant *recorder_;
 	YOVariant *cfg_;
 

@@ -31,7 +31,7 @@ float g_lat_ = 0.0f;
 
 YOVector3 g_gps_pos_ = { 0, 0, 0};
 YOVector3 g_request_ = { 0, 0, 0};
-YOImageData g_image_ = {};
+YOImageInfo g_image_ = {};
 
 inline int lon2x(float lon_deg, int z) {
     float n = std::pow(2.0, z);
@@ -139,9 +139,9 @@ int main(int argc, char **argv)
     	g_image_.width = 256;
     	g_image_.size = out.size();
         YOMessage msg(g_image_);
-        msg.setExtData(out.data(), out.size());
+        msg.setData(out.data(), out.size());
 
-        printf("%010llu DATA %d \n", msg.getTimestamp(), msg.getExtDataSize());
+        printf("%010llu DATA %d \n", msg.getTimestamp(), msg.getDataSize());
         node.sendMessage(g_topic_.c_str(), msg);
         usleep(500000);
     }

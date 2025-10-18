@@ -114,7 +114,7 @@ int fn_request(const std::string &topic, std::shared_ptr<YOMessage> message, voi
 {
 	std::string response = query(message->getData(), message->getDataSize());
 	YOMessage msg;
-	msg.initData((const uint8_t*) response.data(), response.size());
+	msg.setData((const uint8_t*) response.data(), response.size());
 	node_->sendMessage(topic_out_, msg);
 	return 0;
 }
