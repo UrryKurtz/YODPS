@@ -57,6 +57,9 @@ public:
 
 	void Subscribe(const std::string &topic);
 	void Unsubscribe(const std::string &topic);
+	void SubscribeSys(const std::string &topic);
+	void UnsubscribeSys(const std::string &topic);
+
 	void Advertise(const std::string &topic);
 	void Unadvertise(const std::string &topic);
 

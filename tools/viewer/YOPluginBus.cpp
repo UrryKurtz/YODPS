@@ -38,6 +38,16 @@ void IPlugin::TransmitSys(const std::string &topic, YOMessage &data)
 	bus_->TransmitSys(this, topic, data);
 }
 
+void IPlugin::SubscribeSys(const std::string &topic)
+{
+	bus_->SubscribeSys(this, topic);
+}
+
+void IPlugin::UnsubscribeSys(const std::string &topic)
+{
+	bus_->UnsubscribeSys(this, topic);
+}
+
 void IPlugin::Subscribe(const std::string &topic)
 {
 	bus_->Subscribe(this, topic);
@@ -116,6 +126,14 @@ void YOPluginBus::TransmitSys(IPlugin* self, const std::string &topic, YOMessage
 	p_info.yonode->sendMessageSys(topic.c_str(), message);
 }
 
+void YOPluginBus::TransmitSys(IPlugin* self, const std::string &topic, const uint8_t* data, size_t size)
+{
+	YOPluginInfo &p_info = plugins_[self->GetName()];
+	YOMessage msg;
+	msg.initData(data, size);
+	p_info.yonode->sendMessageSys(topic.c_str(), msg);
+}
+
 void YOPluginBus::Transmit(IPlugin* self, const std::string &topic, const YOVariant &data)
 {
 	YOPluginInfo &p_info = plugins_[self->GetName()];
@@ -138,7 +156,6 @@ void YOPluginBus::Unsubscribe(IPlugin* self, const std::string &topic)
 
 void YOPluginBus::Advertise(IPlugin* self, const std::string &topic)
 {
-	std::cout << __FUNCTION__ << " " << __LINE__ << " = " << self->GetName() << " "  << plugins_.count(self->GetName()) << std::endl ;
 	YOPluginInfo &p_info = plugins_[self->GetName()];
 	p_info.yonode->advertise(topic.c_str(), 0, 0);
 }
@@ -152,12 +169,13 @@ void YOPluginBus::Unadvertise(IPlugin* self, const std::string &topic)
 void YOPluginBus::SubscribeSys(IPlugin* self, const std::string &topic)
 {
 	YOPluginInfo &p_info = plugins_[self->GetName()];
-
+	p_info.yonode->subscribeSys(topic.c_str());
 }
 
 void YOPluginBus::UnsubscribeSys(IPlugin* self, const std::string &topic)
 {
 	YOPluginInfo &p_info = plugins_[self->GetName()];
+	p_info.yonode->unsubscribeSys(topic.c_str());
 }
 
 
@@ -228,8 +246,6 @@ void YOPluginBus::OnStart(Scene *scene)
 		pi.second.plugin->SetNode(pi.second.node);
 		pi.second.plugin->SetConfig(pi.second.config);
 		pi.second.plugin->OnStart();
-		//pi.second.subs = pi.second.plugin->GetSubscriptions();
-		//pi.second.adverts = pi.second.plugin->GetAdvertisements();
 	    pthread_create(&pi.second.thread, NULL, fn_thread, &pi.second);
 	}
 }
